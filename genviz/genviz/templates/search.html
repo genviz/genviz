@@ -14,7 +14,14 @@
 <body>
 
 <form method='GET' action=''>
-	<input type="text" name="term" placeholder="Inserte el nombre del gen">
+	<div>
+		<label for="gen">Gen</label>
+		<input type="text" name="gene" placeholder="Inserte el nombre del gen">
+	</div>
+	<div>
+		<label for="gen">Organismo</label>
+		<input type="text" name="organism" placeholder="Homo sapiens (por omisión)">
+	</div>
 	<button type="submit">Buscar</button>
 </form>
 <div id="response">
@@ -33,15 +40,15 @@
 			$.ajax({
 				url: '',
 				data: $('form').serialize(),
-				success: (response) => {
-					Object.keys(response).forEach((key, _) => {
-						sequence = response[key]
+				success: (entries) => {
+					$('#response ul').html('')
+					entries.forEach((entry, _) => {
 						// Insert \n after every 30 chars (10 triplets)
-						formatted_sequence = sequence.replace(/(.{30})/g,"$1<br>")
+						// formatted_sequence = sequence.replace(/(.{30})/g,"$1<br>")
 						$('#response ul').append(`
 							<li>
-								<span>${key}</span>
-								<p class='sequence'>${response[key]}</p>
+								<a href='/details?id=${entry['Id']}'>${entry['Title']}</a>
+								<p>${entry['Length']} bp</p>
 							</li>
 						`)
 					})

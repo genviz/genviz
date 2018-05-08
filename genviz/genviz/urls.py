@@ -19,5 +19,6 @@ from app.views import *
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^search/', SearchGene.as_view()),
+    url(r'^search/', GeneSearch.as_view()),
+    url(r'^details/', GeneDetails.as_view()),
 ]
