@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>GenViz</title>
+	<style type="text/css">
+		.sequence {
+			width:90%;
+			word-break:break-all;
+			font-family:'monospace';
+			letter-spacing:10px;
+		}
+	</style>
+</head>
+<body>
+
+<form method='GET' action=''>
+	<input type="text" name="term" placeholder="Inserte el nombre del gen">
+	<button type="submit">Buscar</button>
+</form>
+<div id="response">
+	<ul>
+	</ul>
+</div>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+	$(document).ready(() => {
+		$('form').submit((e) => {
+			e.preventDefault()
+			$.ajax({
+				url: '',
+				data: $('form').serialize(),
+				success: (response) => {
+					Object.keys(response).forEach((key, _) => {
+						sequence = response[key]
+						// Insert \n after every 30 chars (10 triplets)
+						formatted_sequence = sequence.replace(/(.{30})/g,"$1<br>")
+						$('#response ul').append(`
+							<li>
+								<span>${key}</span>
+								<p class='sequence'>${response[key]}</p>
+							</li>
+						`)
+					})
+				}
+			})
+		})
+	})
+</script>
+</body>
+</html>
