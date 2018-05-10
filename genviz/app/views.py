@@ -1,3 +1,4 @@
+import json
 from django.http import HttpResponse, JsonResponse
 from django.views.generic import TemplateView
 from Bio import Entrez
@@ -35,6 +36,7 @@ class GeneSearch(TemplateView):
 class GeneDetails(TemplateView):
     template_name = 'details.html'
 
+            
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         #import pdb; pdb.set_trace()
@@ -46,7 +48,20 @@ class GeneDetails(TemplateView):
             handle = Entrez.efetch(id=gene_id, db='nucleotide', rettype='gb', retmode='text')
             res = SeqIO.read(handle, format='gb')
 
+            # Add coordinates to plot gene features
+            features = {}
+            for f in res.features:
+                f_type = f.type
+                f = f.__dict__
+                f['location'] = (f['location']._start, f['location']._end)
+                features[f_type] = features.setdefault(f_type, []) + [f]
+
+            for f_type in features:
+                features[f_type].sort(key=lambda f: f['location'][1])
+                
+
             return self.render_to_response(context={
                 'entry': res,
-                'entry_dict': res.__dict__
+                'entry_dict': res.__dict__,
+                'features_json': json.dumps(features)
             })

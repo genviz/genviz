@@ -2,28 +2,87 @@
 <html>
 <head>
 	<title>GenViz</title>
-	<style type="text/css">
-		.sequence {
-			width:90%;
-			word-break:break-all;
-			font-family:'monospace';
-			letter-spacing:10px;
-		}
-	</style>
+	<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css">
+<style type="text/css">
+	.sequence {
+		width:90%;
+		word-break:break-all;
+		font-family:'monospace';
+		letter-spacing:10px;
+	}
+	.exon-viz-block {
+		background: black;
+		color: #FFF;
+	}
+	.cds-viz-block {
+		background: yellow;
+	}
+</style>
 </head>
 <body>
+<h3>Estructura del gen</h3>
+<div id="visualization"></div>
+
 <h3>Secuencia</h3>
 <p class="sequence">
 	{{entry.seq}}
 </p>
-<script
-  src="https://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous"></script>
 
-<script type="text/javascript">
+<script>
 	$(document).ready(() => {
-		
+		var features = JSON.parse("{{features_json|escapejs}}")
+		// Dummy timestamp to use non-date values in timeline vis.js chart
+		var dummyTs = +new Date()
+
+		// Build vis.js dataset
+		var exons_dp = []
+		var prev_end = -1
+		var row = 0
+		Object.keys(features).forEach((feature_type, _) => {
+			features[feature_type].forEach((feature, i) => {
+				start = feature.location[0]
+				end = feature.location[1]
+				// Start and end date are the locations of the features + a dummy ts
+				// so it thinks it's a date and can be used with timeline
+				exons_dp.push({
+					start: start + dummyTs,
+					end: end + dummyTs,
+					content: `${feature_type} ${i+1}`, group: feature_type,
+					className: `${feature_type.toLowerCase()}-viz-block` 
+				})
+			})
+		})
+		var dataset = new vis.DataSet(exons_dp)
+
+		// create a data set with groups (feature types)
+		var names = Object.keys(features);
+		var groups = new vis.DataSet();
+		for (var g = 0; g < names.length; g++) {
+			groups.add({id: names[g], content: names[g]});
+		}
+
+		// DOM element where the Timeline will be attached
+		var container = document.getElementById('visualization');
+
+		// Substract dummy timestamp from start/end values so they are showed properly
+		var options = {
+			format: {
+				minorLabels: (date, scale, step) => {
+					return date - dummyTs
+				},
+				majorLabels: (date, scale, step) => {
+					return ''
+				}
+			}
+		};
+
+		// Create a Timeline
+		var timeline = new vis.Timeline(container, dataset, groups, options);
 	})
 </script>
 </body>
