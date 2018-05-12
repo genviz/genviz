@@ -1,0 +1,31 @@
+.sequence {
+	word-break:break-all;
+	font-family:'monospace';
+}
+.exon-viz-block {
+	background: black;
+	color: #FFF;
+}
+.cds-viz-block {
+	background: yellow;
+}
+
+.sequence .non-cds {
+	background: black;
+	color: #FFF;
+}
+.sequence .cds {
+	background: yellow;
+}
+.triplet {
+	display: inline-block;
+	text-align:center;
+}
+.triplet .seq {
+
+}
+.triplet .translation {
+	background:blue;
+	color:#FFF;
+	padding: 0  1em;
+}
