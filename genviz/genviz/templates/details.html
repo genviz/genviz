@@ -13,7 +13,6 @@
 		width:90%;
 		word-break:break-all;
 		font-family:'monospace';
-		letter-spacing:10px;
 	}
 	.exon-viz-block {
 		background: black;
@@ -21,6 +20,26 @@
 	}
 	.cds-viz-block {
 		background: yellow;
+	}
+
+	.sequence .non-cds {
+		background: black;
+		color: #FFF;
+	}
+	.sequence .cds {
+		background: yellow;
+	}
+	.triplet {
+		display: inline-block;
+		text-align:center;
+	}
+	.triplet .seq {
+	
+	}
+	.triplet .translation {
+		background:blue;
+		color:#FFF;
+		padding: 0  1em;
 	}
 </style>
 </head>
@@ -30,7 +49,28 @@
 
 <h3>Secuencia</h3>
 <p class="sequence">
-	{{entry.seq}}
+	{% for seq_slice in sequence %}
+		{% if seq_slice.type == 'non-CDS' %}
+			<span class="non-cds">
+				{{ seq_slice.sequence }}
+			</span>
+		{% endif %}
+		{% if seq_slice.type == 'CDS' %}
+			<span class="cds">
+				{% for triplet in seq_slice.triplets %}
+					<span class="triplet">
+						<span class="translation">
+							{{ triplet.translation }}
+						</span>
+						<br />
+						<span class="seq">
+							{{ triplet.sequence }}
+						</span>
+					</span>
+				{% endfor %}
+			</span>
+		{% endif %}
+	{% endfor %}
 </p>
 
 <script>
@@ -83,6 +123,14 @@
 
 		// Create a Timeline
 		var timeline = new vis.Timeline(container, dataset, groups, options);
+
+		container.onclick = function (event) {
+		  var props = timeline.getEventProperties(event)
+		  var location = props.time - dummyTs
+		  console.log(location)
+		}
+
+
 	})
 </script>
 </body>

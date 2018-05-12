@@ -58,10 +58,42 @@ class GeneDetails(TemplateView):
 
             for f_type in features:
                 features[f_type].sort(key=lambda f: f['location'][1])
-                
+            
+            gene_length = features['source'][0]['location'][1]
+            sequence = []   
+            prev_end = 0
+            if 'CDS' in features:
+                for feature in features['CDS']:
+                    cds_start, cds_end = feature['location']
+                    translation = feature['qualifiers']['translation'][0]
+                    sequence.append({
+                        'type': 'non-CDS',
+                        'location': [prev_end, cds_start],
+                        'sequence': res.seq[prev_end:cds_start] 
+                    })
+                    sequence.append({
+                        'type': 'CDS',
+                        'location': feature['location'],
+                        'sequence': res.seq[cds_start:cds_end],
+                        'translation': feature['qualifiers']['translation'][0],
+                        'triplets': [{
+                            'sequence': res.seq[cds_start+i*3:cds_start+(i+1)*3],
+                            'translation': feature['qualifiers']['translation'][0][i]
+                        } for i in range(len(translation))]
+                    })
+                    prev_end = cds_end
+
+            if prev_end != gene_length:
+                sequence.append({
+                    'type': 'non-CDS',
+                    'location': [prev_end, gene_length],
+                    'sequence': res.seq
+                })
 
             return self.render_to_response(context={
                 'entry': res,
                 'entry_dict': res.__dict__,
-                'features_json': json.dumps(features)
+                'features_json': json.dumps(features),
+                'features': features,
+                'sequence': sequence
             })
