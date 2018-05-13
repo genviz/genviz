@@ -1,0 +1,11 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block content %}
+	{% for result in results %}
+	<li>
+		<a href='/details?id={{result.Id}}'>{{result.Title}}</a>
+		<p>{{result.Length}} bp</p>
+	</li>
+	{% endfor %}
+{% endblock %}

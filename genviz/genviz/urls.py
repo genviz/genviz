@@ -20,5 +20,6 @@ from app.views import *
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^search/', GeneSearch.as_view()),
+    url(r'^results/', GeneSearchResults.as_view()),
     url(r'^details/', GeneDetails.as_view()),
 ]

@@ -62,7 +62,7 @@
 </head>
 <body>
 
-<form method='GET' action=''>
+<form method='GET' action='' id='search-form'>
 	<h1>GENVIZ</h1>
 	<div class="campo">
 		<label for="gen">Gen</label>
@@ -116,23 +116,21 @@
 	</ul>
 </div>
 
-
-
-
-
-
 <script
   src="https://code.jquery.com/jquery-3.3.1.min.js"
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
   crossorigin="anonymous"></script>
 
+<script src="{% static 'js/search.js' %}"></script>
+
 <script type="text/javascript">
 	$(document).ready(() => {
-		$('form').submit((e) => {
+		$('form#search-form').submit((e) => {
 			e.preventDefault()
+			var term = formatSearchTerm($("input[name='gene']"), $("input[name='organism']"))
 			$.ajax({
 				url: '',
-				data: $('form').serialize(),
+				data: { term: term },
 				success: (entries) => {
 					$('#response ul').html('')
 					entries.forEach((entry, _) => {
