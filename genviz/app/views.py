@@ -53,7 +53,7 @@ class GeneDetails(TemplateView):
             for f in res.features:
                 f_type = f.type
                 f = f.__dict__
-                f['location'] = (f['location']._start, f['location']._end)
+                f['location'] = (f['location'].start, f['location'].end)
                 features[f_type] = features.setdefault(f_type, []) + [f]
 
             for f_type in features:
@@ -76,11 +76,20 @@ class GeneDetails(TemplateView):
                         'location': feature['location'],
                         'sequence': res.seq[cds_start:cds_end],
                         'translation': feature['qualifiers']['translation'][0],
-                        'triplets': [{
+                        'triplets': []
+                    })
+                    for i in range(len(translation)):
+                        sequence[-1]['triplets'].append({
                             'sequence': res.seq[cds_start+i*3:cds_start+(i+1)*3],
                             'translation': feature['qualifiers']['translation'][0][i]
-                        } for i in range(len(translation))]
-                    })
+                        })
+                    # If there's a leftover base at the end
+                    if len(sequence[-1]['triplets'])*3+1 == cds_end-cds_start+1:
+                        sequence[-1]['triplets'].append({
+                            'sequence': res.seq[cds_end],
+                            'translation': '-'    
+                        })
+
                     prev_end = cds_end
 
             if prev_end != gene_length:

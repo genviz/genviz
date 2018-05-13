@@ -1,50 +1,52 @@
+{% extends 'layout/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html>
-<head>
-	<title>GenViz</title>
+{% block head %}
 	<link rel="stylesheet" href="{% static 'vis/dist/vis.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/details.css' %}">
+{% endblock %}
 
-<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
-<script src="{% static 'vis/dist/vis.min.js' %}"></script>
-<script src="{% static 'js/details.js' %}"></script>
-<script>
-	$(document).ready(() => {
-		var features = JSON.parse("{{features_json|escapejs}}")
-		plotGeneFeatures(features)
-	})
-</script>
-</head>
-<body>
-<h3>Estructura del gen</h3>
-<div id="visualization"></div>
+{% block content %}
 
-<h3>Secuencia</h3>
-<p class="sequence">
-	{% for seq_slice in sequence %}
-		{% if seq_slice.type == 'non-CDS' %}
-			<span class="non-cds">
-				{{ seq_slice.sequence }}
-			</span>
-		{% endif %}
-		{% if seq_slice.type == 'CDS' %}
-			<span class="cds">
-				{% for triplet in seq_slice.triplets %}
-					<span class="triplet">
-						<span class="translation">
-							{{ triplet.translation }}
+	<h3>Estructura del gen</h3>
+	<div id="visualization"></div>
+
+	<h3>Secuencia</h3>
+	<p class="sequence">
+		{% for seq_slice in sequence %}
+			{% if seq_slice.type == 'non-CDS' %}
+				<span class="non-cds">
+					{{ seq_slice.sequence }}
+				</span>
+			{% endif %}
+			{% if seq_slice.type == 'CDS' %}
+				<span class="cds">
+					{% for triplet in seq_slice.triplets %}
+						<span class="triplet">
+							<span class="translation">
+								{{ triplet.translation }}
+							</span>
+							<br />
+							<span class="seq">
+								{{ triplet.sequence }}
+							</span>
 						</span>
-						<br />
-						<span class="seq">
-							{{ triplet.sequence }}
-						</span>
-					</span>
-				{% endfor %}
-			</span>
-		{% endif %}
-	{% endfor %}
-</p>
+					{% endfor %}
+				</span>
+			{% endif %}
+		{% endfor %}
+	</p>
+{% endblock %}
+
+{% block js-footer %}
+	<script src="{% static 'vis/dist/vis.min.js' %}"></script>
+	<script src="{% static 'js/details.js' %}"></script>
+	<script>
+		$(document).ready(() => {
+			var features = JSON.parse("{{features_json|escapejs}}")
+			plotGeneFeatures(features)
+		})
+	</script>
+{% endblock %}
 </body>
 </html>
