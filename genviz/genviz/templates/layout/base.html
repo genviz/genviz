@@ -6,13 +6,17 @@
 	{% block title %}
 	<title>GenViz</title>
 	{% endblock %}
-
+	
+	<meta charset="UTF-8">
 	<link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 	{% block head %}{% endblock %}
 </head>
 <body>
-	{% block header %}{% endblock %}
-	<div class="container">
+	{% block header %}
+	{% endblock %}
+
+	<div class="container content-container">
 		{% block content %}{% endblock %}
 	</div>
 	{% block footer %}{% endblock %}

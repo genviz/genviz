@@ -1,27 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="UTF-8">
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-<!-- <link rel="stylesheet" type="text/css" href="bootstrap.css"> -->
+{% extends 'layout/base.html' %}
+{% load static %}
 
-	<title>GenViz</title>
+{% block head %}
 	<style type="text/css">
 		.sequence {
 			width:90%;
 			word-break:break-all;
 			font-family:'monospace';
 			letter-spacing:10px;
-			   border: pink solid;
-    background-color: aliceblue;
+			border: pink solid;
+			background-color: aliceblue;
 		}
 
 
-		body{
+		body {
 			background: #f2f2f2;
 		}
 
-		form{
+		form {
 			width: 50%;
 		    background-color: white;
 		    box-shadow: 2px 2px 5px #d8d8d8;
@@ -34,41 +30,40 @@
 		    -webkit-transform: translate(-50%, -50%);
 		}
 
-		label{
+		label {
 			width:  100%;
     		display:  block;
 		}
 
 
-		.campo{
+		.campo {
 			box-sizing: border-box;
     		height: 60px;
     		width: 100%;
     		margin: 25px auto;
    		}
 
-   		input{
+   		input {
    			width: 100%;
    		}
 
-   		#shortcuts{
+   		#shortcuts {
    			margin: 15px 0;
    		}
 
-   		.scut{
+   		.scut {
    			width: 100%;
     		margin: 5px 0;
    		}
-   		.btn{
+   		.btn {
    			width: 100%;
     		margin: 5px 0;
    		}
-
 	</style>
-</head>
-<body>
+{% endblock %}
 
-<form method='GET' action=''>
+{% block content %}
+<form method='GET' action='/results' id='search-form'>
 	<h1>GENVIZ</h1>
 	<div class="campo">
 		<label for="gen">Gen</label>
@@ -110,9 +105,7 @@
 
 			<div class="scut col-md-3"><button type="button" class="btn btn-default">...</button></div>
 		</div>
-
 	</div>
-
 	<div class="row">
 		<div class="col-md-6" id="modificar">
 			<button id="cambiar" type="submit" class="btn btn-info btn-lg">Cambiar atajos</button>
@@ -121,78 +114,28 @@
 			<button type="submit" class="btn btn-success btn-lg">Buscar</button>
 		</div>
 	</div>
-
-
 </form>
+{% endblock %}
 
-
-<script
-  src="https://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous"></script>
-
+{% block js-footer %}
 <script type="text/javascript">
-	
-
-$('#cambiar').click(function(){
-	var aux;
-	for (var i = 0; i < $('.scut').length; i++) {
-		aux = jQuery($('.scut')[i]).text();
-		jQuery($('.scut')[i]).html('<input type="text" class="form-control" aria-describedby="basic-addon1" value="'+aux+'">');
-	}
-
-	$('#modificar').html('<button id="guardar" type="submit" class="btn btn-info btn-lg">Guardar Cambios</button>');
-});
+	$('#cambiar').click(function(){
+		var aux;
+		for (var i = 0; i < $('.scut').length; i++) {
+			aux = jQuery($('.scut')[i]).text();
+			jQuery($('.scut')[i]).html('<input type="text" class="form-control" aria-describedby="basic-addon1" value="'+aux+'">');
+		}
+		$('#modificar').html('<button id="guardar" type="submit" class="btn btn-info btn-lg">Guardar Cambios</button>');
+	});
 
 
-$('#guardar').click(function(){
-	var aux2;
-	for (var i = 0; i < $('.scut').length; i++) {
-		aux2=jQuery($('.scut input')[i]).val();
-		jQuery($('.scut')[i]).html('<button type="button" class="btn btn-default">'+aux2+'</button></div>');
-	}
-
-	$('#modificar').html('<button id="cambiar" type="submit" class="btn btn-info btn-lg">Cambiar atajos</button>');
-});
-
-
-
-
-
+	$('#guardar').click(function(){
+		var aux2;
+		for (var i = 0; i < $('.scut').length; i++) {
+			aux2=jQuery($('.scut input')[i]).val();
+			jQuery($('.scut')[i]).html('<button type="button" class="btn btn-default">'+aux2+'</button></div>');
+		}
+		$('#modificar').html('<button id="cambiar" type="submit" class="btn btn-info btn-lg">Cambiar atajos</button>');
+	});
 </script>
-
-
-
-
-
-
-
-
-
-
-<script type="text/javascript">
-	$(document).ready(() => {
-		$('form').submit((e) => {
-			e.preventDefault()
-			$.ajax({
-				url: '',
-				data: $('form').serialize(),
-				success: (entries) => {
-					$('#response ul').html('')
-					entries.forEach((entry, _) => {
-						// Insert \n after every 30 chars (10 triplets)
-						// formatted_sequence = sequence.replace(/(.{30})/g,"$1<br>")
-						$('#response ul').append(`
-							<li>
-								<a href='/details?id=${entry['Id']}'>${entry['Title']}</a>
-								<p>${entry['Length']} bp</p>
-							</li>
-						`)
-					})
-				}
-			})
-		})
-	})
-</script>
-</body>
-</html>
+{% endblock %}

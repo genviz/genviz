@@ -1,0 +1,15 @@
+{% extends 'layout/content.html' %}
+{% load static %}
+
+{% block content %}
+<h4>Resultados</h4>
+	<ul class="list-group">
+		{% for result in results %}
+		  <li class="list-group-item d-flex justify-content-between align-items-center">
+		    <a href='/details?id={{result.Id}}'>{{result.Title}}</a>
+		    <span class="badge badge-primary badge-pill">{{result.Length}} bp</span>
+		  </li>
+		{% endfor %}
+	</ul>
+
+{% endblock %}

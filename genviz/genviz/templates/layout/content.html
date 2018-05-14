@@ -1,0 +1,24 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block header %}
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	  <a class="navbar-brand" href="#">GenViz</a>
+	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+	    <span class="navbar-toggler-icon"></span>
+	  </button>
+
+	  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+	    <ul class="navbar-nav mr-auto">
+	      <li class="nav-item active">
+	        <a class="nav-link" href="#">Inicio</a>
+	      </li>
+	    </ul>
+	    <form class="form-inline my-2 my-lg-0" id="search-navbar" action='/results'>
+			<input class="form-control mr-sm-2" name="gene" type="search" placeholder="Gen" aria-label="Gen" value="{{gene}}">
+			<input class="form-control mr-sm-2" name="organism" type="search" placeholder="Organismo" aria-label="Organismo" value="{{organism}}">
+			<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Buscar</button>
+    	</form>
+	  </div>
+	</nav>
+{% endblock %}

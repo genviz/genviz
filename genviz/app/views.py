@@ -10,28 +10,35 @@ def fetch_gene_details(ids):
     records_genes = SeqIO.parse(handle_genes, 'gb')
     res = {r.id: str(r.seq) for r in records_genes}
 
-class GeneSearch(TemplateView):
-    template_name = 'search.html'
+class GeneSearchResults(TemplateView):
+    template_name = 'results.html'
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         #import pdb; pdb.set_trace()
         gene = request.GET.get('gene', None)
-        orgn = request.GET.get('organism', None) or 'Homo sapiens'
+        organism = request.GET.get('organism', None) or 'Homo sapiens'
 
-        if gene is not None:
+        if gene and organism:
             Entrez.email = "email@example.com"
-            
-            search_term = '"{}"[gene] AND "{}"[orgn]'.format(gene, orgn)
-            handle = Entrez.esearch(term=search_term, db='nucleotide', idtype='acc')
+
+            term = '"{}"[gene] AND "{}"[orgn]'.format(gene, organism)        
+            handle = Entrez.esearch(term=term, db='nucleotide', idtype='acc')
             record = Entrez.read(handle)
 
             handle_summary = Entrez.esummary(id=','.join(record['IdList']), db='nucleotide', rettype='gb', retmode='text')
             
             res = list(Entrez.parse(handle_summary))
-            return JsonResponse(res, safe=False)
+            return self.render_to_response(context={
+                'results': res,
+                'gene': gene,
+                'organism': organism
+            })
 
         return self.render_to_response(context)
+
+class GeneSearch(TemplateView):
+    template_name = 'search.html'
 
 class GeneDetails(TemplateView):
     template_name = 'details.html'
