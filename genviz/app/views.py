@@ -43,10 +43,8 @@ class GeneSearch(TemplateView):
 class GeneDetails(TemplateView):
     template_name = 'details.html'
 
-            
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        #import pdb; pdb.set_trace()
         gene_id = request.GET.get('id', None)
 
         if gene_id is not None:
