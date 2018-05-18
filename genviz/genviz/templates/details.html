@@ -2,52 +2,52 @@
 {% load static %}
 
 {% block head %}
-	<link rel="stylesheet" href="{% static 'vis/dist/vis.min.css' %}">
-	<link rel="stylesheet" href="{% static 'css/details.css' %}">
+    <link rel="stylesheet" href="{% static 'vis/dist/vis.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/details.css' %}">
 {% endblock %}
 
 {% block content %}
-	<h3 class="gene-title">{{entry.description}}</h3>
+    <h3 class="gene-title">{{entry.description}}</h3>
 
-	<h4>Estructura del gen</h4>
-	<div id="visualization"></div>
+    <h4>Estructura del gen</h4>
+    <div id="visualization"></div>
 
-	<h4>Secuencia</h4>
-	<p class="sequence">
-		{% for seq_slice in sequence %}
-			{% if seq_slice.type == 'non-CDS' %}
-				<span class="non-cds">
-					{{ seq_slice.sequence }}
-				</span>
-			{% endif %}
-			{% if seq_slice.type == 'CDS' %}
-				<span class="cds">
-					{% for triplet in seq_slice.triplets %}
-						<span class="triplet">
-							<span class="translation">
-								{{ triplet.translation }}
-							</span>
-							<br />
-							<span class="seq">
-								{{ triplet.sequence }}
-							</span>
-						</span>
-					{% endfor %}
-				</span>
-			{% endif %}
-		{% endfor %}
-	</p>
+    <h4>Secuencia</h4>
+    
+    <div class="sequence-container">
+        <div class="col-location">
+            {% spaceless %}
+            {% with ''|center:"3" as reps %}
+                {% for _ in reps %}
+                    {% with ''|center:"10" as col_i %}
+                        {% for _ in col_i %}
+                            {% if forloop.counter|divisibleby:"10" %}
+                                <span class="red">0</span>
+                            {% else %}
+                                <span>{{ forloop.counter }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+                {% endfor %}
+            {% endwith %}
+            {% endspaceless %}
+        </div>
+        <div class="sequence"></div>
+    </div>
 {% endblock %}
 
 {% block js-footer %}
-	<script src="{% static 'vis/dist/vis.min.js' %}"></script>
-	<script src="{% static 'js/details.js' %}"></script>
-	<script>
-		$(document).ready(() => {
-			var features = JSON.parse("{{features_json|escapejs}}")
-			plotGeneFeatures(features)
-		})
-	</script>
+    <script src="{% static 'vis/dist/vis.min.js' %}"></script>
+    <script src="{% static 'js/details.js' %}"></script>
+    <script>
+        $(document).ready(() => {
+            var features = JSON.parse("{{features_json|escapejs}}")
+            var sequence = JSON.parse("{{sequence_json|escapejs}}")
+            var gene_length = {{gene_length}}
+            formatGeneSequence(sequence, gene_length, 30)
+            plotGeneFeatures(features)
+        })
+    </script>
 {% endblock %}
 </body>
 </html>

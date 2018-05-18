@@ -73,25 +73,25 @@ class GeneDetails(TemplateView):
                     translation = feature['qualifiers']['translation'][0]
                     sequence.append({
                         'type': 'non-CDS',
-                        'location': [prev_end, cds_start],
-                        'sequence': res.seq[prev_end:cds_start] 
+                        'location': [int(prev_end), int(cds_start)],
+                        'sequence': str(res.seq[prev_end:cds_start])
                     })
                     sequence.append({
                         'type': 'CDS',
-                        'location': feature['location'],
-                        'sequence': res.seq[cds_start:cds_end],
+                        'location': list(map(int, feature['location'])),
+                        'sequence': str(res.seq[cds_start:cds_end]),
                         'translation': feature['qualifiers']['translation'][0],
                         'triplets': []
                     })
                     for i in range(len(translation)):
                         sequence[-1]['triplets'].append({
-                            'sequence': res.seq[cds_start+i*3:cds_start+(i+1)*3],
+                            'sequence': str(res.seq[cds_start+i*3:cds_start+(i+1)*3]),
                             'translation': feature['qualifiers']['translation'][0][i]
                         })
                     # If there's a leftover base at the end
                     if len(sequence[-1]['triplets'])*3+1 == cds_end-cds_start+1:
                         sequence[-1]['triplets'].append({
-                            'sequence': res.seq[cds_end],
+                            'sequence': str(res.seq[cds_end]),
                             'translation': '-'    
                         })
 
@@ -100,8 +100,8 @@ class GeneDetails(TemplateView):
             if prev_end != gene_length:
                 sequence.append({
                     'type': 'non-CDS',
-                    'location': [prev_end, gene_length],
-                    'sequence': res.seq
+                    'location': [int(prev_end), int(gene_length)],
+                    'sequence': str(res.seq)
                 })
 
             return self.render_to_response(context={
@@ -109,5 +109,7 @@ class GeneDetails(TemplateView):
                 'entry_dict': res.__dict__,
                 'features_json': json.dumps(features),
                 'features': features,
-                'sequence': sequence
+                'sequence': sequence,
+                'sequence_json': json.dumps(sequence),
+                'gene_length': gene_length
             })

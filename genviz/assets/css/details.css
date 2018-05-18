@@ -1,6 +1,7 @@
-.sequence {
+.sequence, .col-location {
 	word-break:break-all;
 	font-family:'monospace';
+	letter-spacing: 1em;
 }
 .exon-viz-block {
 	background: black;
@@ -14,22 +15,53 @@
 	background: black;
 	color: #FFF;
 }
-.sequence .cds {
-	background: yellow;
-}
 .triplet {
 	display: inline-block;
 	text-align:center;
 }
-.triplet .seq {
 
+.seq {
+	background: black;
+	color: #FFF;
+	display: inline-block;
 }
-.triplet .translation {
-	background:blue;
-	color:#FFF;
-	padding: 0  1em;
+.seq .triplet {
+	background: yellow !important;
+	color: #000;
+}
+
+.translation .triplet.even {
+	border-bottom: 3px solid blue;
+	color: blue;
+	font-weight: bold;
+}
+
+.translation .triplet.odd {
+	border-bottom: 3px solid red;
+	color: red;
+	font-weight: bold;
 }
 
 .gene-title {
 	margin-bottom: 2em;
+}
+
+.seq-row {
+	display:block;
+	margin-bottom:0;
+}
+
+.row-location {
+	display: inline-block;
+	background: #FFF;
+	color: #999;
+	letter-spacing: 0;
+}
+
+span.red {
+	color: red !important;
+}
+
+.col-location {
+	color: #999;
 }
