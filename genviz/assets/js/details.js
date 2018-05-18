@@ -49,8 +49,8 @@ function plotGeneFeatures(features) {
 
 	container.onclick = function (event) {
 	  var props = timeline.getEventProperties(event)
-	  var location = props.time - dummyTs
-	  console.log(location)
+	  var loc = props.time - dummyTs
+	  location.hash = "#base-" + loc;
 	}
 }
 
@@ -90,7 +90,10 @@ var formatGeneSequence = function(sequence, sequenceLength, basesPerRow) {
 					sliceSeq.append(rowLocation)
 					sliceTranslation.css('margin-left', maxLengthDigits.toString() + 'em')
 				}
-				sliceSeq.append(base)
+				baseSpan = $('<span>')
+				baseSpan.attr('id', 'base-' + pos)
+				baseSpan.html(base)
+				sliceSeq.append(baseSpan)
 				sliceTranslation.append("&nbsp;")
 				pos++
 			}
@@ -133,7 +136,10 @@ var formatGeneSequence = function(sequence, sequenceLength, basesPerRow) {
 						sliceSeq.append(rowLocation)
 						sliceTranslation.css('margin-left', maxLengthDigits.toString() + 'em')
 					}
-					tripletSeq.append(base)
+					baseSpan = $('<span>')
+					baseSpan.attr('id', 'base-' + pos)
+					baseSpan.html(base)
+					tripletSeq.append(baseSpan)
 					tripletTranslation.append(tripletBase_i == 1 ? triplet.translation : "&nbsp;")
 					pos++
 					tripletBase_i++
