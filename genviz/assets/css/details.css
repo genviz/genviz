@@ -3,10 +3,17 @@
 	font-family:'monospace';
 	letter-spacing: 1em;
 }
+
+.sequence {
+	height: 400px;
+	overflow-y: scroll;
+}
+
 .exon-viz-block {
 	background: black;
 	color: #FFF;
 }
+
 .cds-viz-block {
 	background: yellow;
 }
@@ -15,6 +22,7 @@
 	background: black;
 	color: #FFF;
 }
+
 .triplet {
 	display: inline-block;
 	text-align:center;
@@ -25,19 +33,20 @@
 	color: #FFF;
 	display: inline-block;
 }
+
 .seq .triplet {
 	background: yellow !important;
 	color: #000;
 }
 
 .translation .triplet.even {
-	border-bottom: 3px solid blue;
+	border-top: 3px solid blue;
 	color: blue;
 	font-weight: bold;
 }
 
 .translation .triplet.odd {
-	border-bottom: 3px solid red;
+	border-top: 3px solid red;
 	color: red;
 	font-weight: bold;
 }
@@ -64,4 +73,8 @@ span.red {
 
 .col-location {
 	color: #999;
+}
+
+#visualization {
+	margin-bottom: 2em;
 }

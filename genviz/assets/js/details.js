@@ -55,13 +55,13 @@ function plotGeneFeatures(features) {
 }
 
 var formatGeneSequence = function(sequence, sequenceLength, basesPerRow) {
+	// TODO: Refactor
 	var pos = 0
 	var maxLengthDigits = sequenceLength.toString().length
 
 	$('.col-location').css('margin-left', maxLengthDigits + 'em')
 
 	var seqHTML = $('<p>')
-	seqHTML.addClass('sequence')
 
 	var sliceSeq, sliceTranslation, row;
 	sequence.forEach(function(seqSlice, _) {
@@ -69,8 +69,8 @@ var formatGeneSequence = function(sequence, sequenceLength, basesPerRow) {
 			for (base of seqSlice.sequence) {
 				if (pos % basesPerRow == 0) {
 					if (row !== undefined) {
-						row.append(sliceTranslation)
 						row.append(sliceSeq)
+						row.append(sliceTranslation)
 						seqHTML.append(row)
 					}
 					row = $('<p>')
@@ -113,8 +113,8 @@ var formatGeneSequence = function(sequence, sequenceLength, basesPerRow) {
 						if (row !== undefined) {
 							sliceSeq.append(tripletSeq)
 							sliceTranslation.append(tripletTranslation)
-							row.append(sliceTranslation)
 							row.append(sliceSeq)
+							row.append(sliceTranslation)
 							seqHTML.append(row)
 						}
 						row = $('<p>')
