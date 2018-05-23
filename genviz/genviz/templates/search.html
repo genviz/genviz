@@ -64,14 +64,14 @@
 
 {% block content %}
 <form method='GET' action='/results' id='search-form'>
-	<h1>GENVIZ</h1>
+	<h1>GenViz</h1>
 	<div class="campo">
-		<label for="gen">Gen</label>
-		<input type="text" name="gene" placeholder="Inserte el nombre del gen">
+		<label for="gen">Gene</label>
+		<input type="text" name="gene" placeholder="Insert gene name or identifier">
 	</div>
 	<div class="campo">
-		<label for="gen">Organismo</label>
-		<input type="text" name="organism" placeholder="Homo sapiens (por omisión)">
+		<label for="gen">Organism</label>
+		<input type="text" name="organism" placeholder="Homo sapiens (default)">
 	</div>
 
 	<div id="shortcuts">
@@ -108,10 +108,10 @@
 	</div>
 	<div class="row">
 		<div class="col-md-6" id="modificar">
-			<button id="cambiar" type="submit" class="btn btn-info btn-lg">Cambiar atajos</button>
+			<button id="cambiar" type="submit" class="btn btn-info btn-lg">Modify shortcuts</button>
 		</div>
 		<div class="col-md-6">
-			<button type="submit" class="btn btn-success btn-lg">Buscar</button>
+			<button type="submit" class="btn btn-success btn-lg">Search</button>
 		</div>
 	</div>
 </form>
@@ -125,7 +125,7 @@
 			aux = jQuery($('.scut')[i]).text();
 			jQuery($('.scut')[i]).html('<input type="text" class="form-control" aria-describedby="basic-addon1" value="'+aux+'">');
 		}
-		$('#modificar').html('<button id="guardar" type="submit" class="btn btn-info btn-lg">Guardar Cambios</button>');
+		$('#modificar').html('<button id="guardar" type="submit" class="btn btn-info btn-lg">Save</button>');
 	});
 
 
@@ -135,7 +135,7 @@
 			aux2=jQuery($('.scut input')[i]).val();
 			jQuery($('.scut')[i]).html('<button type="button" class="btn btn-default">'+aux2+'</button></div>');
 		}
-		$('#modificar').html('<button id="cambiar" type="submit" class="btn btn-info btn-lg">Cambiar atajos</button>');
+		$('#modificar').html('<button id="cambiar" type="submit" class="btn btn-info btn-lg">Modify shortcuts</button>');
 	});
 </script>
 {% endblock %}
