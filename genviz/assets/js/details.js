@@ -1,8 +1,15 @@
+function scrollToAnchor(id){
+    var tag = $("#"+id);
+    $('html,body').animate({scrollTop: tag.offset().top});
+}
+
 function plotGeneFeatures(features) {
 	// Dummy timestamp to use non-date values in timeline vis.js chart
 	var dummyTs = +new Date()
 
 	// Build vis.js dataset
+	var minLocation = Infinity;
+	var maxLocation = -Infinity;
 	var exons_dp = []
 	var prev_end = -1
 	var row = 0
@@ -10,6 +17,8 @@ function plotGeneFeatures(features) {
 		features[feature_type].forEach(function(feature, i) {
 			start = feature.location[0]
 			end = feature.location[1]
+			minLocation = Math.min(minLocation, start)
+			maxLocation = Math.max(maxLocation, end)
 			// Start and end date are the locations of the features + a dummy ts
 			// so it thinks it's a date and can be used with timeline
 			exons_dp.push({
@@ -33,6 +42,7 @@ function plotGeneFeatures(features) {
 	var container = document.getElementById('visualization')
 
 	// Substract dummy timestamp from start/end values so they are showed properly
+	console.log(minLocation, maxLocation)
 	var options = {
 		format: {
 			minorLabels: function(date, scale, step) {
@@ -41,7 +51,12 @@ function plotGeneFeatures(features) {
 			majorLabels: function(date, scale, step) {
 				return ''
 			}
-		}
+		},
+		start: dummyTs,
+		min: minLocation + dummyTs,
+		max: maxLocation + dummyTs,
+		horizontalScroll: true
+
 	};
 
 	// Create a Timeline
@@ -50,8 +65,20 @@ function plotGeneFeatures(features) {
 	container.onclick = function (event) {
 	  var props = timeline.getEventProperties(event)
 	  var loc = props.time - dummyTs
+	  scrollToAnchor('base-' + loc);
 	  location.hash = "#base-" + loc;
 	}
+
+	var goToCdna;
+	$("input[name='cdna_location']").keyup(function(e) {
+		loc = $(this).val()
+		clearTimeout(goToCdna)
+		goToCdna = setTimeout(function() {
+			scrollToAnchor('base-' + loc);
+			location.hash = '#base-' + loc
+			$("input[name='cdna_location']").focus()
+		}, 100)
+	})
 }
 
 var formatGeneSequence = function(sequence, sequenceLength, basesPerRow) {

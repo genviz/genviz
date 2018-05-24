@@ -18,24 +18,19 @@
 	background: yellow;
 }
 
-.sequence .non-cds {
-	background: black;
-	color: #FFF;
-}
-
 .triplet {
 	display: inline-block;
 	text-align:center;
 }
 
 .seq {
-	background: black;
-	color: #FFF;
+	background: #EEE;
+	color: #000;
 	display: inline-block;
 }
 
 .seq .triplet {
-	background: yellow !important;
+	background: #FFFE76 !important;
 	color: #000;
 }
 
@@ -77,4 +72,12 @@ span.red {
 
 #visualization {
 	margin-bottom: 2em;
+}
+
+.goto-form {
+	margin-bottom: 2em;
+}
+
+.goto-location {
+	margin-left: 1em;
 }
