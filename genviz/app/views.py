@@ -1,8 +1,10 @@
 import json
-from django.http import HttpResponse, JsonResponse
-from django.views.generic import TemplateView
+from django.core import serializers
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.views.generic import TemplateView, View
 from Bio import Entrez
 from Bio import SeqIO
+from .models import *
 
 # TODO: Create view to show details of a gene
 def fetch_gene_details(ids):
@@ -45,12 +47,12 @@ class GeneDetails(TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        gene_id = request.GET.get('id', None)
+        seq_id = request.GET.get('id', None)
 
-        if gene_id is not None:
+        if seq_id is not None:
             Entrez.email = "email@example.com"
             
-            handle = Entrez.efetch(id=gene_id, db='nucleotide', rettype='gb', retmode='text')
+            handle = Entrez.efetch(id=seq_id, db='nucleotide', rettype='gb', retmode='text')
             res = SeqIO.read(handle, format='gb')
 
             # Add coordinates to plot gene features
@@ -104,6 +106,8 @@ class GeneDetails(TemplateView):
                     'sequence': str(res.seq)
                 })
 
+            # Get annotations
+            annotations = Annotation.objects.filter(seq_id=seq_id).all()
             return self.render_to_response(context={
                 'entry': res,
                 'entry_dict': res.__dict__,
@@ -111,5 +115,16 @@ class GeneDetails(TemplateView):
                 'features': features,
                 'sequence': sequence,
                 'sequence_json': json.dumps(sequence),
-                'gene_length': gene_length
+                'gene_length': gene_length,
+                'seq_id': seq_id,
+                'annotations_json': json.dumps(list(map(lambda x: x["fields"], json.loads(serializers.serialize('json', annotations)))))
             })
+
+class AnnotationsView(View):
+    def post(self, request, *args, **kwargs):
+        annotations_json = json.loads(request.POST.get('annotations', '[]'))
+        seq_id = request.POST.get('seq_id', None)
+        for annotation_json in annotations_json:
+            annotation = Annotation(author=request.user, seq_id=seq_id, **annotation_json)
+            annotation.save()
+        return HttpResponseRedirect(request.POST.get('next', '/'))

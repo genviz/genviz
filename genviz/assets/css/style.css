@@ -42,3 +42,7 @@
     color: #fff;
     background-color:#59b5fa;
 }
+
+.hidden {
+	display: none;
+}

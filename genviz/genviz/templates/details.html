@@ -16,6 +16,13 @@
     <div class='form-inline goto-form'>
         <label class="inline">Go to: </label>
         <input class="form-control mr-sm-2 goto-location" name="cdna_location" type="number" placeholder="cDNA location" aria-label="cDNA location">
+        <form action="/annotations/" method="post" id="annotations-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input type="hidden" name="annotations">
+            <input type="hidden" name="seq_id" value="{{seq_id}}">
+            <button type="submit" class="btn btn-outline-success">Save annotations</button>
+        </form>
     </div>
     <div class="sequence-container">
         <div class="col-location">
@@ -46,9 +53,11 @@
         $(document).ready(() => {
             var features = JSON.parse("{{features_json|escapejs}}")
             var sequence = JSON.parse("{{sequence_json|escapejs}}")
+            var annotations = JSON.parse("{{annotations_json|escapejs}}")
             var gene_length = {{gene_length}}
-            formatGeneSequence(sequence, gene_length, 30)
+            formatGeneSequence(sequence, annotations, gene_length, 30)
             plotGeneFeatures(features)
+            bindAnnotations()
         })
     </script>
 {% endblock %}

@@ -81,3 +81,34 @@ span.red {
 .goto-location {
 	margin-left: 1em;
 }
+
+.selected-base {
+	background: yellow;
+}
+
+.confirm-annotation {
+	margin-top: 1em;
+}
+
+.annotation-del {
+	border-top: 2px solid red;
+}
+
+.annotation-ins {
+	background: green;
+	color: #FFF;
+}
+.annotation-sub {
+	background: yellow;
+	color: #000;
+}
+
+.popover-bases {
+	word-break:break-all;
+}
+
+.popover {
+	left:20em !important;
+	top:-10em !important;
+}
+

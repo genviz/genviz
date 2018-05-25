@@ -3,6 +3,17 @@ function scrollToAnchor(id){
     $('html,body').animate({scrollTop: tag.offset().top});
 }
 
+function getFormData($form){
+    var unindexed_array = $form.serializeArray();
+    var indexed_array = {};
+
+    $.map(unindexed_array, function(n, i){
+        indexed_array[n['name']] = n['value'];
+    });
+
+    return indexed_array;
+}
+
 function plotGeneFeatures(features) {
 	// Dummy timestamp to use non-date values in timeline vis.js chart
 	var dummyTs = +new Date()
@@ -81,23 +92,24 @@ function plotGeneFeatures(features) {
 	})
 }
 
-var formatGeneSequence = function(sequence, sequenceLength, basesPerRow) {
-	// TODO: Refactor
-	var pos = 0
+var formatGeneSequence = function(sequence, annotations, sequenceLength, basesPerRow) {
+	// TODO: Refactor URGENT!!!
+	var pos = 1
 	var maxLengthDigits = sequenceLength.toString().length
 
 	$('.col-location').css('margin-left', maxLengthDigits + 'em')
 
 	var seqHTML = $('<p>')
 
-	var sliceSeq, sliceTranslation, row;
+	var sliceSeq, sliceTranslation, sliceAnnotation, row, subPos;
+	subPos = 0
 	sequence.forEach(function(seqSlice, _) {
 		if (seqSlice.type.toLowerCase() == 'non-cds') {
 			for (base of seqSlice.sequence) {
-				if (pos % basesPerRow == 0) {
+				if ((pos-1) % basesPerRow == 0) {
 					if (row !== undefined) {
 						row.append(sliceSeq)
-						row.append(sliceTranslation)
+						row.append(sliceAnnotation)
 						seqHTML.append(row)
 					}
 					row = $('<p>')
@@ -107,26 +119,67 @@ var formatGeneSequence = function(sequence, sequenceLength, basesPerRow) {
 					rowLocation.addClass('row-location')
 
 					sliceSeq = $('<div>')
-					sliceTranslation = $('<div>')
+					sliceAnnotation = $('<div>')
 
 					sliceSeq.addClass('seq ' + seqSlice.type.toLowerCase())
-					sliceTranslation.addClass('translation')
+					sliceAnnotation.addClass('annotations')
 
 					rowLocation.html(parseInt(pos / basesPerRow) * basesPerRow)
 					rowLocation.css('width', maxLengthDigits.toString() + 'em')
 					sliceSeq.append(rowLocation)
-					sliceTranslation.css('margin-left', maxLengthDigits.toString() + 'em')
+					sliceAnnotation.css('margin-left', maxLengthDigits.toString() + 'em')
+				}
+				annotationSpan = $('<span>')
+				annotationSpan.addClass('annotation')
+				is_annotated = false
+				annotations.forEach(function(annotation, _) {
+					if (annotation.operation == 'ins' && annotation.after == pos-1) {
+						annotationSpan.addClass("annotation-ins")
+						annotationSpan.html(annotation.sequence)
+						is_annotated = true
+					}
+					else if (pos >= annotation.start && pos <= annotation.end) {
+						if (annotation.operation == 'del') {
+							annotationSpan.addClass("annotation-del")
+							annotationSpan.html("&nbsp;")
+							is_annotated = true
+						}
+						else if (annotation.operation == 'sub') {
+							annotationSpan.addClass("annotation-sub")
+							annotationSpan.html(annotation.sequence[subPos])
+							if (++subPos == annotation.sequence.length) {
+								subPos = 0
+							}
+							is_annotated = true
+						}
+					}
+				})
+				if (is_annotated) {
+					sliceAnnotation.append(annotationSpan)
+				} else {
+					sliceAnnotation.append("&nbsp;")
 				}
 				baseSpan = $('<span>')
 				baseSpan.attr('id', 'base-' + pos)
+				baseSpan.data('location', pos)
+				baseSpan.addClass('base')
+				// Enable tooltip
+				baseSpan.data('toggle', 'tooltip')
+				baseSpan.data('placement', 'top')
+				baseSpan.attr('title', 'cDNA location: ' + pos)
 				baseSpan.html(base)
 				sliceSeq.append(baseSpan)
-				sliceTranslation.append("&nbsp;")
 				pos++
 			}
 		}
 		else if (seqSlice.type.toLowerCase() == 'cds') {
 			seqSlice.triplets.forEach(function(triplet, triplet_i) {
+				if (sliceTranslation == undefined) {
+					sliceTranslation = $('<div>')
+					sliceTranslation.addClass('translation')
+					sliceTranslation.css('margin-left', maxLengthDigits.toString() + 'em')
+					sliceTranslation.append("&nbsp;".repeat(pos-parseInt(pos/basesPerRow)*basesPerRow-1))
+				}
 				var oddEven = (triplet_i % 2 == 0) ? 'even' : 'odd'
 
 				var tripletSeq = $('<span>')
@@ -136,7 +189,7 @@ var formatGeneSequence = function(sequence, sequenceLength, basesPerRow) {
 
 				tripletBase_i = 0
 				for (base of triplet.sequence) {
-					if (pos % basesPerRow == 0) {
+					if ((pos-1) % basesPerRow == 0) {
 						if (row !== undefined) {
 							sliceSeq.append(tripletSeq)
 							sliceTranslation.append(tripletTranslation)
@@ -165,6 +218,12 @@ var formatGeneSequence = function(sequence, sequenceLength, basesPerRow) {
 					}
 					baseSpan = $('<span>')
 					baseSpan.attr('id', 'base-' + pos)
+					baseSpan.data('location', pos)
+					baseSpan.addClass('base')
+					// Enable tooltip
+					baseSpan.data('toggle', 'tooltip')
+					baseSpan.data('placement', 'top')
+					baseSpan.attr('title', 'cDNA location: ' + pos)
 					baseSpan.html(base)
 					tripletSeq.append(baseSpan)
 					tripletTranslation.append(tripletBase_i == 1 ? triplet.translation : "&nbsp;")
@@ -177,4 +236,169 @@ var formatGeneSequence = function(sequence, sequenceLength, basesPerRow) {
 		}
 	})
 	$('.sequence').html(seqHTML)
+}
+
+var currentAnnotations = [];
+function bindAnnotations() {
+	$('.seq .base').mouseup(function() {
+		var range = window.getSelection().getRangeAt(0)
+		var $startNode = $(range.startContainer.parentNode)
+		var $endNode = $(range.endContainer.parentNode)
+
+		var startLocation = $startNode.data('location')
+		var endLocation = $endNode.data('location')
+		
+		if (startLocation == endLocation) {
+			return
+		}
+
+		var bases = range.toString()
+
+		$('.sequence').popover('dispose')
+		$('.sequence').popover({
+			'placement': 'right',
+			'container': '.sequence',
+			'html': true,
+			// Use Handlebars for this
+			'content': `<div class="form-group row">
+    <label for="Operation" class="col-sm-12 col-form-label">Operation</label>
+    <div class="col-sm-4">
+		<div class="form-check">
+		  <input class="form-check-input" type="radio" name="operation" id="radio-del" value="del">
+		  <label class="form-check-label" for="Del">Del</label>
+		</div>
+		<div class="form-check">
+		  <input class="form-check-input" type="radio" name="operation" id="radio-insdel" value="insdel">
+		  <label class="form-check-label" for="InsDel">Insdel</label>
+		</div>
+		<div class="form-check">
+		  <input class="form-check-input" type="radio" name="operation" id="radio-sub" value="sub">
+		  <label class="form-check-label" for="Sub">Sub</label>
+		</div>
+		<div class="form-check">
+		  <input class="form-check-input" type="radio" name="operation" id="radio-dup" value="dup">
+		  <label class="form-check-label" for="Dup">Dup</label>
+		</div>
+    </div>
+    <div class="col-sm-8">
+       	<form class="hidden annotation-sub-form" data-operation='del'>
+    		<span>Delete bases <span class='popover-bases'>(${bases.replace(/\s/g, '')})</span> from position ${startLocation} to ${endLocation}</span>
+    		<input type="hidden" name="start" value="${startLocation}" />
+    		<input type="hidden" name="end" value="${endLocation}" />
+    	</form>
+       	<form class="hidden annotation-sub-form" data-operation='insdel'>
+    		<label>Delete bases <span class='popover-bases'>(${bases.replace(/\s/g, '')})</span> from position ${startLocation} to ${endLocation} and insert:</label>
+    		<input type="text" class="form-control" name="sequence" />
+    		<input type="hidden" name="start" value="${startLocation}" />
+    		<input type="hidden" name="end" value="${endLocation}" />
+    	</form>
+       	<form class="hidden annotation-sub-form" data-operation='sub'>
+    		<label>Substitute bases <span class='popover-bases'>(${bases.replace(/\s/g, '')})</span> from position ${startLocation} to ${endLocation} with:</label>
+    		<input type="text" class="form-control" maxlength=${endLocation - startLocation + 1} name="sequence" />
+    		<input type="hidden" name="start" value="${startLocation}" />
+    		<input type="hidden" name="end" value="${endLocation}" />
+    	</form>
+       	<form class="hidden annotation-sub-form" data-operation='dup'>
+    		<span>Duplicate bases <span class='popover-bases'>(${bases.replace(/\s/g, '')})</span> from position ${startLocation} to ${endLocation}</span>
+    		<input type="hidden" name="start" value="${startLocation}" />
+    		<input type="hidden" name="end" value="${endLocation}" />
+    	</form>
+    	<button type="button" class="btn btn-primary confirm-annotation hidden">Confirm</button>
+    </div>
+</div>
+`
+		})
+		for (var i = startLocation; i <= endLocation; i++) {
+			document.getElementById('base-'+i).classList.add('selected-base')
+		}
+	})
+
+	$('.seq .base').click(function(e) {
+		var $node = $(this)
+		$node.addClass('selected-base')
+		var location = $node.data('location')
+		var base = $node.text()
+		$('.sequence').popover('dispose')
+		$('.sequence').popover({
+			'placement': 'right',
+			'container': '.sequence',
+			'html': true,
+			// Use Handlebars for this
+			'content': `<div class="form-group row">
+    <label for="Operation" class="col-sm-12 col-form-label">Operation</label>
+    <div class="col-sm-4">
+      	<div class="form-check">
+		  <input class="form-check-input" type="radio" name="operation" id="radio-ins" value="ins">
+		  <label class="form-check-label" for="Ins">Ins</label>
+		</div>
+		<div class="form-check">
+		  <input class="form-check-input" type="radio" name="operation" id="radio-del" value="del">
+		  <label class="form-check-label" for="Del">Del</label>
+		</div>
+		<div class="form-check">
+		  <input class="form-check-input" type="radio" name="operation" id="radio-insdel" value="insdel">
+		  <label class="form-check-label" for="InsDel">InsDel</label>
+		</div>
+		<div class="form-check">
+		  <input class="form-check-input" type="radio" name="operation" id="radio-sub" value="sub">
+		  <label class="form-check-label" for="Sub">Sub</label>
+		</div>
+		<div class="form-check">
+		  <input class="form-check-input" type="radio" name="operation" id="radio-dup" value="dup">
+		  <label class="form-check-label" for="Dup">Dup</label>
+		</div>
+    </div>
+    <div class="col-sm-8">
+    	<form class="hidden annotation-sub-form" data-operation='ins'>
+    		<label>Insert after position ${location}:</label>
+    		<input type="text" class="form-control" name="sequence" />
+    		<input type="hidden" name="after" value="${location}" />
+    	</form>
+       	<form class="hidden annotation-sub-form" data-operation='del'>
+    		<span>Delete base (${base}) at position ${location}</span>
+    		<input type="hidden" name="start" value="${location}" />
+    		<input type="hidden" name="end" value="${location}" />
+    	</form>
+       	<form class="hidden annotation-sub-form" data-operation='insdel'>
+    		<label>Delete base (${base}) at position ${location} and insert:</label>
+    		<input type="text" class="form-control" name="sequence" />
+    		<input type="hidden" name="start" value="${location}" />
+    		<input type="hidden" name="end" value="${location}" />
+    	</form>
+       	<form class="hidden annotation-sub-form" data-operation='sub'>
+    		<label>Substitute base (${base}) at position ${location} with:</label>
+    		<input type="text" class="form-control" maxlength=1 name="sequence" />
+    		<input type="hidden" name="start" value="${location}" />
+    		<input type="hidden" name="end" value="${location}" />
+    	</form>
+       	<form class="hidden annotation-sub-form" data-operation='dup'>
+    		<span>Duplicate base (${base}) at position ${location}</span>
+    		<input type="hidden" name="start" value="${location}" />
+    		<input type="hidden" name="end" value="${location}" />
+    	</form>
+    	<button type="button" class="btn btn-primary confirm-annotation hidden">Confirm</button>
+    </form>
+</div>
+`
+		})
+	})
+
+	$('body').on("change", "[name='operation']", function() {
+		$option = $(this)
+		operation = $option.val()
+		$('.annotation-sub-form').addClass('hidden')
+		$('.annotation-sub-form[data-operation="'+ operation +'"]').removeClass('hidden')
+		$('.confirm-annotation').removeClass('hidden')
+	})
+
+	$('body').on('click', '.confirm-annotation', function() {
+		$form = $('.annotation-sub-form:visible')
+
+		annotation = getFormData($form)
+		annotation.operation = $form.data('operation')
+		currentAnnotations.push(annotation)
+		$('#annotations-form input[name="annotations"]').val(JSON.stringify(currentAnnotations))
+		$('.sequence').popover('dispose')
+		console.log(currentAnnotations)
+	})
 }
