@@ -91,7 +91,7 @@ span.red {
 }
 
 .annotation-del {
-	border-top: 2px solid red;
+	background: red;
 }
 
 .annotation-ins {

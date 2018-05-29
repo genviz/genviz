@@ -47,6 +47,7 @@
 {% endblock %}
 
 {% block js-footer %}
+    <script src="{% static 'handlebars/dist/handlebars.min.js' %}"></script>
     <script src="{% static 'vis/dist/vis.min.js' %}"></script>
     <script src="{% static 'js/details.js' %}"></script>
     <script>
@@ -57,7 +58,10 @@
             var gene_length = {{gene_length}}
             formatGeneSequence(sequence, annotations, gene_length, 30)
             plotGeneFeatures(features)
-            bindAnnotations()
+
+            var annotation_popover_html = `{% include 'handlebars/details/annotation-popover.html' %}`
+            var annotation_popover_template = Handlebars.compile(annotation_popover_html);
+            bindAnnotations(annotation_popover_template)
         })
     </script>
 {% endblock %}

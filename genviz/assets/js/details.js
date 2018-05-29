@@ -108,8 +108,8 @@ var formatGeneSequence = function(sequence, annotations, sequenceLength, basesPe
 			for (base of seqSlice.sequence) {
 				if ((pos-1) % basesPerRow == 0) {
 					if (row !== undefined) {
-						row.append(sliceSeq)
 						row.append(sliceAnnotation)
+						row.append(sliceSeq)
 						seqHTML.append(row)
 					}
 					row = $('<p>')
@@ -239,7 +239,7 @@ var formatGeneSequence = function(sequence, annotations, sequenceLength, basesPe
 }
 
 var currentAnnotations = [];
-function bindAnnotations() {
+function bindAnnotations(popover_template) {
 	$('.seq .base').mouseup(function() {
 		var range = window.getSelection().getRangeAt(0)
 		var $startNode = $(range.startContainer.parentNode)
@@ -251,62 +251,20 @@ function bindAnnotations() {
 		if (startLocation == endLocation) {
 			return
 		}
-
 		var bases = range.toString()
 
 		$('.sequence').popover('dispose')
 		$('.sequence').popover({
 			'placement': 'right',
-			'container': '.sequence',
+			'container': 'body',
 			'html': true,
 			// Use Handlebars for this
-			'content': `<div class="form-group row">
-    <label for="Operation" class="col-sm-12 col-form-label">Operation</label>
-    <div class="col-sm-4">
-		<div class="form-check">
-		  <input class="form-check-input" type="radio" name="operation" id="radio-del" value="del">
-		  <label class="form-check-label" for="Del">Del</label>
-		</div>
-		<div class="form-check">
-		  <input class="form-check-input" type="radio" name="operation" id="radio-insdel" value="insdel">
-		  <label class="form-check-label" for="InsDel">Insdel</label>
-		</div>
-		<div class="form-check">
-		  <input class="form-check-input" type="radio" name="operation" id="radio-sub" value="sub">
-		  <label class="form-check-label" for="Sub">Sub</label>
-		</div>
-		<div class="form-check">
-		  <input class="form-check-input" type="radio" name="operation" id="radio-dup" value="dup">
-		  <label class="form-check-label" for="Dup">Dup</label>
-		</div>
-    </div>
-    <div class="col-sm-8">
-       	<form class="hidden annotation-sub-form" data-operation='del'>
-    		<span>Delete bases <span class='popover-bases'>(${bases.replace(/\s/g, '')})</span> from position ${startLocation} to ${endLocation}</span>
-    		<input type="hidden" name="start" value="${startLocation}" />
-    		<input type="hidden" name="end" value="${endLocation}" />
-    	</form>
-       	<form class="hidden annotation-sub-form" data-operation='insdel'>
-    		<label>Delete bases <span class='popover-bases'>(${bases.replace(/\s/g, '')})</span> from position ${startLocation} to ${endLocation} and insert:</label>
-    		<input type="text" class="form-control" name="sequence" />
-    		<input type="hidden" name="start" value="${startLocation}" />
-    		<input type="hidden" name="end" value="${endLocation}" />
-    	</form>
-       	<form class="hidden annotation-sub-form" data-operation='sub'>
-    		<label>Substitute bases <span class='popover-bases'>(${bases.replace(/\s/g, '')})</span> from position ${startLocation} to ${endLocation} with:</label>
-    		<input type="text" class="form-control" maxlength=${endLocation - startLocation + 1} name="sequence" />
-    		<input type="hidden" name="start" value="${startLocation}" />
-    		<input type="hidden" name="end" value="${endLocation}" />
-    	</form>
-       	<form class="hidden annotation-sub-form" data-operation='dup'>
-    		<span>Duplicate bases <span class='popover-bases'>(${bases.replace(/\s/g, '')})</span> from position ${startLocation} to ${endLocation}</span>
-    		<input type="hidden" name="start" value="${startLocation}" />
-    		<input type="hidden" name="end" value="${endLocation}" />
-    	</form>
-    	<button type="button" class="btn btn-primary confirm-annotation hidden">Confirm</button>
-    </div>
-</div>
-`
+			'content': popover_template({
+				startLocation: startLocation,
+				endLocation: endLocation,
+				bases: bases.replace(/\s/g, ''),
+				singleBaseSelected: false
+			})
 		})
 		for (var i = startLocation; i <= endLocation; i++) {
 			document.getElementById('base-'+i).classList.add('selected-base')
@@ -321,65 +279,15 @@ function bindAnnotations() {
 		$('.sequence').popover('dispose')
 		$('.sequence').popover({
 			'placement': 'right',
-			'container': '.sequence',
+			'container': 'body',
 			'html': true,
 			// Use Handlebars for this
-			'content': `<div class="form-group row">
-    <label for="Operation" class="col-sm-12 col-form-label">Operation</label>
-    <div class="col-sm-4">
-      	<div class="form-check">
-		  <input class="form-check-input" type="radio" name="operation" id="radio-ins" value="ins">
-		  <label class="form-check-label" for="Ins">Ins</label>
-		</div>
-		<div class="form-check">
-		  <input class="form-check-input" type="radio" name="operation" id="radio-del" value="del">
-		  <label class="form-check-label" for="Del">Del</label>
-		</div>
-		<div class="form-check">
-		  <input class="form-check-input" type="radio" name="operation" id="radio-insdel" value="insdel">
-		  <label class="form-check-label" for="InsDel">InsDel</label>
-		</div>
-		<div class="form-check">
-		  <input class="form-check-input" type="radio" name="operation" id="radio-sub" value="sub">
-		  <label class="form-check-label" for="Sub">Sub</label>
-		</div>
-		<div class="form-check">
-		  <input class="form-check-input" type="radio" name="operation" id="radio-dup" value="dup">
-		  <label class="form-check-label" for="Dup">Dup</label>
-		</div>
-    </div>
-    <div class="col-sm-8">
-    	<form class="hidden annotation-sub-form" data-operation='ins'>
-    		<label>Insert after position ${location}:</label>
-    		<input type="text" class="form-control" name="sequence" />
-    		<input type="hidden" name="after" value="${location}" />
-    	</form>
-       	<form class="hidden annotation-sub-form" data-operation='del'>
-    		<span>Delete base (${base}) at position ${location}</span>
-    		<input type="hidden" name="start" value="${location}" />
-    		<input type="hidden" name="end" value="${location}" />
-    	</form>
-       	<form class="hidden annotation-sub-form" data-operation='insdel'>
-    		<label>Delete base (${base}) at position ${location} and insert:</label>
-    		<input type="text" class="form-control" name="sequence" />
-    		<input type="hidden" name="start" value="${location}" />
-    		<input type="hidden" name="end" value="${location}" />
-    	</form>
-       	<form class="hidden annotation-sub-form" data-operation='sub'>
-    		<label>Substitute base (${base}) at position ${location} with:</label>
-    		<input type="text" class="form-control" maxlength=1 name="sequence" />
-    		<input type="hidden" name="start" value="${location}" />
-    		<input type="hidden" name="end" value="${location}" />
-    	</form>
-       	<form class="hidden annotation-sub-form" data-operation='dup'>
-    		<span>Duplicate base (${base}) at position ${location}</span>
-    		<input type="hidden" name="start" value="${location}" />
-    		<input type="hidden" name="end" value="${location}" />
-    	</form>
-    	<button type="button" class="btn btn-primary confirm-annotation hidden">Confirm</button>
-    </form>
-</div>
-`
+			'content': popover_template({
+				startLocation: location,
+				endLocation: location,
+				bases: bases.replace(/\s/g, ''),
+				singleBaseSelected: false
+			})
 		})
 	})
 
