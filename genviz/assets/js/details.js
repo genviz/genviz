@@ -110,7 +110,6 @@ function formatGeneSequence(sequence, annotations, sequenceLength, basesPerRow) 
 			if (annotation.operation == 'del') {
 				seq = '&nbsp;'.repeat(end - start + 1)
 			} else {
-				debugger
 				seq = annotation.sequence.slice(annotatedBases, end - start + 1)				
 			}
 			annotatedBases = end - start + 1
@@ -184,9 +183,20 @@ function formatGeneSequence(sequence, annotations, sequenceLength, basesPerRow) 
 								annotationSpan.addClass('annotation')
 								annotationSpan.addClass('annotation-' + annotation.annotation.operation)
 								annotationSpan.html(annotation.sequence)
+								// Adding annotation tooltip
+								if (annotation.annotation.comment) {
+									annotationSpan.data('toggle', 'tooltip')
+									annotationSpan.data('placement', 'top')
+									annotationSpan.attr('title', 'Comment: ' + annotation.annotation.comment)
+								}
 								annotationRow.append(annotationSpan)
 								lastAnnotatedPosition = annotation.end
 							})
+							sourceSpan = $('<span>')
+							sourceSpan.addClass('annotation-source')
+							sourceSpan.append(source)
+							annotationRow.append("&nbsp;".repeat((row_i + 1) * basesPerRow - lastAnnotatedPosition + 1))
+							annotationRow.append(sourceSpan)
 							sliceAnnotation.append(annotationRow)
 						})
 					}
@@ -284,7 +294,6 @@ function bindAnnotations(popover_template) {
 		if (startLocation == endLocation) {
 			return
 		}
-		debugger
 		var bases = range.toString()
 
 		$('.sequence').popover('dispose')

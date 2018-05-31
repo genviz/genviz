@@ -1,5 +1,6 @@
 {% extends 'layout/content.html' %}
 {% load static %}
+{% load utils %}
 
 {% block head %}
     <link rel="stylesheet" href="{% static 'vis/dist/vis.min.css' %}">
@@ -13,17 +14,35 @@
     <div id="visualization"></div>
 
     <h4>Sequence</h4>
-    <div class='form-inline goto-form'>
-        <label class="inline">Go to: </label>
-        <input class="form-control mr-sm-2 goto-location" name="cdna_location" type="number" placeholder="cDNA location" aria-label="cDNA location">
-        <form action="/annotations/" method="post" id="annotations-form">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <input type="hidden" name="annotations">
-            <input type="hidden" name="seq_id" value="{{seq_id}}">
-            <button type="submit" class="btn btn-outline-success">Save annotations</button>
-        </form>
+    <div class="row">
+        <div class="col-md-12">
+            <div class='form-inline goto-form'>
+                <label class="inline">Go to: </label>
+                <input class="form-control mr-sm-2 goto-location" name="cdna_location" type="number" placeholder="cDNA location" aria-label="cDNA location">
+                <form action="/annotations/" method="post" id="annotations-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <input type="hidden" name="annotations">
+                    <input type="hidden" name="seq_id" value="{{seq_id}}">
+                    <button type="submit" class="btn btn-outline-success">Save annotations</button>
+                </form>
+            </div>
+        </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class='form-inline goto-form'>
+                <label class="inline">Navigate to: </label>
+                <select name="" class="form-control" id="select-region">
+                    {% for feature_type in features %}
+                        {% for feature in features|keyvalue:feature_type %}
+                            <option value="">{{ feature_type }}</option>
+                        {% endfor %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>  
     <div class="sequence-container">
         <div class="col-location">
             {% spaceless %}

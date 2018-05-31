@@ -57,6 +57,9 @@ class User(AbstractUser):
 
     objects = UserManager()
 
+    def full_name(self):
+        return self.first_name + ' ' + self.last_name
+
 class Annotation(models.Model):
     OPERATION_CHOICES = (
         ('ins', 'Insertion'),

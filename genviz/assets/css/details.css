@@ -78,7 +78,7 @@ span.red {
 	margin-bottom: 2em;
 }
 
-.goto-location {
+.goto-location, #select-region {
 	margin-left: 1em;
 }
 
@@ -116,4 +116,8 @@ span.red {
 .comment-box {
 	min-width:20em;
 	min-height:4em;
+}
+
+.annotation-source {
+	letter-spacing: 0em;
 }

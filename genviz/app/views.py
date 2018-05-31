@@ -131,6 +131,7 @@ class AnnotationsView(View):
             del annotation_json['patient']
             annotation = Annotation(
                 author=request.user,
+                source=request.user.full_name(),
                 seq_id=seq_id,
                 **annotation_json)
             annotation.save()
