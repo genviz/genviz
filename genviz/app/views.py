@@ -117,14 +117,21 @@ class GeneDetails(TemplateView):
                 'sequence_json': json.dumps(sequence),
                 'gene_length': gene_length,
                 'seq_id': seq_id,
-                'annotations_json': json.dumps(list(map(lambda x: x["fields"], json.loads(serializers.serialize('json', annotations)))))
-            })
+                'annotations_json': json.dumps([x["fields"] for x in json.loads(serializers.serialize('json', annotations))]),
+                'patients': request.user.patients
+           })
 
 class AnnotationsView(View):
     def post(self, request, *args, **kwargs):
         annotations_json = json.loads(request.POST.get('annotations', '[]'))
         seq_id = request.POST.get('seq_id', None)
         for annotation_json in annotations_json:
-            annotation = Annotation(author=request.user, seq_id=seq_id, **annotation_json)
+            # Renaming key to pass it to django model instantiation
+            annotation_json['patient_id'] = annotation_json['patient']
+            del annotation_json['patient']
+            annotation = Annotation(
+                author=request.user,
+                seq_id=seq_id,
+                **annotation_json)
             annotation.save()
         return HttpResponseRedirect(request.POST.get('next', '/'))

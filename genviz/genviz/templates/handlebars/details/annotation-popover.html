@@ -31,14 +31,24 @@
                 <label>Insert after position {{startLocation}}:</label>
                 <input type="text" class="form-control" name="sequence" />
                 <input type="hidden" name="after" value="{{startLocation}}" />
+                {% endverbatim %}
+                {% include 'handlebars/details/_annotation-patient-select.html' with patients=patients %}
+                {% include 'handlebars/details/_annotation-comment.html' %}
+
+                {% verbatim %}
             </form>
         {{/if}}
        	<form class="hidden annotation-sub-form" data-operation='del'>
             {{#if singleBaseSelected }}
-                <span>Delete base ({{bases}}) at position ${location}</span>
+                <span>Delete base ({{bases}}) at position {{location}}</span>
             {{else}}
                 <span>Delete bases <span class='popover-bases'>({{ bases }})</span> from position {{ startLocation }} to {{ endLocation }}</span>
             {{/if}}
+            {% endverbatim %}
+            {% include 'handlebars/details/_annotation-patient-select.html' with patients=patients %}
+            {% include 'handlebars/details/_annotation-comment.html' %}
+
+            {% verbatim %}
     		<input type="hidden" name="start" value="{{ startLocation }}" />
     		<input type="hidden" name="end" value="{{ endLocation }}" />
     	</form>
@@ -49,6 +59,11 @@
                 <label>Delete bases <span class='popover-bases'>({{ bases }})</span> from position {{ startLocation }} to {{ endLocation }} and insert:</label>
             {{/if}}
     		<input type="text" class="form-control" name="sequence" />
+            {% endverbatim %}
+            {% include 'handlebars/details/_annotation-patient-select.html' with patients=patients %}
+            {% include 'handlebars/details/_annotation-comment.html' %}
+
+            {% verbatim %}
     		<input type="hidden" name="start" value="{{ startLocation }}" />
     		<input type="hidden" name="end" value="{{ endLocation }}" />
     	</form>
@@ -59,6 +74,11 @@
                 <label>Substitute bases <span class='popover-bases'>({{ bases }})</span> from position {{ startLocation }} to {{ endLocation }} with:</label>
             {{/if}}
     		<input type="text" class="form-control" name="sequence" />
+            {% endverbatim %}
+            {% include 'handlebars/details/_annotation-patient-select.html' with patients=patients %}
+            {% include 'handlebars/details/_annotation-comment.html' %}
+
+            {% verbatim %}
     		<input type="hidden" name="start" value="{{ startLocation }}" />
     		<input type="hidden" name="end" value="{{ endLocation }}" />
     	</form>
@@ -68,6 +88,11 @@
             {{else}}
                 <label>Substitute bases <span class='popover-bases'>({{ bases }})</span> from position {{ startLocation }} to {{ endLocation }} with:</label>
             {{/if}}
+            {% endverbatim %}
+            {% include 'handlebars/details/_annotation-patient-select.html' with patients=patients %}
+            {% include 'handlebars/details/_annotation-comment.html' %}
+
+            {% verbatim %}
     		<input type="hidden" name="start" value="{{ startLocation }}" />
     		<input type="hidden" name="end" value="{{ endLocation }}" />
     	</form>

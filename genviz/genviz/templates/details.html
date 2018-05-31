@@ -59,7 +59,7 @@
             formatGeneSequence(sequence, annotations, gene_length, 30)
             plotGeneFeatures(features)
 
-            var annotation_popover_html = `{% include 'handlebars/details/annotation-popover.html' %}`
+            var annotation_popover_html = `{% include 'handlebars/details/annotation-popover.html' with patients=patients %}`
             var annotation_popover_template = Handlebars.compile(annotation_popover_html);
             bindAnnotations(annotation_popover_template)
         })

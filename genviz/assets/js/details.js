@@ -73,13 +73,15 @@ function plotGeneFeatures(features) {
 	// Create a Timeline
 	var timeline = new vis.Timeline(container, dataset, groups, options)
 
-	container.onclick = function (event) {
-	  var props = timeline.getEventProperties(event)
-	  var loc = props.time - dummyTs
-	  scrollToAnchor('base-' + loc);
-	  location.hash = "#base-" + loc;
-	}
+	// When user clicks on the timeline, we capture the location and go to that id
+	$(container).click(function (event) {
+		var props = timeline.getEventProperties(event)
+		var loc = props.time - dummyTs
+		scrollToAnchor('base-' + loc);
+		location.hash = "#base-" + loc;
+	})
 
+	// Go to the cDNA location typed in the input box
 	var goToCdna;
 	$("input[name='cdna_location']").keyup(function(e) {
 		loc = $(this).val()
@@ -92,8 +94,46 @@ function plotGeneFeatures(features) {
 	})
 }
 
-var formatGeneSequence = function(sequence, annotations, sequenceLength, basesPerRow) {
+function formatGeneSequence(sequence, annotations, sequenceLength, basesPerRow) {
 	// TODO: Refactor URGENT!!!
+
+	// Get annotations per row
+	var annotationsPerRow = {}
+	annotations.forEach(function(annotation, _) {
+		startRow = parseInt((annotation.start - 1) / basesPerRow)
+		endRow = parseInt((annotation.end - 1) / basesPerRow)
+		rowCount = startRow - endRow + 1
+		annotatedBases = 0
+		for (var i = startRow; i <= endRow; i++) {
+			start = Math.max(1 + i * basesPerRow, annotation.start)
+			end = Math.min((i+1) * basesPerRow, annotation.end)
+			if (annotation.operation == 'del') {
+				seq = '&nbsp;'.repeat(end - start + 1)
+			} else {
+				debugger
+				seq = annotation.sequence.slice(annotatedBases, end - start + 1)				
+			}
+			annotatedBases = end - start + 1
+			annotationsPerRow[i] = annotationsPerRow[i] || {}
+			annotationsPerRow[i][annotation.source] = annotationsPerRow[i][annotation.source] || []
+			annotationsPerRow[i][annotation.source].push({
+				start: start,
+				end: end,
+				sequence: seq,
+				annotation: annotation
+			})
+		}
+	})
+	// Sort annotations per row
+	Object.keys(annotationsPerRow).forEach(function(row_i, _) {
+		Object.keys(annotationsPerRow[row_i]).forEach(function(source, _) {
+			annotationsPerRow[row_i][source].sort(function(a1, a2) {
+				return a1.start - a2.start
+			})
+		})
+	})
+	console.log(annotationsPerRow)
+
 	var pos = 1
 	var maxLengthDigits = sequenceLength.toString().length
 
@@ -103,6 +143,7 @@ var formatGeneSequence = function(sequence, annotations, sequenceLength, basesPe
 
 	var sliceSeq, sliceTranslation, sliceAnnotation, row, subPos;
 	subPos = 0
+	row_i = 0;
 	sequence.forEach(function(seqSlice, _) {
 		if (seqSlice.type.toLowerCase() == 'non-cds') {
 			for (base of seqSlice.sequence) {
@@ -111,6 +152,7 @@ var formatGeneSequence = function(sequence, annotations, sequenceLength, basesPe
 						row.append(sliceAnnotation)
 						row.append(sliceSeq)
 						seqHTML.append(row)
+						row_i++
 					}
 					row = $('<p>')
 					rowLocation = $('<span>')
@@ -128,37 +170,28 @@ var formatGeneSequence = function(sequence, annotations, sequenceLength, basesPe
 					rowLocation.css('width', maxLengthDigits.toString() + 'em')
 					sliceSeq.append(rowLocation)
 					sliceAnnotation.css('margin-left', maxLengthDigits.toString() + 'em')
-				}
-				annotationSpan = $('<span>')
-				annotationSpan.addClass('annotation')
-				is_annotated = false
-				annotations.forEach(function(annotation, _) {
-					if (annotation.operation == 'ins' && annotation.after == pos-1) {
-						annotationSpan.addClass("annotation-ins")
-						annotationSpan.html(annotation.sequence)
-						is_annotated = true
+
+					
+					// If there are annotations in the row, show them
+					if (annotationsPerRow.hasOwnProperty(row_i)) {
+						Object.keys(annotationsPerRow[row_i]).forEach(function(source, _) {
+							annotationRow = $("<div class='annotation-row'>")
+							lastAnnotatedPosition = row_i * basesPerRow
+							annotationsPerRow[row_i][source].forEach(function(annotation, _) {
+								// Fill with empty spaces between annotations
+								annotationRow.append("&nbsp;".repeat(annotation.start - lastAnnotatedPosition - 1))
+								annotationSpan = $('<span>')
+								annotationSpan.addClass('annotation')
+								annotationSpan.addClass('annotation-' + annotation.annotation.operation)
+								annotationSpan.html(annotation.sequence)
+								annotationRow.append(annotationSpan)
+								lastAnnotatedPosition = annotation.end
+							})
+							sliceAnnotation.append(annotationRow)
+						})
 					}
-					else if (pos >= annotation.start && pos <= annotation.end) {
-						if (annotation.operation == 'del') {
-							annotationSpan.addClass("annotation-del")
-							annotationSpan.html("&nbsp;")
-							is_annotated = true
-						}
-						else if (annotation.operation == 'sub') {
-							annotationSpan.addClass("annotation-sub")
-							annotationSpan.html(annotation.sequence[subPos])
-							if (++subPos == annotation.sequence.length) {
-								subPos = 0
-							}
-							is_annotated = true
-						}
-					}
-				})
-				if (is_annotated) {
-					sliceAnnotation.append(annotationSpan)
-				} else {
-					sliceAnnotation.append("&nbsp;")
 				}
+
 				baseSpan = $('<span>')
 				baseSpan.attr('id', 'base-' + pos)
 				baseSpan.data('location', pos)
@@ -251,6 +284,7 @@ function bindAnnotations(popover_template) {
 		if (startLocation == endLocation) {
 			return
 		}
+		debugger
 		var bases = range.toString()
 
 		$('.sequence').popover('dispose')
@@ -262,7 +296,7 @@ function bindAnnotations(popover_template) {
 			'content': popover_template({
 				startLocation: startLocation,
 				endLocation: endLocation,
-				bases: bases.replace(/\s/g, ''),
+				bases: bases.replace(/[^ATGC]/g, ''),
 				singleBaseSelected: false
 			})
 		})
@@ -285,8 +319,8 @@ function bindAnnotations(popover_template) {
 			'content': popover_template({
 				startLocation: location,
 				endLocation: location,
-				bases: bases.replace(/\s/g, ''),
-				singleBaseSelected: false
+				bases: base.replace(/\s/g, ''),
+				singleBaseSelected: true
 			})
 		})
 	})

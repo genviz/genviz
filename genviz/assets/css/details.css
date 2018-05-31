@@ -1,7 +1,7 @@
 .sequence, .col-location {
 	word-break:break-all;
 	font-family:'monospace';
-	letter-spacing: 1em;
+	letter-spacing: 0.5em;
 }
 
 .sequence {
@@ -108,7 +108,12 @@ span.red {
 }
 
 .popover {
-	left:20em !important;
+	left:50em !important;
 	top:-10em !important;
+	min-width: 500px !important;
 }
 
+.comment-box {
+	min-width:20em;
+	min-height:4em;
+}

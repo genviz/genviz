@@ -39,6 +39,9 @@ class Patient(models.Model):
     identifier = models.CharField(max_length=30, unique=True)
 
     def __str__(self):
+        return self.full_name()
+
+    def full_name(self):
         return "%s %s" % (self.first_name, self.last_name)
 
 
@@ -69,3 +72,6 @@ class Annotation(models.Model):
     end       = models.IntegerField(null=True)
     sequence  = models.CharField(max_length=1000)
     operation = models.CharField(max_length=10, choices=OPERATION_CHOICES)
+    comment   = models.TextField(null=True)
+    patient   = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    source    = models.CharField(max_length=30, default='manual')
