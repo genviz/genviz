@@ -78,8 +78,12 @@ span.red {
 	margin-bottom: 2em;
 }
 
-.goto-location, #select-region {
+.goto-location {
 	margin-left: 1em;
+}
+
+#goto-region {
+	margin: 0 1em;
 }
 
 .selected-base {
@@ -120,4 +124,22 @@ span.red {
 
 .annotation-source {
 	letter-spacing: 0em;
+}
+
+.arrow-up {
+  width: 0; 
+  height: 0; 
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid black;
+  display: inline-block;
+}
+
+.annotation-dup {
+	display: inline-block;
+	width: 1em;
+}
+
+.annotation-insdel {
+	background: orange;
 }

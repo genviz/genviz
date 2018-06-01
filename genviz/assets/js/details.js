@@ -3,6 +3,19 @@ function scrollToAnchor(id){
     $('html,body').animate({scrollTop: tag.offset().top});
 }
 
+function checkInView(elem, container)
+{
+    var contHeight = container.height()
+    var contTop = container.scrollTop()
+    var contBottom = contTop + contHeight
+    var elemTop = $(elem).offset().top - container.offset().top
+    var elemBottom = elemTop + $(elem).height()
+    var isTotal = (elemTop >= 0 && elemBottom <= contHeight)
+    // var isPart = ((elemTop < 0 && elemBottom > 0 ) || (elemTop > 0 && elemTop <= container.height()));
+
+    return  isTotal
+}
+
 function getFormData($form){
     var unindexed_array = $form.serializeArray();
     var indexed_array = {};
@@ -77,7 +90,7 @@ function plotGeneFeatures(features) {
 	$(container).click(function (event) {
 		var props = timeline.getEventProperties(event)
 		var loc = props.time - dummyTs
-		scrollToAnchor('base-' + loc);
+		//scrollToAnchor('base-' + loc);
 		location.hash = "#base-" + loc;
 	})
 
@@ -87,15 +100,23 @@ function plotGeneFeatures(features) {
 		loc = $(this).val()
 		clearTimeout(goToCdna)
 		goToCdna = setTimeout(function() {
-			scrollToAnchor('base-' + loc);
+			//scrollToAnchor('base-' + loc);
 			location.hash = '#base-' + loc
 			$("input[name='cdna_location']").focus()
 		}, 100)
 	})
+
+
+	$("select#goto-region").change(function(e) {
+		option = $("option:selected", this)
+		loc = parseInt(option.data('start')) + 1
+		//scrollToAnchor('base-' + loc);
+		location.hash = '#base-' + loc
+	})
 }
 
-function formatGeneSequence(sequence, annotations, sequenceLength, basesPerRow) {
-	// TODO: Refactor URGENT!!!
+function formatGeneSequence(sequence, features, annotations, sequenceLength, basesPerRow) {
+	// TODO: Refactor Sequence display as Handlebars template if possible
 
 	// Get annotations per row
 	var annotationsPerRow = {}
@@ -109,6 +130,11 @@ function formatGeneSequence(sequence, annotations, sequenceLength, basesPerRow) 
 			end = Math.min((i+1) * basesPerRow, annotation.end)
 			if (annotation.operation == 'del') {
 				seq = '&nbsp;'.repeat(end - start + 1)
+			} else if (annotation.operation == 'dup') {
+				triangle = $('<span>')
+				triangle.addClass('arrow-up')
+				seq = $('<span>')
+				seq.append(triangle)
 			} else {
 				seq = annotation.sequence.slice(annotatedBases, end - start + 1)				
 			}
@@ -123,6 +149,7 @@ function formatGeneSequence(sequence, annotations, sequenceLength, basesPerRow) 
 			})
 		}
 	})
+
 	// Sort annotations per row
 	Object.keys(annotationsPerRow).forEach(function(row_i, _) {
 		Object.keys(annotationsPerRow[row_i]).forEach(function(source, _) {
@@ -131,7 +158,22 @@ function formatGeneSequence(sequence, annotations, sequenceLength, basesPerRow) 
 			})
 		})
 	})
-	console.log(annotationsPerRow)
+
+	var featuresPerRow = {}
+	Object.keys(features).forEach(function(feature_type, _) {
+		features[feature_type].forEach(function(feature, feature_i) {
+			start = feature.location[0]
+			end = feature.location[1]
+			startRow = parseInt((start - 1) / basesPerRow)
+			endRow = parseInt((end - 1) / basesPerRow)
+			console.log(feature_type, "from row", startRow, "to", endRow)
+			for (var i = startRow; i <= endRow; i++) {
+				featuresPerRow[i] = featuresPerRow[i] || []
+				featuresPerRow[i].push(feature_type + ' ' + (feature_i + 1))
+			}
+		})
+	})
+	console.log(featuresPerRow)
 
 	var pos = 1
 	var maxLengthDigits = sequenceLength.toString().length
@@ -148,6 +190,8 @@ function formatGeneSequence(sequence, annotations, sequenceLength, basesPerRow) 
 			for (base of seqSlice.sequence) {
 				if ((pos-1) % basesPerRow == 0) {
 					if (row !== undefined) {
+						row.data('features', featuresPerRow[row_i])
+						row.data('row-number', row_i)
 						row.append(sliceAnnotation)
 						row.append(sliceSeq)
 						seqHTML.append(row)
@@ -236,9 +280,12 @@ function formatGeneSequence(sequence, annotations, sequenceLength, basesPerRow) 
 						if (row !== undefined) {
 							sliceSeq.append(tripletSeq)
 							sliceTranslation.append(tripletTranslation)
+							row.data('features', featuresPerRow[row_i])
+							row.data('row-number', row_i)
 							row.append(sliceSeq)
 							row.append(sliceTranslation)
 							seqHTML.append(row)
+							row_i++
 						}
 						row = $('<p>')
 						rowLocation = $('<span>')
@@ -352,4 +399,22 @@ function bindAnnotations(popover_template) {
 		$('.sequence').popover('dispose')
 		console.log(currentAnnotations)
 	})
+}
+
+function bindScroll() {
+	$(".sequence").on('scroll', function(){
+	   	var topRowNumber = Infinity
+	   	var $topRow = $('.seq-row').eq(0)
+	   	var container = $(".sequence")
+		$('.seq-row').each(function() {
+			var inView = checkInView($(this), container)
+			if (inView && $(this).data('row-number') < topRowNumber) {
+				topRowNumber = $(this).data('row-number')
+				$topRow = $(this)
+
+			}
+		})
+		$('.current-region').html($topRow.data('features').join(', '))
+	})
+	$('.sequence').scroll()
 }

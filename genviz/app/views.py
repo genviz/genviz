@@ -117,6 +117,7 @@ class GeneDetails(TemplateView):
                 'sequence_json': json.dumps(sequence),
                 'gene_length': gene_length,
                 'seq_id': seq_id,
+                'annotation_sources': set(map(lambda a: a.source, annotations)),
                 'annotations_json': json.dumps([x["fields"] for x in json.loads(serializers.serialize('json', annotations))]),
                 'patients': request.user.patients
            })

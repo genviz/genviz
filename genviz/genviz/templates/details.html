@@ -33,13 +33,29 @@
         <div class="col-md-12">
             <div class='form-inline goto-form'>
                 <label class="inline">Navigate to: </label>
-                <select name="" class="form-control" id="select-region">
+                <select name="" class="form-control" id="goto-region">
                     {% for feature_type in features %}
                         {% for feature in features|keyvalue:feature_type %}
-                            <option value="">{{ feature_type }}</option>
+                            {% with forloop.counter|stringformat:"s" as feature_type_i %}
+                                <option value="" data-start="{{feature.location.0}}">{{ feature_type|add:" "|add:feature_type_i }}</option>
+                            {% endwith %}
                         {% endfor %}
                     {% endfor %}
                 </select>
+                <label class="inline">You are currently on:&nbsp;<b class='current-region'></b></label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class='form-inline goto-form'>
+                <label class="inline">Show annotations: </label>
+                <select name="" class="form-control" id="show-annotations">
+                    {% for source in annotation_sources %}
+                        <option value="{{source}}">{{source}}</option>
+                    {% endfor %}
+                </select>
+                <label class="inline">You are currently on:&nbsp;<b class='current-region'></b></label>
             </div>
         </div>
     </div>  
@@ -75,12 +91,13 @@
             var sequence = JSON.parse("{{sequence_json|escapejs}}")
             var annotations = JSON.parse("{{annotations_json|escapejs}}")
             var gene_length = {{gene_length}}
-            formatGeneSequence(sequence, annotations, gene_length, 30)
+            formatGeneSequence(sequence, features, annotations, gene_length, 30)
             plotGeneFeatures(features)
 
             var annotation_popover_html = `{% include 'handlebars/details/annotation-popover.html' with patients=patients %}`
             var annotation_popover_template = Handlebars.compile(annotation_popover_html);
             bindAnnotations(annotation_popover_template)
+            bindScroll()
         })
     </script>
 {% endblock %}
