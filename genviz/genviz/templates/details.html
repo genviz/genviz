@@ -4,6 +4,7 @@
 
 {% block head %}
     <link rel="stylesheet" href="{% static 'vis/dist/vis.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/lib/bootstrap-select.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/details.css' %}">
 {% endblock %}
 
@@ -50,12 +51,11 @@
         <div class="col-md-12">
             <div class='form-inline goto-form'>
                 <label class="inline">Show annotations: </label>
-                <select name="" class="form-control" id="show-annotations">
+                <select name="" multiple class="form-control" id="show-annotations">
                     {% for source in annotation_sources %}
                         <option value="{{source}}">{{source}}</option>
                     {% endfor %}
                 </select>
-                <label class="inline">You are currently on:&nbsp;<b class='current-region'></b></label>
             </div>
         </div>
     </div>  
@@ -84,6 +84,7 @@
 {% block js-footer %}
     <script src="{% static 'handlebars/dist/handlebars.min.js' %}"></script>
     <script src="{% static 'vis/dist/vis.min.js' %}"></script>
+    <script src="{% static 'js/lib/bootstrap-select.js' %}"></script>
     <script src="{% static 'js/details.js' %}"></script>
     <script>
         $(document).ready(() => {
@@ -98,6 +99,7 @@
             var annotation_popover_template = Handlebars.compile(annotation_popover_html);
             bindAnnotations(annotation_popover_template)
             bindScroll()
+            // bindAnnotationsSelect()
         })
     </script>
 {% endblock %}

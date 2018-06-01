@@ -233,6 +233,7 @@ function formatGeneSequence(sequence, features, annotations, sequenceLength, bas
 									annotationSpan.data('placement', 'top')
 									annotationSpan.attr('title', 'Comment: ' + annotation.annotation.comment)
 								}
+								annotationRow.attr('data-source', source)
 								annotationRow.append(annotationSpan)
 								lastAnnotatedPosition = annotation.end
 							})
@@ -417,4 +418,15 @@ function bindScroll() {
 		$('.current-region').html($topRow.data('features').join(', '))
 	})
 	$('.sequence').scroll()
+}
+
+function bindAnnotationsSelect() {
+	// $('.selectpicker').selectpicker()
+	$('#show-annotations').change(function() {
+		sources = $(this).val()
+		$('.annotation-row').hide()
+		sources.forEach(function (source,  _) {
+			$('.annotation-row[data-source="'+source+'"]').show()
+		})
+	})
 }
