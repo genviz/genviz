@@ -13,7 +13,7 @@ function checkInView(elem, container)
     var isTotal = (elemTop >= 0 && elemBottom <= contHeight)
     // var isPart = ((elemTop < 0 && elemBottom > 0 ) || (elemTop > 0 && elemTop <= container.height()));
 
-    return  isTotal
+    return isTotal
 }
 
 function getFormData($form){
@@ -66,7 +66,6 @@ function plotGeneFeatures(features) {
 	var container = document.getElementById('visualization')
 
 	// Substract dummy timestamp from start/end values so they are showed properly
-	console.log(minLocation, maxLocation)
 	var options = {
 		format: {
 			minorLabels: function(date, scale, step) {
@@ -115,10 +114,7 @@ function plotGeneFeatures(features) {
 	})
 }
 
-function formatGeneSequence(sequence, features, variations, sequenceLength, basesPerRow) {
-	// TODO: Refactor Sequence display as Handlebars template if possible
-
-	// Get variations per row
+function splitVariationsInRows(variations, basesPerRow) {
 	var variationsPerRow = {}
 	variations.forEach(function(variation, _) {
 		startRow = parseInt((variation.start - 1) / basesPerRow)
@@ -128,13 +124,8 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 		for (var i = startRow; i <= endRow; i++) {
 			start = Math.max(1 + i * basesPerRow, variation.start)
 			end = Math.min((i+1) * basesPerRow, variation.end)
-			if (variation.operation == 'del') {
-				seq = '&nbsp;'.repeat(end - start + 1)
-			} else if (variation.operation == 'dup') {
-				triangle = $('<span>')
-				triangle.addClass('arrow-up')
-				seq = $('<span>')
-				seq.append(triangle)
+			if (variation.operation != 'del' && variation.operation != 'dup') {
+				seq = variation.alt.substr(annotatedBases, end - start + 1)				
 			} else {
 				seq = variation.alt ? variation.alt.slice(annotatedBases, end - start + 1) : ""				
 			}
@@ -145,252 +136,102 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 				start: start,
 				end: end,
 				sequence: seq,
+				operation: variation.operation,
+				changeLength: end - start + 1,
 				variation: variation
 			})
 		}
 	})
 	console.log(variationsPerRow)
 
-	// Sort variations per row
 	Object.keys(variationsPerRow).forEach(function(row_i, _) {
 		Object.keys(variationsPerRow[row_i]).forEach(function(source, _) {
+			// Sort variations per row
 			variationsPerRow[row_i][source].sort(function(a1, a2) {
 				return a1.start - a2.start
 			})
+			// Compute spaces between variations and offset from the beginning of the row
+			lastAnnotatedPosition = row_i * basesPerRow
+			variationsPerRow[row_i][source].forEach(function(variation, i, vars) {
+				vars[i].offset = variation.start - lastAnnotatedPosition - 1
+				vars[i].changeLength = variation.end - variation.start + 1
+				lastAnnotatedPosition = variation.end
+			})
 		})
 	})
+	return variationsPerRow
+}
 
+function getFeaturesPerRow(features, basesPerRow) {
+	// Get features in each row
 	var featuresPerRow = {}
+	var translationPerRow = {}
 	Object.keys(features).forEach(function(feature_type, _) {
 		features[feature_type].forEach(function(feature, feature_i) {
-			start = feature.location[0]
-			end = feature.location[1]
-			startRow = parseInt((start - 1) / basesPerRow)
-			endRow = parseInt((end - 1) / basesPerRow)
-			console.log(feature_type, "from row", startRow, "to", endRow)
+			startFeature = feature.location[0]
+			endFeature = feature.location[1]
+			startRow = parseInt((startFeature - 1) / basesPerRow)
+			endRow = parseInt((endFeature - 1) / basesPerRow)
+			translationInserted = 0
 			for (var i = startRow; i <= endRow; i++) {
-				featuresPerRow[i] = featuresPerRow[i] || []
-				featuresPerRow[i].push(feature_type + ' ' + (feature_i + 1))
+				featuresPerRow[i] = featuresPerRow[i] || {}
+				featuresPerRow[i].features = featuresPerRow[i].features || []
+				featuresPerRow[i].features.push(feature)
+				if (feature_type.toLowerCase() == 'cds') {
+					start = Math.max(1 + i * basesPerRow, startFeature)
+					end = Math.min((i+1) * basesPerRow, endFeature)
+					offset = start - i * basesPerRow - 1
+					translation = features[feature_type][feature_i].qualifiers.translation[0]
+					translationToInsert = parseInt((end - start + 1) / 3)
+					translationInRow = translation.substr(translationInserted, translationToInsert)
+					translationInserted += translationToInsert
+					featuresPerRow[i].translation = {
+						translation: translationInRow,
+						offset: offset
+					}
+				}
 			}
 		})
 	})
-	console.log(featuresPerRow)
+	return featuresPerRow
+}
 
-	var pos = 1
+function formatGeneSequence(sequence, features, variations, sequenceLength, basesPerRow, template) {
+	// Get variations per row
+	var variationsPerRow = splitVariationsInRows(variations, basesPerRow)
+	var featuresPerRow = getFeaturesPerRow(features, basesPerRow)
+	
 	var maxLengthDigits = sequenceLength.toString().length
 
-	$('.col-location').css('margin-left', maxLengthDigits + 'em')
+	var rowCount = parseInt(sequenceLength / basesPerRow)
 
-	var seqHTML = $('<p>')
+	var rows = {}
+	for (var row_i = 0; row_i <= rowCount; row_i++) {
+		var seq = sequence.substr(row_i * basesPerRow, basesPerRow)
+		var rowCDS = featuresPerRow[row_i].features.findIndex(function(f) { return f.type.toLowerCase() == 'cds' })
 
-	var sliceSeq, sliceTranslation, sliceVariation, row, subPos;
-	subPos = 0
-	row_i = 0;
-	sequence.forEach(function(seqSlice, _) {
-		if (seqSlice.type.toLowerCase() == 'non-cds') {
-			for (base of seqSlice.sequence) {
-				if ((pos-1) % basesPerRow == 0) {
-					if (row !== undefined) {
-						row.data('features', featuresPerRow[row_i])
-						row.data('row-number', row_i)
-						row.append(sliceVariation)
-						row.append(sliceSeq)
-						seqHTML.append(row)
-						row_i++
-					}
-					row = $('<p>')
-					rowLocation = $('<span>')
-
-					row.addClass('seq-row')
-					rowLocation.addClass('row-location')
-
-					sliceSeq = $('<div>')
-					sliceVariation = $('<div>')
-
-					sliceSeq.addClass('seq ' + seqSlice.type.toLowerCase())
-					sliceVariation.addClass('variations')
-
-					rowLocation.html(parseInt(pos / basesPerRow) * basesPerRow)
-					rowLocation.css('width', maxLengthDigits.toString() + 'em')
-					sliceSeq.append(rowLocation)
-					sliceVariation.css('margin-left', maxLengthDigits.toString() + 'em')
-
-					
-					// If there are variations in the row, show them
-					if (variationsPerRow.hasOwnProperty(row_i)) {
-						Object.keys(variationsPerRow[row_i]).forEach(function(source, _) {
-							variationRow = $("<div>")
-							variationRow.addClass('variation-row hidden')
-							lastAnnotatedPosition = row_i * basesPerRow
-							variationsPerRow[row_i][source].forEach(function(variation, _) {
-								// Fill with empty spaces between variations
-								start = Math.max(variation.start, row_i * basesPerRow + 1)
-								console.log("Variation offset", start, lastAnnotatedPosition)
-								if (lastAnnotatedPosition == start) {
-									return
-								}
-								variationRow.append("&nbsp;".repeat(start - lastAnnotatedPosition - 1))
-								if (variation.variation.url) {
-									variationSpan = $('<a>')
-									variationSpan.attr('href', variation.variation.url)
-									variationSpan.attr('target', '_blank')
-								} else {
-									variationSpan = $('<span>')
-								}
-								variationSpan.addClass('variation')
-								variationSpan.addClass('variation-' + variation.variation.operation)
-								variationSpan.html(variation.sequence)
-								// Adding variation tooltip
-								if (variation.variation.comment) {
-									variationSpan.data('toggle', 'tooltip')
-									variationSpan.data('placement', 'top')
-									variationSpan.attr('title', variation.variation.comment)
-								}
-								variationRow.attr('data-source', source)
-								variationRow.append(variationSpan)
-								lastAnnotatedPosition = variation.end
-							})
-							sourceSpan = $('<span>')
-							sourceSpan.addClass('variation-source')
-							sourceSpan.append(source)
-							variationRow.append("&nbsp;".repeat((row_i + 1) * basesPerRow - lastAnnotatedPosition + 1))
-							variationRow.append(sourceSpan)
-							sliceVariation.append(variationRow)
-						})
-					}
+		rows[row_i] = {
+			sequence: seq.split('').map(function(base, i) {
+				pos = basesPerRow * row_i + i + 1
+				return {
+					position: pos,
+					base: base,
+					isCDS: rowCDS !== -1 && pos >= featuresPerRow[row_i].features[rowCDS][0] && pos <= featuresPerRow[row_i].features[rowCDS][1]
 				}
-
-				baseSpan = $('<span>')
-				baseSpan.attr('id', 'base-' + pos)
-				baseSpan.attr('data-location', pos)
-				baseSpan.addClass('base')
-				// Enable tooltip
-				baseSpan.data('toggle', 'tooltip')
-				baseSpan.data('placement', 'top')
-				baseSpan.attr('title', 'cDNA location: ' + pos)
-				baseSpan.html(base)
-				sliceSeq.append(baseSpan)
-				pos++
-			}
+			}),
+			variations: variationsPerRow[row_i],
+			translation: featuresPerRow[row_i].translation
 		}
-		else if (seqSlice.type.toLowerCase() == 'cds') {
-			seqSlice.triplets.forEach(function(triplet, triplet_i) {
-				if (sliceTranslation == undefined) {
-					sliceTranslation = $('<div>')
-					sliceTranslation.addClass('translation')
-					sliceTranslation.css('margin-left', maxLengthDigits.toString() + 'em')
-					sliceTranslation.append("&nbsp;".repeat(pos-parseInt(pos/basesPerRow)*basesPerRow-1))
-				}
-				var oddEven = (triplet_i % 2 == 0) ? 'even' : 'odd'
+	}
+	console.log(rows)
 
-				var tripletSeq = $('<span>')
-				tripletSeq.addClass('triplet')
-				var tripletTranslation = $('<span>')
-				tripletTranslation.addClass('triplet ' + oddEven)
-
-				tripletBase_i = 0
-				for (base of triplet.sequence) {
-					if ((pos-1) % basesPerRow == 0) {
-						if (row !== undefined) {
-							sliceSeq.append(tripletSeq)
-							sliceTranslation.append(tripletTranslation)
-							row.data('features', featuresPerRow[row_i])
-							row.data('row-number', row_i)
-							row.append(sliceVariation)
-							row.append(sliceSeq)
-							row.append(sliceTranslation)
-							seqHTML.append(row)
-							row_i++
-						}
-						row = $('<p>')
-						rowLocation = $('<span>')
-						sliceSeq = $('<div>')
-						sliceTranslation = $('<div>')
-						tripletSeq = $('<span>')
-						tripletTranslation = $('<span>')
-
-						sliceVariation = $('<div>')
-						sliceVariation.addClass('variations')
-						sliceVariation.css('margin-left', maxLengthDigits.toString() + 'em')
-
-						row.addClass('seq-row')
-						rowLocation.addClass('row-location')
-						sliceSeq.addClass('seq ' + seqSlice.type.toLowerCase())
-						sliceTranslation.addClass('translation')
-						tripletSeq.addClass('triplet')
-						tripletTranslation.addClass('triplet ' + oddEven)
-
-						rowLocation.html(parseInt(pos / basesPerRow) * basesPerRow)
-						rowLocation.css('width', maxLengthDigits.toString() + 'em')
-						sliceSeq.append(rowLocation)
-						sliceTranslation.css('margin-left', maxLengthDigits.toString() + 'em')
-
-					// If there are variations in the row, show them
-					if (variationsPerRow.hasOwnProperty(row_i)) {
-						var prev;
-						Object.keys(variationsPerRow[row_i]).forEach(function(source, _) {
-							variationRow = $("<div>")
-							variationRow.addClass('variation-row hidden')
-							lastAnnotatedPosition = row_i * basesPerRow
-							variationsPerRow[row_i][source].forEach(function(variation, _) {
-								// Fill with empty spaces between variations
-								start = Math.max(variation.start, row_i * basesPerRow + 1)
-								console.log(variation)
-								console.log("Variation offset", start, lastAnnotatedPosition)
-								if (lastAnnotatedPosition == start) {
-									return
-								}
-								variationRow.append("&nbsp;".repeat(start - lastAnnotatedPosition - 1))
-								if (variation.variation.url) {
-									variationSpan = $('<a>')
-									variationSpan.attr('href', variation.variation.url)
-									variationSpan.attr('target', '_blank')
-								} else {
-									variationSpan = $('<span>')
-								}
-								variationSpan.addClass('variation')
-								variationSpan.addClass('variation-' + variation.variation.operation)
-								variationSpan.html(variation.sequence)
-								// Adding variation tooltip
-								if (variation.variation.comment) {
-									variationSpan.data('toggle', 'tooltip')
-									variationSpan.data('placement', 'top')
-									variationSpan.attr('title', variation.variation.comment)
-								}
-								variationRow.attr('data-source', source)
-								variationRow.append(variationSpan)
-								lastAnnotatedPosition = variation.end
-								prev = variation
-							})
-							sourceSpan = $('<span>')
-							sourceSpan.addClass('variation-source')
-							sourceSpan.append(source)
-							variationRow.append("&nbsp;".repeat((row_i + 1) * basesPerRow - lastAnnotatedPosition + 1))
-							variationRow.append(sourceSpan)
-							sliceVariation.append(variationRow)
-						})
-					}
-					}
-					baseSpan = $('<span>')
-					baseSpan.attr('id', 'base-' + pos)
-					baseSpan.attr('data-location', pos)
-					baseSpan.addClass('base')
-					// Enable tooltip
-					baseSpan.data('toggle', 'tooltip')
-					baseSpan.data('placement', 'top')
-					baseSpan.attr('title', 'cDNA location: ' + pos)
-					baseSpan.html(base)
-					tripletSeq.append(baseSpan)
-					tripletTranslation.append(tripletBase_i == 1 ? triplet.translation : "&nbsp;")
-					pos++
-					tripletBase_i++
-				}
-				sliceSeq.append(tripletSeq)
-				sliceTranslation.append(tripletTranslation)
-			})
-		}
-	})
-	$('.sequence').html(seqHTML)
+	// Render Handlebars template
+	$('.sequence-container').html(template({
+		rows: rows,
+		maxLengthDigits,
+		rowCount: rowCount,
+		basesPerRow: basesPerRow
+	}))
 }
 
 var currentVariations = [];
@@ -462,7 +303,6 @@ function bindVariations(popover_template) {
 		currentVariations.push(variation)
 		$('#variations-form input[name="variations"]').val(JSON.stringify(currentVariations))
 		$('.sequence').popover('dispose')
-		console.log(currentVariations)
 	})
 }
 

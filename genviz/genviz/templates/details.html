@@ -64,24 +64,7 @@
         </div>
     </div>  
     <div class="sequence-container">
-        <div class="col-location">
-            {% spaceless %}
-            {% with ''|center:"3" as reps %}
-                {% for _ in reps %}
-                    {% with ''|center:"10" as col_i %}
-                        {% for _ in col_i %}
-                            {% if forloop.counter|divisibleby:"10" %}
-                                <span class="red">0</span>
-                            {% else %}
-                                <span>{{ forloop.counter }}</span>
-                            {% endif %}
-                        {% endfor %}
-                    {% endwith %}
-                {% endfor %}
-            {% endwith %}
-            {% endspaceless %}
-        </div>
-        <div class="sequence"></div>
+        
     </div>
 {% endblock %}
 
@@ -96,10 +79,13 @@
     <script>
         $(document).ready(() => {
             var features = JSON.parse("{{features_json|escapejs}}")
-            var sequence = JSON.parse("{{sequence_json|escapejs}}")
+            var sequence = "{{sequence}}"
             var variations = JSON.parse("{{variations_json|escapejs}}")
             var gene_length = {{gene_length}}
-            formatGeneSequence(sequence, features, variations, gene_length, 30)
+            Handlebars.registerPartial('variationsRow', `{% include 'handlebars/details/_variations-row.html' %}`)
+            var sequence_template = Handlebars.compile(`{% include 'handlebars/details/_sequence.html' %}`)
+
+            formatGeneSequence(sequence, features, variations, gene_length, 30, sequence_template)
             plotGeneFeatures(features)
             {% if request.user.is_authenticated and request.user.is_biologist %}
                 var variation_popover_html = `{% include 'handlebars/details/variation-popover.html' with patients=patients %}`

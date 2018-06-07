@@ -137,46 +137,8 @@ class GeneDetails(TemplateView):
 
             for f_type in features:
                 features[f_type].sort(key=lambda f: f['location'][1])
-            
-            gene_length = features['source'][0]['location'][1]
-            sequence = []   
-            prev_end = 0
-            if 'CDS' in features:
-                for feature in features['CDS']:
-                    cds_start, cds_end = map(int, feature['location'])
-                    translation = feature['qualifiers']['translation'][0]
-                    sequence.append({
-                        'type': 'non-CDS',
-                        'location': [int(prev_end), int(cds_start)],
-                        'sequence': str(res.seq[prev_end:cds_start])
-                    })
-                    sequence.append({
-                        'type': 'CDS',
-                        'location': list(map(int, feature['location'])),
-                        'sequence': str(res.seq[cds_start:cds_end]),
-                        'translation': feature['qualifiers']['translation'][0],
-                        'triplets': []
-                    })
-                    for i in range(len(translation)):
-                        sequence[-1]['triplets'].append({
-                            'sequence': str(res.seq[cds_start+i*3:cds_start+(i+1)*3]),
-                            'translation': feature['qualifiers']['translation'][0][i]
-                        })
-                    # If there's a leftover base at the end
-                    if len(sequence[-1]['triplets'])*3+1 == cds_end-cds_start+1:
-                        sequence[-1]['triplets'].append({
-                            'sequence': str(res.seq[cds_end]),
-                            'translation': '-'    
-                        })
 
-                    prev_end = cds_end
-
-            if prev_end != gene_length:
-                sequence.append({
-                    'type': 'non-CDS',
-                    'location': [int(prev_end), int(gene_length)],
-                    'sequence': str(res.seq)
-                })
+            gene_length = features['source'][0]['location'][1] - features['source'][0]['location'][0] + 1
 
             # Fetch variations from Clinvar
             clinvar_variations = fetch_clinvar_variations(res.id)
@@ -201,8 +163,7 @@ class GeneDetails(TemplateView):
                 'entry_dict': res.__dict__,
                 'features_json': json.dumps(features),
                 'features': features,
-                'sequence': sequence,
-                'sequence_json': json.dumps(sequence),
+                'sequence': str(res.seq),
                 'gene_length': gene_length,
                 'seq_id': seq_id,
                 'variation_sources': set(map(lambda a: a.source, variations)),

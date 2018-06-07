@@ -1,19 +1,29 @@
-<!-- TODO -->
-<div class="sequence">
-	{{#each sequenceRows}}
-	<p class="seq-row">
-		<div class="annotations" style="margin-left: {{ maxLengthDigits }}em;">
-			{{#each annotationsPerRow[@index] }}
-				<div class="annotation-row">
-					{{this.annotationRowHTML}}
-				</div>
-			{{/each}}
-		</div>
-		<div class="seq">
-			<span class="row-location" style="width: {{ maxLengthDigits }}em;">{{ this.rowNumber }}</span>
-			{{#each this.sequence}}
-				<span id="base-{{this.}}" class="base" title="cDNA location: {{this.}}">G</span>
-			{{/each}}
-		</div>
-	</p>
+{% verbatim %}
+<div class="col-location">
+	<span class="inline-block" style="margin-left: {{ maxLengthDigits }}em"></span>
+	{{#times1 30}}
+		{{#if (divisible this 10)}}
+			<span class="red">0</span>
+		{{else}}
+			<span>{{mod this 10}}</span>
+		{{/if}}
+	{{/times1}}
 </div>
+<div class="sequence">
+	{{#times1 rowCount}}
+		<div class="seq-row">
+			{{#if (lookup (lookup ../rows this) "variations")}}
+				{{> variationsRow variations=(lookup (lookup ../rows this) "variations" maxLengthDigits=../maxLengthDigits)}}
+			{{/if}}
+			<div class="seq">
+				<span class="row-location" style="min-width: {{ ../maxLengthDigits }}em;">
+					{{ multiply (dec this) ../basesPerRow }}
+				</span>
+				{{#each (lookup (lookup ../rows this) "sequence")}}
+					<span id='base-{{ lookup this "position" }}' class="base" title='cDNA location: {{ lookup this "position" }}'>{{ lookup this "base" }}</span>
+				{{/each}}
+			</div>
+		</div>
+	{{/times1}}
+</div>
+{% endverbatim %}

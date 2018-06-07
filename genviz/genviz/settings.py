@@ -27,8 +27,11 @@ SECRET_KEY = '5(!o&ny2gjn$!0n+fwq#9#1#fz&ev@4e*9*x%c%yo5=&s-k67s'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-'davidaam.me'
+'davidaam.me',
+'127.0.0.1',
+'herokuapp.com'
 ]
+
 
 
 # Application definition

@@ -17,8 +17,8 @@
 		  <label class="form-check-label" for="Del">Del</label>
 		</div>
 		<div class="form-check">
-		  <input class="form-check-input" type="radio" name="operation" id="radio-insdel" value="insdel">
-		  <label class="form-check-label" for="InsDel">Insdel</label>
+		  <input class="form-check-input" type="radio" name="operation" id="radio-delins" value="delins">
+		  <label class="form-check-label" for="DelIns">Delins</label>
 		</div>
 		<div class="form-check">
 		  <input class="form-check-input" type="radio" name="operation" id="radio-dup" value="dup">
@@ -29,7 +29,8 @@
         {{#if singleBaseSelected }}
             <form class="hidden variation-sub-form" data-operation='ins'>
                 <label>Insert after position {{startLocation}}:</label>
-                <input type="text" class="form-control" name="sequence" />
+                <input type="hidden" name="ref" value="{{bases}}" />
+                <input type="text" class="form-control" name="alt" />
                 <input type="hidden" name="start" value="{{inc startLocation}}" />
                 <input type="hidden" name="end" value="{{inc startLocation}}" />
                 {% endverbatim %}
@@ -53,13 +54,14 @@
     		<input type="hidden" name="start" value="{{ startLocation }}" />
     		<input type="hidden" name="end" value="{{ endLocation }}" />
     	</form>
-       	<form class="hidden variation-sub-form" data-operation='insdel'>
+       	<form class="hidden variation-sub-form" data-operation='delins'>
             {{#if singleBaseSelected }}
                 <span>Delete base ({{bases}}) at position {{startLocation}} and insert:</span>
             {{else}}
                 <label>Delete bases <span class='popover-bases'>({{ bases }})</span> from position {{ startLocation }} to {{ endLocation }} and insert:</label>
             {{/if}}
-    		<input type="text" class="form-control" name="sequence" />
+    		<input type="hidden" name="ref" value="{{bases}}" />
+            <input type="text" class="form-control" name="alt" />
             {% endverbatim %}
             {% include 'handlebars/details/_variation-patient-select.html' with patients=patients %}
             {% include 'handlebars/details/_variation-comment.html' %}
@@ -74,7 +76,8 @@
             {{else}}
                 <label>Substitute bases <span class='popover-bases'>({{ bases }})</span> from position {{ startLocation }} to {{ endLocation }} with:</label>
             {{/if}}
-    		<input type="text" class="form-control" name="sequence" />
+    		<input type="hidden" name="ref" value="{{bases}}" />
+            <input type="text" class="form-control" name="alt" />
             {% endverbatim %}
             {% include 'handlebars/details/_variation-patient-select.html' with patients=patients %}
             {% include 'handlebars/details/_variation-comment.html' %}

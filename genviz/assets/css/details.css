@@ -1,7 +1,6 @@
 .sequence, .col-location {
 	word-break:break-all;
 	font-family:'monospace';
-	letter-spacing: 0.5em;
 }
 
 .sequence {
@@ -139,7 +138,14 @@ span.red {
 	display: inline-block;
 	width: 1em;
 }
-
-.variation-insdel, .variation-delins {
+.variation-delins, .variation-insdel {
 	background: orange;
+}
+
+.padded-char {
+	margin: 0 0.25em;
+}
+
+.inline-block {
+	display: inline-block;
 }
