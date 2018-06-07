@@ -9,6 +9,10 @@ from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from genviz.forms import SignUpForm
 
+
+class Home(TemplateView):
+    template_name = 'home.html'
+
 # TODO: Create view to show details of a gene
 def fetch_gene_details(ids):
     handle_genes = Entrez.efetch(id=','.join(ids), db='nucleotide', rettype='gb', retmode='text')
@@ -155,6 +159,7 @@ def signup(request):
             # raw_password = form.cleaned_data.get('password1')
             # user = authenticate(email=email, password=raw_password)
             # login(request, user)
+            return redirect('/search')
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
