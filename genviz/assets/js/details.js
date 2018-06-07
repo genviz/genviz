@@ -115,45 +115,46 @@ function plotGeneFeatures(features) {
 	})
 }
 
-function formatGeneSequence(sequence, features, annotations, sequenceLength, basesPerRow) {
+function formatGeneSequence(sequence, features, variations, sequenceLength, basesPerRow) {
 	// TODO: Refactor Sequence display as Handlebars template if possible
 
-	// Get annotations per row
-	var annotationsPerRow = {}
-	annotations.forEach(function(annotation, _) {
-		startRow = parseInt((annotation.start - 1) / basesPerRow)
-		endRow = parseInt((annotation.end - 1) / basesPerRow)
+	// Get variations per row
+	var variationsPerRow = {}
+	variations.forEach(function(variation, _) {
+		startRow = parseInt((variation.start - 1) / basesPerRow)
+		endRow = parseInt((variation.end - 1) / basesPerRow)
 		rowCount = startRow - endRow + 1
 		annotatedBases = 0
 		for (var i = startRow; i <= endRow; i++) {
-			start = Math.max(1 + i * basesPerRow, annotation.start)
-			end = Math.min((i+1) * basesPerRow, annotation.end)
-			if (annotation.operation == 'del') {
+			start = Math.max(1 + i * basesPerRow, variation.start)
+			end = Math.min((i+1) * basesPerRow, variation.end)
+			if (variation.operation == 'del') {
 				seq = '&nbsp;'.repeat(end - start + 1)
-			} else if (annotation.operation == 'dup') {
+			} else if (variation.operation == 'dup') {
 				triangle = $('<span>')
 				triangle.addClass('arrow-up')
 				seq = $('<span>')
 				seq.append(triangle)
 			} else {
-				seq = annotation.sequence.slice(annotatedBases, end - start + 1)				
+				seq = variation.alt.slice(annotatedBases, end - start + 1)				
 			}
 			annotatedBases = end - start + 1
-			annotationsPerRow[i] = annotationsPerRow[i] || {}
-			annotationsPerRow[i][annotation.source] = annotationsPerRow[i][annotation.source] || []
-			annotationsPerRow[i][annotation.source].push({
+			variationsPerRow[i] = variationsPerRow[i] || {}
+			variationsPerRow[i][variation.source] = variationsPerRow[i][variation.source] || []
+			variationsPerRow[i][variation.source].push({
 				start: start,
 				end: end,
 				sequence: seq,
-				annotation: annotation
+				variation: variation
 			})
 		}
 	})
+	console.log(variationsPerRow)
 
-	// Sort annotations per row
-	Object.keys(annotationsPerRow).forEach(function(row_i, _) {
-		Object.keys(annotationsPerRow[row_i]).forEach(function(source, _) {
-			annotationsPerRow[row_i][source].sort(function(a1, a2) {
+	// Sort variations per row
+	Object.keys(variationsPerRow).forEach(function(row_i, _) {
+		Object.keys(variationsPerRow[row_i]).forEach(function(source, _) {
+			variationsPerRow[row_i][source].sort(function(a1, a2) {
 				return a1.start - a2.start
 			})
 		})
@@ -182,7 +183,7 @@ function formatGeneSequence(sequence, features, annotations, sequenceLength, bas
 
 	var seqHTML = $('<p>')
 
-	var sliceSeq, sliceTranslation, sliceAnnotation, row, subPos;
+	var sliceSeq, sliceTranslation, sliceVariation, row, subPos;
 	subPos = 0
 	row_i = 0;
 	sequence.forEach(function(seqSlice, _) {
@@ -192,7 +193,7 @@ function formatGeneSequence(sequence, features, annotations, sequenceLength, bas
 					if (row !== undefined) {
 						row.data('features', featuresPerRow[row_i])
 						row.data('row-number', row_i)
-						row.append(sliceAnnotation)
+						row.append(sliceVariation)
 						row.append(sliceSeq)
 						seqHTML.append(row)
 						row_i++
@@ -204,44 +205,45 @@ function formatGeneSequence(sequence, features, annotations, sequenceLength, bas
 					rowLocation.addClass('row-location')
 
 					sliceSeq = $('<div>')
-					sliceAnnotation = $('<div>')
+					sliceVariation = $('<div>')
 
 					sliceSeq.addClass('seq ' + seqSlice.type.toLowerCase())
-					sliceAnnotation.addClass('annotations')
+					sliceVariation.addClass('variations')
 
 					rowLocation.html(parseInt(pos / basesPerRow) * basesPerRow)
 					rowLocation.css('width', maxLengthDigits.toString() + 'em')
 					sliceSeq.append(rowLocation)
-					sliceAnnotation.css('margin-left', maxLengthDigits.toString() + 'em')
+					sliceVariation.css('margin-left', maxLengthDigits.toString() + 'em')
 
 					
-					// If there are annotations in the row, show them
-					if (annotationsPerRow.hasOwnProperty(row_i)) {
-						Object.keys(annotationsPerRow[row_i]).forEach(function(source, _) {
-							annotationRow = $("<div class='annotation-row'>")
+					// If there are variations in the row, show them
+					if (variationsPerRow.hasOwnProperty(row_i)) {
+						Object.keys(variationsPerRow[row_i]).forEach(function(source, _) {
+							variationRow = $("<div class='variation-row'>")
 							lastAnnotatedPosition = row_i * basesPerRow
-							annotationsPerRow[row_i][source].forEach(function(annotation, _) {
-								// Fill with empty spaces between annotations
-								annotationRow.append("&nbsp;".repeat(annotation.start - lastAnnotatedPosition - 1))
-								annotationSpan = $('<span>')
-								annotationSpan.addClass('annotation')
-								annotationSpan.addClass('annotation-' + annotation.annotation.operation)
-								annotationSpan.html(annotation.sequence)
-								// Adding annotation tooltip
-								if (annotation.annotation.comment) {
-									annotationSpan.data('toggle', 'tooltip')
-									annotationSpan.data('placement', 'top')
-									annotationSpan.attr('title', 'Comment: ' + annotation.annotation.comment)
+							variationsPerRow[row_i][source].forEach(function(variation, _) {
+								// Fill with empty spaces between variations
+								variationRow.append("&nbsp;".repeat(variation.start - lastAnnotatedPosition - 1))
+								variationSpan = $('<span>')
+								variationSpan.addClass('variation')
+								variationSpan.addClass('variation-' + variation.variation.operation)
+								variationSpan.html(variation.sequence)
+								// Adding variation tooltip
+								if (variation.variation.comment) {
+									variationSpan.data('toggle', 'tooltip')
+									variationSpan.data('placement', 'top')
+									variationSpan.attr('title', 'Comment: ' + variation.variation.comment)
 								}
-								annotationRow.append(annotationSpan)
-								lastAnnotatedPosition = annotation.end
+								variationRow.attr('data-source', source)
+								variationRow.append(variationSpan)
+								lastAnnotatedPosition = variation.end
 							})
 							sourceSpan = $('<span>')
-							sourceSpan.addClass('annotation-source')
+							sourceSpan.addClass('variation-source')
 							sourceSpan.append(source)
-							annotationRow.append("&nbsp;".repeat((row_i + 1) * basesPerRow - lastAnnotatedPosition + 1))
-							annotationRow.append(sourceSpan)
-							sliceAnnotation.append(annotationRow)
+							variationRow.append("&nbsp;".repeat((row_i + 1) * basesPerRow - lastAnnotatedPosition + 1))
+							variationRow.append(sourceSpan)
+							sliceVariation.append(variationRow)
 						})
 					}
 				}
@@ -328,8 +330,8 @@ function formatGeneSequence(sequence, features, annotations, sequenceLength, bas
 	$('.sequence').html(seqHTML)
 }
 
-var currentAnnotations = [];
-function bindAnnotations(popover_template) {
+var currentVariations = [];
+function bindVariations(popover_template) {
 	$('.seq .base').mouseup(function() {
 		var range = window.getSelection().getRangeAt(0)
 		var $startNode = $(range.startContainer.parentNode)
@@ -384,20 +386,20 @@ function bindAnnotations(popover_template) {
 	$('body').on("change", "[name='operation']", function() {
 		$option = $(this)
 		operation = $option.val()
-		$('.annotation-sub-form').addClass('hidden')
-		$('.annotation-sub-form[data-operation="'+ operation +'"]').removeClass('hidden')
-		$('.confirm-annotation').removeClass('hidden')
+		$('.variation-sub-form').addClass('hidden')
+		$('.variation-sub-form[data-operation="'+ operation +'"]').removeClass('hidden')
+		$('.confirm-variation').removeClass('hidden')
 	})
 
-	$('body').on('click', '.confirm-annotation', function() {
-		$form = $('.annotation-sub-form:visible')
+	$('body').on('click', '.confirm-variation', function() {
+		$form = $('.variation-sub-form:visible')
 
-		annotation = getFormData($form)
-		annotation.operation = $form.data('operation')
-		currentAnnotations.push(annotation)
-		$('#annotations-form input[name="annotations"]').val(JSON.stringify(currentAnnotations))
+		variation = getFormData($form)
+		variation.operation = $form.data('operation')
+		currentVariations.push(variation)
+		$('#variations-form input[name="variations"]').val(JSON.stringify(currentVariations))
 		$('.sequence').popover('dispose')
-		console.log(currentAnnotations)
+		console.log(currentVariations)
 	})
 }
 
@@ -417,4 +419,15 @@ function bindScroll() {
 		$('.current-region').html($topRow.data('features').join(', '))
 	})
 	$('.sequence').scroll()
+}
+
+function bindVariationsSelect() {
+	// $('.selectpicker').selectpicker()
+	$('#show-variations').change(function() {
+		sources = $(this).val()
+		$('.variation-row').hide()
+		sources.forEach(function (source,  _) {
+			$('.variation-row[data-source="'+source+'"]').show()
+		})
+	})
 }

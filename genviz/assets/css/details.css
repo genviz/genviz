@@ -90,19 +90,19 @@ span.red {
 	background: yellow;
 }
 
-.confirm-annotation {
+.confirm-variation {
 	margin-top: 1em;
 }
 
-.annotation-del {
+.variation-del {
 	background: red;
 }
 
-.annotation-ins {
+.variation-ins {
 	background: green;
 	color: #FFF;
 }
-.annotation-sub {
+.variation-sub {
 	background: yellow;
 	color: #000;
 }
@@ -122,7 +122,7 @@ span.red {
 	min-height:4em;
 }
 
-.annotation-source {
+.variation-source {
 	letter-spacing: 0em;
 }
 
@@ -135,11 +135,11 @@ span.red {
   display: inline-block;
 }
 
-.annotation-dup {
+.variation-dup {
 	display: inline-block;
 	width: 1em;
 }
 
-.annotation-insdel {
+.variation-insdel {
 	background: orange;
 }

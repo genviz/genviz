@@ -4,6 +4,7 @@
 
 {% block head %}
     <link rel="stylesheet" href="{% static 'vis/dist/vis.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/lib/bootstrap-select.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/details.css' %}">
 {% endblock %}
 
@@ -19,12 +20,12 @@
             <div class='form-inline goto-form'>
                 <label class="inline">Go to: </label>
                 <input class="form-control mr-sm-2 goto-location" name="cdna_location" type="number" placeholder="cDNA location" aria-label="cDNA location">
-                <form action="/annotations/" method="post" id="annotations-form">
+                <form action="/variations/" method="post" id="variations-form">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <input type="hidden" name="annotations">
+                    <input type="hidden" name="variations">
                     <input type="hidden" name="seq_id" value="{{seq_id}}">
-                    <button type="submit" class="btn btn-outline-success">Save annotations</button>
+                    <button type="submit" class="btn btn-outline-success">Save variations</button>
                 </form>
             </div>
         </div>
@@ -49,13 +50,12 @@
     <div class="row">
         <div class="col-md-12">
             <div class='form-inline goto-form'>
-                <label class="inline">Show annotations: </label>
-                <select name="" class="form-control" id="show-annotations">
-                    {% for source in annotation_sources %}
+                <label class="inline">Show variations: </label>
+                <select name="" multiple class="form-control" id="show-variations">
+                    {% for source in variation_sources %}
                         <option value="{{source}}">{{source}}</option>
                     {% endfor %}
                 </select>
-                <label class="inline">You are currently on:&nbsp;<b class='current-region'></b></label>
             </div>
         </div>
     </div>  
@@ -84,20 +84,23 @@
 {% block js-footer %}
     <script src="{% static 'handlebars/dist/handlebars.min.js' %}"></script>
     <script src="{% static 'vis/dist/vis.min.js' %}"></script>
+    <script src="{% static 'js/lib/bootstrap-select.js' %}"></script>
     <script src="{% static 'js/details.js' %}"></script>
+    <script src="{% static 'js/handlebars_helpers.js' %}"></script>
     <script>
         $(document).ready(() => {
             var features = JSON.parse("{{features_json|escapejs}}")
             var sequence = JSON.parse("{{sequence_json|escapejs}}")
-            var annotations = JSON.parse("{{annotations_json|escapejs}}")
+            var variations = JSON.parse("{{variations_json|escapejs}}")
             var gene_length = {{gene_length}}
-            formatGeneSequence(sequence, features, annotations, gene_length, 30)
+            formatGeneSequence(sequence, features, variations, gene_length, 30)
             plotGeneFeatures(features)
 
-            var annotation_popover_html = `{% include 'handlebars/details/annotation-popover.html' with patients=patients %}`
-            var annotation_popover_template = Handlebars.compile(annotation_popover_html);
-            bindAnnotations(annotation_popover_template)
+            var variation_popover_html = `{% include 'handlebars/details/variation-popover.html' with patients=patients %}`
+            var variation_popover_template = Handlebars.compile(variation_popover_html);
+            bindVariations(variation_popover_template)
             bindScroll()
+            // bindVariationsSelect()
         })
     </script>
 {% endblock %}

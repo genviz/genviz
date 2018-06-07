@@ -24,5 +24,5 @@ urlpatterns = [
     url(r'^/?$', GeneSearch.as_view()),
     url(r'^results/', GeneSearchResults.as_view()),
     url(r'^details/', GeneDetails.as_view()),
-    url(r'^annotations/', AnnotationsView.as_view()),
+    url(r'^variations/', VariationsView.as_view()),
 ]

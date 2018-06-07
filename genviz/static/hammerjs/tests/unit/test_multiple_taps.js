@@ -1,0 +1,1 @@
+/home/david/Projects/genviz/genviz/node_modules/hammerjs/tests/unit/test_multiple_taps.js

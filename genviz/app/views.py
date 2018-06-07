@@ -5,12 +5,34 @@ from django.views.generic import TemplateView, View
 from Bio import Entrez
 from Bio import SeqIO
 from .models import *
+import xmltodict
+import hgvs.parser
 
 # TODO: Create view to show details of a gene
 def fetch_gene_details(ids):
     handle_genes = Entrez.efetch(id=','.join(ids), db='nucleotide', rettype='gb', retmode='text')
     records_genes = SeqIO.parse(handle_genes, 'gb')
     res = {r.id: str(r.seq) for r in records_genes}
+
+def fetch_clinvar_variations(acc_id):
+    handle = Entrez.esearch(term='%s[Nucleotide/Protein Accession]' % acc_id, db='clinvar')
+    res = Entrez.read(handle, validate=False)
+    var_ids = res['IdList']
+    handle = Entrez.efetch(id=var_ids, db='clinvar', rettype='variation')
+    clinvar_xml = handle.read()
+    clinvar_dict = xmltodict.parse(clinvar_xml)
+    hgvsparser = hgvs.parser.Parser()
+
+    variants = []
+    for variant in clinvar_dict['ClinVarResult-Set']['VariationReport']:
+        for v in variant['Allele']['HGVSlist']['HGVS']:
+            if '@AccessionVersion' in v and v['@AccessionVersion'] == acc_id:
+                try:
+                    variants.append(hgvsparser.parse_hgvs_variant(v['#text']))
+                    print(v['#text'])
+                except:
+                    print('Couldn\'t parse variant {}'.format(v['#text']))
+    return variants
 
 class GeneSearchResults(TemplateView):
     template_name = 'results.html'
@@ -106,8 +128,13 @@ class GeneDetails(TemplateView):
                     'sequence': str(res.seq)
                 })
 
-            # Get annotations
-            annotations = Annotation.objects.filter(seq_id=seq_id).all()
+            # Fetch variations from Clinvar
+            clinvar_variations = list(map(lambda v: Variation.from_hgvs_obj(v, 'clinvar'), fetch_clinvar_variations(res.id)))
+            # Get variations
+            user_variations = list(Variation.objects.filter(seq_id=seq_id).all())
+
+            variations = clinvar_variations + user_variations
+            #import pdb; pdb.set_trace()
             return self.render_to_response(context={
                 'entry': res,
                 'entry_dict': res.__dict__,
@@ -117,23 +144,23 @@ class GeneDetails(TemplateView):
                 'sequence_json': json.dumps(sequence),
                 'gene_length': gene_length,
                 'seq_id': seq_id,
-                'annotation_sources': set(map(lambda a: a.source, annotations)),
-                'annotations_json': json.dumps([x["fields"] for x in json.loads(serializers.serialize('json', annotations))]),
+                'variation_sources': set(map(lambda a: a.source, variations)),
+                'variations_json': json.dumps([x["fields"] for x in json.loads(serializers.serialize('json', variations))]),
                 'patients': request.user.patients
            })
 
-class AnnotationsView(View):
+class VariationsView(View):
     def post(self, request, *args, **kwargs):
-        annotations_json = json.loads(request.POST.get('annotations', '[]'))
+        variations_json = json.loads(request.POST.get('variations', '[]'))
         seq_id = request.POST.get('seq_id', None)
-        for annotation_json in annotations_json:
+        for variation_json in variations_json:
             # Renaming key to pass it to django model instantiation
-            annotation_json['patient_id'] = annotation_json['patient']
-            del annotation_json['patient']
-            annotation = Annotation(
+            variation_json['patient_id'] = variation_json['patient']
+            del variation_json['patient']
+            variation = Variation(
                 author=request.user,
-                source=request.user.full_name(),
+                source=variation_json['patient_id'],
                 seq_id=seq_id,
-                **annotation_json)
-            annotation.save()
+                **variation_json)
+            variation.save()
         return HttpResponseRedirect(request.POST.get('next', '/'))

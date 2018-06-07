@@ -1,0 +1,19 @@
+<!-- TODO -->
+<div class="sequence">
+	{{#each sequenceRows}}
+	<p class="seq-row">
+		<div class="annotations" style="margin-left: {{ maxLengthDigits }}em;">
+			{{#each annotationsPerRow[@index] }}
+				<div class="annotation-row">
+					{{this.annotationRowHTML}}
+				</div>
+			{{/each}}
+		</div>
+		<div class="seq">
+			<span class="row-location" style="width: {{ maxLengthDigits }}em;">{{ this.rowNumber }}</span>
+			{{#each this.sequence}}
+				<span id="base-{{this.}}" class="base" title="cDNA location: {{this.}}">G</span>
+			{{/each}}
+		</div>
+	</p>
+</div>

@@ -1,8 +1,8 @@
-
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-
+import hgvs.location
+import hgvs.posedit
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -60,21 +60,66 @@ class User(AbstractUser):
     def full_name(self):
         return self.first_name + ' ' + self.last_name
 
-class Annotation(models.Model):
+class Variation(models.Model):
     OPERATION_CHOICES = (
         ('ins', 'Insertion'),
         ('del', 'Deletion'),
         ('insdel', 'Insertion-Deletion'),
+        ('delins', 'Deletion-Insertion'),
         ('sub', 'Substitution'),
         ('dup', 'Duplication'),
     )
-    author    = models.ForeignKey(User, on_delete=models.CASCADE)
+    author    = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     seq_id    = models.CharField(max_length=30)
-    after     = models.IntegerField(null=True)
     start     = models.IntegerField(null=True)
     end       = models.IntegerField(null=True)
-    sequence  = models.CharField(max_length=1000)
+    ref       = models.CharField(max_length=1000)
+    alt       = models.CharField(max_length=1000)
     operation = models.CharField(max_length=10, choices=OPERATION_CHOICES)
     comment   = models.TextField(null=True)
-    patient   = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    source    = models.CharField(max_length=30, default='manual')
+    patient   = models.ForeignKey(Patient, on_delete=models.CASCADE, null=True)
+    source    = models.CharField(max_length=30, default='Unknown')
+    hgvs      = models.CharField(max_length=200, null=True)
+
+    @staticmethod
+    def from_hgvs(variation, source):
+        """
+        Parses a string that describes a change in hgvs format and returns Variation object
+        """
+        hgvs_variation = hgvs.parse_hgvs(variation)
+        return self.from_hgvs_obj(hgvs_variation, source)
+
+    @staticmethod
+    def from_hgvs_obj(hgvs_variation, source):
+        """
+        Maps a hgvs.SequenceVariant to a Variation object
+        """
+        pos = hgvs_variation.posedit.pos
+        start, end = pos.start, pos.end
+        acc_id = hgvs_variation.ac
+        edit = hgvs_variation.posedit.edit
+        ref, alt = edit.ref, edit.alt
+
+        change = str(edit)
+        if '>' in change:
+            operation = 'sub'
+        elif 'delins' in change:
+            operation = 'delins'
+        elif 'insdel' in change:
+            operation = 'insdel'
+        elif 'ins' in change:
+            operation = 'ins'
+        elif 'dup' in change:
+            operation = 'dup'
+        else:
+            operation = 'unknown'
+
+        return Variation(
+            seq_id=acc_id,
+            start=start,
+            end=end,
+            ref=ref,
+            alt=alt,
+            operation=operation,
+            source=source
+        )

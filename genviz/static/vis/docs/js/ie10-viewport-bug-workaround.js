@@ -1,0 +1,1 @@
+/home/david/Projects/genviz/genviz/node_modules/vis/docs/js/ie10-viewport-bug-workaround.js

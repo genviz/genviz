@@ -1,0 +1,1 @@
+/home/david/Projects/genviz/genviz/node_modules/bootstrap-select/js/i18n/defaults-it_IT.js

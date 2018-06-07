@@ -1,0 +1,1 @@
+/home/david/Projects/genviz/genviz/node_modules/vis/examples/network/data/dotLanguage/graphvizGallery/traffic_lights.gv.txt
