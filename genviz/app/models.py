@@ -46,7 +46,7 @@ class Patient(models.Model):
 
 
 class User(AbstractUser):
-    username     = None
+    username     = models.CharField(max_length=100, default="None")
     email        = models.EmailField(_('email address'), unique=True)
     is_doctor    = models.BooleanField('student status', default=False)
     is_biologist = models.BooleanField('teacher status', default=True)

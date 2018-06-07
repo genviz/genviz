@@ -1,0 +1,44 @@
+ {% if user.is_authenticated %}
+
+<p><b>Patient</b></p>
+<select name="patient" class="patient-select">
+    {% for patient in patients.all %}
+        <option value="{{ patient.pk }}">{{ patient.full_name }}</option>
+    {% endfor %}
+</select>
+
+
+
+
+<form action="/my-handling-form-page" method="post">
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" />
+    </div>
+    <div>
+        <label for="mail">Last Name:</label>
+        <input type="text" id="lastname" />
+    </div>
+    <div>
+        <label for="msg">Id:</label>
+        <input type="text" id="pid" />
+    </div>
+    
+    <div id="add" class="button">
+        <button type="submit">Add</button>
+    </div>
+</form>
+
+<script type="text/javascript">
+	$('#add').click(function(){
+		var name = $('#name').value;
+		var lastname =$('#lastname').value;
+		var id =$('#pid').value;
+		var aux = Patient(first_name=name,last_name=lastname,identifier=id);
+		var.save();
+
+	});
+
+
+</script>
+{% endif %}

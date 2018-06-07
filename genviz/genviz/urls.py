@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from app.views import *
+from app import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -25,4 +26,8 @@ urlpatterns = [
     url(r'^results/', GeneSearchResults.as_view()),
     url(r'^details/', GeneDetails.as_view()),
     url(r'^annotations/', AnnotationsView.as_view()),
+    url(r'^signup/$', views.signup, name='signup'),
 ]
+
+
+
