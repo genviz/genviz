@@ -1,0 +1,19 @@
+{% verbatim %}
+<div class="variations" style="margin-left: {{ maxLengthDigits }}em;">
+	{{#each variations as |vars source|}}
+		<div class="variation-row" data-source="{{ source }}">
+			{{#each vars}}
+				<span style='margin-left: {{ lookup this "offset" }}em;' class='{{ lookup this "operation" }}'>
+					{{#if (eq (lookup this "operation") "del")}}
+						{{#times (lookup this "changeLength")}}
+							<span class="padded-char">
+								&nbsp;
+							</span>
+						{{/times}}
+					{{/if}}
+				</span>
+			{{/each}}
+		</div>
+	{{/each}}
+</div>
+{% endverbatim %}

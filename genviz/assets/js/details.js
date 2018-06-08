@@ -219,11 +219,14 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 					// If there are variations in the row, show them
 					if (variationsPerRow.hasOwnProperty(row_i)) {
 						Object.keys(variationsPerRow[row_i]).forEach(function(source, _) {
-							variationRow = $("<div class='variation-row'>")
+							variationRow = $("<div>")
+							variationRow.addClass('variation-row hidden')
 							lastAnnotatedPosition = row_i * basesPerRow
 							variationsPerRow[row_i][source].forEach(function(variation, _) {
 								// Fill with empty spaces between variations
-								variationRow.append("&nbsp;".repeat(variation.start - lastAnnotatedPosition - 1))
+								start = Math.max(variation.start, row_i * basesPerRow + 1)
+								console.log("Variation offset", start, lastAnnotatedPosition)
+								variationRow.append("&nbsp;".repeat(start - lastAnnotatedPosition - 1))
 								variationSpan = $('<span>')
 								variationSpan.addClass('variation')
 								variationSpan.addClass('variation-' + variation.variation.operation)
@@ -284,6 +287,7 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 							sliceTranslation.append(tripletTranslation)
 							row.data('features', featuresPerRow[row_i])
 							row.data('row-number', row_i)
+							row.append(sliceVariation)
 							row.append(sliceSeq)
 							row.append(sliceTranslation)
 							seqHTML.append(row)
@@ -296,6 +300,10 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 						tripletSeq = $('<span>')
 						tripletTranslation = $('<span>')
 
+						sliceVariation = $('<div>')
+						sliceVariation.addClass('variations')
+						sliceVariation.css('margin-left', maxLengthDigits.toString() + 'em')
+
 						row.addClass('seq-row')
 						rowLocation.addClass('row-location')
 						sliceSeq.addClass('seq ' + seqSlice.type.toLowerCase())
@@ -307,6 +315,40 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 						rowLocation.css('width', maxLengthDigits.toString() + 'em')
 						sliceSeq.append(rowLocation)
 						sliceTranslation.css('margin-left', maxLengthDigits.toString() + 'em')
+
+					// If there are variations in the row, show them
+					if (variationsPerRow.hasOwnProperty(row_i)) {
+						Object.keys(variationsPerRow[row_i]).forEach(function(source, _) {
+							variationRow = $("<div>")
+							variationRow.addClass('variation-row hidden')
+							lastAnnotatedPosition = row_i * basesPerRow
+							variationsPerRow[row_i][source].forEach(function(variation, _) {
+								// Fill with empty spaces between variations
+								start = Math.max(variation.start, row_i * basesPerRow + 1)
+								console.log("Variation offset", start, lastAnnotatedPosition)
+								variationRow.append("&nbsp;".repeat(start - lastAnnotatedPosition - 1))
+								variationSpan = $('<span>')
+								variationSpan.addClass('variation')
+								variationSpan.addClass('variation-' + variation.variation.operation)
+								variationSpan.html(variation.sequence)
+								// Adding variation tooltip
+								if (variation.variation.comment) {
+									variationSpan.data('toggle', 'tooltip')
+									variationSpan.data('placement', 'top')
+									variationSpan.attr('title', 'Comment: ' + variation.variation.comment)
+								}
+								variationRow.attr('data-source', source)
+								variationRow.append(variationSpan)
+								lastAnnotatedPosition = variation.end
+							})
+							sourceSpan = $('<span>')
+							sourceSpan.addClass('variation-source')
+							sourceSpan.append(source)
+							variationRow.append("&nbsp;".repeat((row_i + 1) * basesPerRow - lastAnnotatedPosition + 1))
+							variationRow.append(sourceSpan)
+							sliceVariation.append(variationRow)
+						})
+					}
 					}
 					baseSpan = $('<span>')
 					baseSpan.attr('id', 'base-' + pos)
@@ -422,12 +464,23 @@ function bindScroll() {
 }
 
 function bindVariationsSelect() {
-	// $('.selectpicker').selectpicker()
-	$('#show-variations').change(function() {
-		sources = $(this).val()
-		$('.variation-row').hide()
-		sources.forEach(function (source,  _) {
-			$('.variation-row[data-source="'+source+'"]').show()
+	select = $('#show-variations')
+
+	select.selectpicker({
+		liveSearch: true,
+		actionsBox: true,
+		showTick: true
+	})
+
+	select.on('show.bs.select',function () {
+		select.selectpicker('deselectAll')
+		select.on('changed.bs.select', function() {
+			sources = $(this).val()
+			$('.variation-row').addClass('hidden')
+			sources.forEach(function (source,  _) {
+				$('.variation-row[data-source="'+source+'"]').removeClass('hidden')
+			})
 		})
 	})
+	select.selectpicker('refresh')
 }

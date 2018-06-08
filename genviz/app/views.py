@@ -129,7 +129,15 @@ class GeneDetails(TemplateView):
                 })
 
             # Fetch variations from Clinvar
-            clinvar_variations = list(map(lambda v: Variation.from_hgvs_obj(v, 'clinvar'), fetch_clinvar_variations(res.id)))
+            clinvar_variations_iter = map(lambda v: Variation.from_hgvs_obj(v, 'clinvar'), fetch_clinvar_variations(res.id))
+            clinvar_variations = []
+            for v in clinvar_variations_iter:
+                if 'CDS' in features:
+                    v.start = v.start.base + cds_start
+                    v.end = v.end.base + cds_start
+                if v.start >= 0 and v.end <= gene_length:
+                    clinvar_variations.append(v)
+
             # Get variations
             user_variations = list(Variation.objects.filter(seq_id=seq_id).all())
 
