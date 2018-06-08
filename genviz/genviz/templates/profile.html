@@ -1,6 +1,12 @@
- {% if user.is_authenticated %}
+{% extends 'layout/base.html' %}
+{% load static %}
 
-<p><b>Patient</b></p>
+{% block content %}
+
+
+{% if user.is_authenticated %}
+
+<p><b>{{ user.full_name }}</b></p>
 <select name="patient" class="patient-select">
     {% for patient in patients.all %}
         <option value="{{ patient.pk }}">{{ patient.full_name }}</option>
@@ -42,3 +48,6 @@
 
 </script>
 {% endif %}
+
+
+{% endblock %}

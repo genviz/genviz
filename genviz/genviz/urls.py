@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^details/', GeneDetails.as_view()),
     url(r'^annotations/', AnnotationsView.as_view()),
     url(r'^signup/$', views.signup, name='signup'),
+    url(r'^profile/', Profile.as_view()),
 ]
 
 

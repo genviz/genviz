@@ -146,8 +146,8 @@ class AnnotationsView(View):
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
-class DocView(TemplateView):
-    template_name = 'docview.html'
+class Profile(TemplateView):
+    template_name = 'profile.html'
 
 
 def signup(request):
@@ -155,11 +155,7 @@ def signup(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             form.save()
-            # email = form.cleaned_data.get('email')
-            # raw_password = form.cleaned_data.get('password1')
-            # user = authenticate(email=email, password=raw_password)
-            # login(request, user)
-            return redirect('/search')
+            return redirect('/accounts/login/')
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
