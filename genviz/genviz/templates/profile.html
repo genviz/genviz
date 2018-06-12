@@ -1,4 +1,4 @@
-{% extends 'layout/base.html' %}
+{% extends 'layout/content.html' %}
 {% load static %}
 
 {% block content %}
@@ -6,47 +6,21 @@
 
 {% if user.is_authenticated %}
 
-<p><b>{{ user.full_name }}</b></p>
-<select name="patient" class="patient-select">
-    {% for patient in patients.all %}
-        <option value="{{ patient.pk }}">{{ patient.full_name }}</option>
-    {% endfor %}
-</select>
+<h1><b>WELCOME {{ user.full_name }}</b></h1>
 
-
-
-
-<form action="/my-handling-form-page" method="post">
-    <div>
-        <label for="name">Name:</label>
-        <input type="text" id="name" />
-    </div>
-    <div>
-        <label for="mail">Last Name:</label>
-        <input type="text" id="lastname" />
-    </div>
-    <div>
-        <label for="msg">Id:</label>
-        <input type="text" id="pid" />
-    </div>
     
-    <div id="add" class="button">
-        <button type="submit">Add</button>
-    </div>
-</form>
+<h2>Patients</h2>
+<ul>
+{% for patient in patients.all %}
+<li>
+    <h41><a href="{% url 'patient_detail' pk=patient.pk %}"> {{ patient.full_name }}</a></h4>   
+</li>
+{% endfor %}
+</ul>
 
-<script type="text/javascript">
-	$('#add').click(function(){
-		var name = $('#name').value;
-		var lastname =$('#lastname').value;
-		var id =$('#pid').value;
-		var aux = Patient(first_name=name,last_name=lastname,identifier=id);
-		var.save();
-
-	});
+<a href="{% url 'patient_new' %}"><button class="btn btn-info btn-lg"> Add Patient </button></a>
 
 
-</script>
 {% endif %}
 
 

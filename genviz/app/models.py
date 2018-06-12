@@ -34,9 +34,9 @@ class UserManager(BaseUserManager):
 
 
 class Patient(models.Model):
-    first_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100) 
     last_name  = models.CharField(max_length=100)
-    identifier = models.CharField(max_length=30, unique=True)
+    identifier = models.CharField(max_length=30, unique=True) 
 
     def __str__(self):
         return self.full_name()

@@ -62,10 +62,14 @@
     text-align: center;
 }
 
-
-
-
 #info-home button{
     width: 100%;
 }
 
+.fullwidth{
+    width: 100%;
+}
+
+#info-home .row{
+    margin-bottom: 20px;
+}

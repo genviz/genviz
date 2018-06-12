@@ -27,7 +27,10 @@ urlpatterns = [
     url(r'^details/', GeneDetails.as_view()),
     url(r'^annotations/', AnnotationsView.as_view()),
     url(r'^signup/$', views.signup, name='signup'),
-    url(r'^profile/', Profile.as_view()),
+   # url(r'^profile/', Profile.as_view()),
+    url(r'^patient/new/$', views.patient_new, name='patient_new'),
+    url(r'^profile/$', views.profile ,name='profile'),
+    url(r'^patient/(?P<pk>[\w]+)/$', views.patient_detail, name='patient_detail'),
 ]
 
 
