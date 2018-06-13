@@ -16,13 +16,22 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from app.views import *
+from app import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^search/', GeneSearch.as_view()),
-    url(r'^/?$', GeneSearch.as_view()),
+    url(r'^/?$', Home.as_view()),
     url(r'^results/', GeneSearchResults.as_view()),
     url(r'^details/', GeneDetails.as_view()),
     url(r'^variations/', VariationsView.as_view()),
+    url(r'^signup/$', views.signup, name='signup'),
+   # url(r'^profile/', Profile.as_view()),
+    url(r'^patient/new/$', views.patient_new, name='patient_new'),
+    url(r'^profile/$', views.profile ,name='profile'),
+    url(r'^patient/(?P<pk>[\w]+)/$', views.patient_detail, name='patient_detail'),
 ]
+
+
+

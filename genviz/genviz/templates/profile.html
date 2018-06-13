@@ -1,0 +1,27 @@
+{% extends 'layout/content.html' %}
+{% load static %}
+
+{% block content %}
+
+
+{% if user.is_authenticated %}
+
+<h1><b>WELCOME {{ user.full_name }}</b></h1>
+
+    
+<h2>Patients</h2>
+<ul>
+{% for patient in patients.all %}
+<li>
+    <h41><a href="{% url 'patient_detail' pk=patient.pk %}"> {{ patient.full_name }}</a></h4>   
+</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'patient_new' %}"><button class="btn btn-info btn-lg"> Add Patient </button></a>
+
+
+{% endif %}
+
+
+{% endblock %}

@@ -46,3 +46,30 @@
 .hidden {
 	display: none;
 }
+
+#info-home{
+    width: 50%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+}
+
+
+#info-home h1{
+    margin-bottom: 100px;
+    text-align: center;
+}
+
+#info-home button{
+    width: 100%;
+}
+
+.fullwidth{
+    width: 100%;
+}
+
+#info-home .row{
+    margin-bottom: 20px;
+}

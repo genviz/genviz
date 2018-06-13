@@ -34,9 +34,9 @@ class UserManager(BaseUserManager):
 
 
 class Patient(models.Model):
-    first_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100) 
     last_name  = models.CharField(max_length=100)
-    identifier = models.CharField(max_length=30, unique=True)
+    identifier = models.CharField(max_length=30, unique=True) 
 
     def __str__(self):
         return self.full_name()
@@ -46,7 +46,7 @@ class Patient(models.Model):
 
 
 class User(AbstractUser):
-    username     = None
+    username     = models.CharField(max_length=100, default="None")
     email        = models.EmailField(_('email address'), unique=True)
     is_doctor    = models.BooleanField('student status', default=False)
     is_biologist = models.BooleanField('teacher status', default=True)

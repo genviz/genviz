@@ -475,6 +475,7 @@ function bindScroll() {
 	$('.sequence').scroll()
 }
 
+
 function bindVariationsSelect() {
 	select = $('#show-variations')
 

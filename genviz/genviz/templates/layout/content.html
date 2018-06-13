@@ -50,8 +50,9 @@
 	        </li>
 	        {% else %}
 	        <li class="navbar-item">
-	        	<span class="navbar-text">Welcome <b>{{ user.username }}!</b></span>
+	        	<span class="navbar-text">Welcome <b>{{ user.full_name }}!</b></span>
 	        	<a href="{% url 'logout' %}">Logout</a>
+	        	<a href="{% url 'profile' %}">Profile</a>
 	        </li>
 	        {% endif %}
 	      </ul>

@@ -7,6 +7,13 @@ from Bio import SeqIO
 from .models import *
 import xmltodict
 import hgvs.parser
+from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect
+from genviz.forms import *
+from django.shortcuts import render, get_object_or_404
+
+class Home(TemplateView):
+    template_name = 'home.html'
 
 # TODO: Create view to show details of a gene
 def fetch_gene_details(ids):
@@ -173,3 +180,49 @@ class VariationsView(View):
                 **variation_json)
             variation.save()
         return HttpResponseRedirect(request.POST.get('next', '/'))
+
+
+
+
+# def profile(request):
+#     patient_list = Patient.objects.all()
+#     context = {'object_list': patient_list}
+#     return render(request, 'profile.html', context)
+
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/accounts/login/')
+    else:
+        form = SignUpForm()
+    return render(request, 'signup.html', {'form': form})
+
+    
+def patient_new(request):
+    if request.method == 'POST':
+        form = PatientForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/profile')
+    else:
+        form = PatientForm()
+    return render(request, 'patient/patient_new.html', {'form': form})
+
+
+
+def profile(request):
+    patients = Patient.objects.all()
+    return render(request,'profile.html',{'patients':patients})
+    
+ # url(r'^$', views.post_list),
+ # def post_list(request):
+ #        return render(request, 'blog/post_list.html', {})
+
+def patient_detail(request, pk):
+    patient = get_object_or_404(Patient, pk=pk)
+    anot = Annotation.objects.filter(patient=patient)
+    return render(request, 'patient_detail.html', {'patient': patient,'anot':anot})
