@@ -80,13 +80,14 @@ class Variation(models.Model):
     patient   = models.ForeignKey(Patient, on_delete=models.CASCADE, null=True)
     source    = models.CharField(max_length=30, default='Unknown')
     hgvs      = models.CharField(max_length=200, null=True)
+    url       = models.CharField(max_length=255, null=True)
 
     @staticmethod
     def from_hgvs(variation, source):
         """
         Parses a string that describes a change in hgvs format and returns Variation object
         """
-        hgvs_variation = hgvs.parse_hgvs(variation)
+        hgvs_variation = hgvs.parse_hgvs_variant(variation)
         return self.from_hgvs_obj(hgvs_variation, source)
 
     @staticmethod

@@ -227,7 +227,13 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 								start = Math.max(variation.start, row_i * basesPerRow + 1)
 								console.log("Variation offset", start, lastAnnotatedPosition)
 								variationRow.append("&nbsp;".repeat(start - lastAnnotatedPosition - 1))
-								variationSpan = $('<span>')
+								if (variation.variation.url) {
+									variationSpan = $('<a>')
+									variationSpan.attr('href', variation.variation.url)
+									variationSpan.attr('target', '_blank')
+								} else {
+									variationSpan = $('<span>')
+								}
 								variationSpan.addClass('variation')
 								variationSpan.addClass('variation-' + variation.variation.operation)
 								variationSpan.html(variation.sequence)
@@ -327,7 +333,13 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 								start = Math.max(variation.start, row_i * basesPerRow + 1)
 								console.log("Variation offset", start, lastAnnotatedPosition)
 								variationRow.append("&nbsp;".repeat(start - lastAnnotatedPosition - 1))
-								variationSpan = $('<span>')
+								if (variation.variation.url) {
+									variationSpan = $('<a>')
+									variationSpan.attr('href', variation.variation.url)
+									variationSpan.attr('target', '_blank')
+								} else {
+									variationSpan = $('<span>')
+								}
 								variationSpan.addClass('variation')
 								variationSpan.addClass('variation-' + variation.variation.operation)
 								variationSpan.html(variation.sequence)
@@ -473,7 +485,6 @@ function bindVariationsSelect() {
 	})
 
 	select.on('show.bs.select',function () {
-		select.selectpicker('deselectAll')
 		select.on('changed.bs.select', function() {
 			sources = $(this).val()
 			$('.variation-row').addClass('hidden')

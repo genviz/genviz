@@ -23,16 +23,18 @@ def fetch_clinvar_variations(acc_id):
     clinvar_dict = xmltodict.parse(clinvar_xml)
     hgvsparser = hgvs.parser.Parser()
 
-    variants = []
-    for variant in clinvar_dict['ClinVarResult-Set']['VariationReport']:
-        for v in variant['Allele']['HGVSlist']['HGVS']:
+    variations = []
+    for variation in clinvar_dict['ClinVarResult-Set']['VariationReport']:
+        for v in variation['Allele']['HGVSlist']['HGVS']:
             if '@AccessionVersion' in v and v['@AccessionVersion'] == acc_id:
                 try:
-                    variants.append(hgvsparser.parse_hgvs_variant(v['#text']))
-                    print(v['#text'])
-                except:
-                    print('Couldn\'t parse variant {}'.format(v['#text']))
-    return variants
+                    variation_obj = Variation.from_hgvs_obj(hgvsparser.parse_hgvs_variant(v['#text']), 'clinvar')
+                    variation_obj.url = 'https://www.ncbi.nlm.nih.gov/clinvar/variation/{}'.format(variation['@VariationID'])
+                    variations.append(variation_obj)
+                except Exception as e:
+                    print('Couldn\'t parse variation {}'.format(v['#text']))
+                    print(repr(e))
+    return variations
 
 class GeneSearchResults(TemplateView):
     template_name = 'results.html'
@@ -129,7 +131,7 @@ class GeneDetails(TemplateView):
                 })
 
             # Fetch variations from Clinvar
-            clinvar_variations_iter = map(lambda v: Variation.from_hgvs_obj(v, 'clinvar'), fetch_clinvar_variations(res.id))
+            clinvar_variations_iter = fetch_clinvar_variations(res.id)
             clinvar_variations = []
             for v in clinvar_variations_iter:
                 if 'CDS' in features:
@@ -140,9 +142,8 @@ class GeneDetails(TemplateView):
 
             # Get variations
             user_variations = list(Variation.objects.filter(seq_id=seq_id).all())
-
             variations = clinvar_variations + user_variations
-            #import pdb; pdb.set_trace()
+
             return self.render_to_response(context={
                 'entry': res,
                 'entry_dict': res.__dict__,

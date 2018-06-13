@@ -140,6 +140,6 @@ span.red {
 	width: 1em;
 }
 
-.variation-insdel {
+.variation-insdel, .variation-delins {
 	background: orange;
 }
