@@ -73,3 +73,7 @@
 #info-home .row{
     margin-bottom: 20px;
 }
+
+.profile-link {
+    color: #007bff !important;
+}
