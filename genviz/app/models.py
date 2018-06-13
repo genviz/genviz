@@ -81,6 +81,7 @@ class Variation(models.Model):
     source    = models.CharField(max_length=30, default='Unknown')
     hgvs      = models.CharField(max_length=200, null=True)
     url       = models.CharField(max_length=255, null=True)
+    coordinate_type = models.CharField(max_length=1, default='n')
 
     @staticmethod
     def from_hgvs(variation, source):
@@ -122,5 +123,6 @@ class Variation(models.Model):
             ref=ref,
             alt=alt,
             operation=operation,
-            source=source
+            source=source,
+            coordinate_type=hgvs_variation.type
         )

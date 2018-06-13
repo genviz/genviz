@@ -241,7 +241,7 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 								if (variation.variation.comment) {
 									variationSpan.data('toggle', 'tooltip')
 									variationSpan.data('placement', 'top')
-									variationSpan.attr('title', 'Comment: ' + variation.variation.comment)
+									variationSpan.attr('title', variation.variation.comment)
 								}
 								variationRow.attr('data-source', source)
 								variationRow.append(variationSpan)
@@ -347,7 +347,7 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 								if (variation.variation.comment) {
 									variationSpan.data('toggle', 'tooltip')
 									variationSpan.data('placement', 'top')
-									variationSpan.attr('title', 'Comment: ' + variation.variation.comment)
+									variationSpan.attr('title', variation.variation.comment)
 								}
 								variationRow.attr('data-source', source)
 								variationRow.append(variationSpan)

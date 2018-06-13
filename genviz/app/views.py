@@ -1,4 +1,5 @@
 import json
+import textwrap
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, View
@@ -35,8 +36,17 @@ def fetch_clinvar_variations(acc_id):
         for v in variation['Allele']['HGVSlist']['HGVS']:
             if '@AccessionVersion' in v and v['@AccessionVersion'] == acc_id:
                 try:
+                    clinical_significance = variation['ClinicalAssertionList']['GermlineList']['Germline']['ClinicalSignificance']['Description']
+                    comment = textwrap.dedent("""\
+                    {hgvs}
+                    Clinical significance: {significance}
+                    
+                    (click for more information)
+                    """.format(hgvs=v['#text'], significance=clinical_significance))
+                    
                     variation_obj = Variation.from_hgvs_obj(hgvsparser.parse_hgvs_variant(v['#text']), 'clinvar')
                     variation_obj.url = 'https://www.ncbi.nlm.nih.gov/clinvar/variation/{}'.format(variation['@VariationID'])
+                    variation_obj.comment = comment
                     variations.append(variation_obj)
                 except Exception as e:
                     print('Couldn\'t parse variation {}'.format(v['#text']))
@@ -141,10 +151,10 @@ class GeneDetails(TemplateView):
             clinvar_variations_iter = fetch_clinvar_variations(res.id)
             clinvar_variations = []
             for v in clinvar_variations_iter:
-                if 'CDS' in features:
+                if v.coordinate_type == 'c' and 'CDS' in features:
                     v.start = v.start.base + cds_start
                     v.end = v.end.base + cds_start
-                if v.start >= 0 and v.end <= gene_length:
+                if v.start.base >= 0 and v.end.base <= gene_length:
                     clinvar_variations.append(v)
 
             # Get variations
