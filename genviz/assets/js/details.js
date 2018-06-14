@@ -259,7 +259,7 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 
 				baseSpan = $('<span>')
 				baseSpan.attr('id', 'base-' + pos)
-				baseSpan.data('location', pos)
+				baseSpan.attr('data-location', pos)
 				baseSpan.addClass('base')
 				// Enable tooltip
 				baseSpan.data('toggle', 'tooltip')
@@ -364,7 +364,7 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 					}
 					baseSpan = $('<span>')
 					baseSpan.attr('id', 'base-' + pos)
-					baseSpan.data('location', pos)
+					baseSpan.attr('data-location', pos)
 					baseSpan.addClass('base')
 					// Enable tooltip
 					baseSpan.data('toggle', 'tooltip')

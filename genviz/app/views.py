@@ -183,9 +183,10 @@ class VariationsView(View):
             # Renaming key to pass it to django model instantiation
             variation_json['patient_id'] = variation_json['patient']
             del variation_json['patient']
+            patient = get_object_or_404(Patient, pk=variation_json['patient_id'])
             variation = Variation(
                 author=request.user,
-                source=variation_json['patient_id'],
+                source="({}) {}".format(patient.identifier, patient.full_name()),
                 seq_id=seq_id,
                 **variation_json)
             variation.save()
