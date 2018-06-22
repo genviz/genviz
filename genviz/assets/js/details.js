@@ -136,7 +136,7 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 				seq = $('<span>')
 				seq.append(triangle)
 			} else {
-				seq = variation.alt.slice(annotatedBases, end - start + 1)				
+				seq = variation.alt ? variation.alt.slice(annotatedBases, end - start + 1) : ""				
 			}
 			annotatedBases = end - start + 1
 			variationsPerRow[i] = variationsPerRow[i] || {}
