@@ -118,8 +118,8 @@ class Variation(models.Model):
 
         return Variation(
             seq_id=acc_id,
-            start=start,
-            end=end,
+            start=int(start.base),
+            end=int(end.base),
             ref=ref,
             alt=alt,
             operation=operation,

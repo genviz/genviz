@@ -53,6 +53,37 @@ def fetch_clinvar_variations(acc_id):
                     print(repr(e))
     return variations
 
+def fetch_dbsnp_variations(acc_id):
+    handle = Entrez.esearch(term='%s[Nucleotide/Protein Accession]' % acc_id, db='snp')
+    res = Entrez.read(handle, validate=False)
+    var_ids = res['IdList']
+    handle = Entrez.efetch(id=var_ids, db='snp', retmode='xml')
+    dbsnp_xml = handle.read()
+    dbsnp_dict = xmltodict.parse(dbsnp_xml)
+    hgvsparser = hgvs.parser.Parser()
+    variations = []
+    for variation in dbsnp_dict['ExchangeSet']['Rs']:
+        for hgvs_var in variation['hgvs']:
+            if acc_id in hgvs_var:
+                try:
+                    #clinical_significance = variation['ClinicalAssertionList']['GermlineList']['Germline']['ClinicalSignificance']['Description']
+                    comment = textwrap.dedent("""\
+                    {hgvs}
+                    Clinical significance: {significance}
+                    
+                    (click for more information)
+                    """.format(hgvs=hgvs_var, significance='WIP'))
+                    
+                    variation_obj = Variation.from_hgvs_obj(hgvsparser.parse_hgvs_variant(hgvs_var), 'dbSNP')
+                    variation_obj.url = 'https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={}'.format(variation['@rsId'])
+                    variation_obj.comment = comment
+                    variations.append(variation_obj)
+                except Exception as e:
+                    print('Couldn\'t parse variation {}'.format(hgvs_var))
+                    print(repr(e))
+    return variations
+
+
 class GeneSearchResults(TemplateView):
     template_name = 'results.html'
 
@@ -112,7 +143,7 @@ class GeneDetails(TemplateView):
             prev_end = 0
             if 'CDS' in features:
                 for feature in features['CDS']:
-                    cds_start, cds_end = feature['location']
+                    cds_start, cds_end = map(int, feature['location'])
                     translation = feature['qualifiers']['translation'][0]
                     sequence.append({
                         'type': 'non-CDS',
@@ -148,18 +179,22 @@ class GeneDetails(TemplateView):
                 })
 
             # Fetch variations from Clinvar
-            clinvar_variations_iter = fetch_clinvar_variations(res.id)
-            clinvar_variations = []
-            for v in clinvar_variations_iter:
+            clinvar_variations = fetch_clinvar_variations(res.id)
+            dbsnp_variations = fetch_dbsnp_variations(res.id)
+            external_variations = []
+            for v in clinvar_variations + dbsnp_variations:
+                # TODO: Support all operations
+                if v.operation == 'unknown':
+                    continue
                 if v.coordinate_type == 'c' and 'CDS' in features:
-                    v.start = v.start.base + cds_start
-                    v.end = v.end.base + cds_start
-                if v.start.base >= 0 and v.end.base <= gene_length:
-                    clinvar_variations.append(v)
+                    v.start += cds_start
+                    v.end += cds_start
+                if v.start >= 0 and v.end <= gene_length:
+                    external_variations.append(v)
 
             # Get variations
             user_variations = list(Variation.objects.filter(seq_id=seq_id).all())
-            variations = clinvar_variations + user_variations
+            variations = external_variations + user_variations
 
             return self.render_to_response(context={
                 'entry': res,

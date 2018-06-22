@@ -136,7 +136,7 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 				seq = $('<span>')
 				seq.append(triangle)
 			} else {
-				seq = variation.alt.slice(annotatedBases, end - start + 1)				
+				seq = variation.alt ? variation.alt.slice(annotatedBases, end - start + 1) : ""				
 			}
 			annotatedBases = end - start + 1
 			variationsPerRow[i] = variationsPerRow[i] || {}
@@ -226,6 +226,9 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 								// Fill with empty spaces between variations
 								start = Math.max(variation.start, row_i * basesPerRow + 1)
 								console.log("Variation offset", start, lastAnnotatedPosition)
+								if (lastAnnotatedPosition == start) {
+									return
+								}
 								variationRow.append("&nbsp;".repeat(start - lastAnnotatedPosition - 1))
 								if (variation.variation.url) {
 									variationSpan = $('<a>')
@@ -324,6 +327,7 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 
 					// If there are variations in the row, show them
 					if (variationsPerRow.hasOwnProperty(row_i)) {
+						var prev;
 						Object.keys(variationsPerRow[row_i]).forEach(function(source, _) {
 							variationRow = $("<div>")
 							variationRow.addClass('variation-row hidden')
@@ -331,7 +335,11 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 							variationsPerRow[row_i][source].forEach(function(variation, _) {
 								// Fill with empty spaces between variations
 								start = Math.max(variation.start, row_i * basesPerRow + 1)
+								console.log(variation)
 								console.log("Variation offset", start, lastAnnotatedPosition)
+								if (lastAnnotatedPosition == start) {
+									return
+								}
 								variationRow.append("&nbsp;".repeat(start - lastAnnotatedPosition - 1))
 								if (variation.variation.url) {
 									variationSpan = $('<a>')
@@ -352,6 +360,7 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 								variationRow.attr('data-source', source)
 								variationRow.append(variationSpan)
 								lastAnnotatedPosition = variation.end
+								prev = variation
 							})
 							sourceSpan = $('<span>')
 							sourceSpan.addClass('variation-source')
