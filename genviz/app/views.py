@@ -65,7 +65,7 @@ class GeneSearchResults(TemplateView):
         if gene and organism:
             Entrez.email = "email@example.com"
 
-            term = '"{}"[gene] AND "{}"[orgn]'.format(gene, organism)        
+            term = 'RefSeqGene[keyword] AND "{}"[gene] AND "{}"[orgn]'.format(gene, organism)        
             handle = Entrez.esearch(term=term, db='nucleotide', idtype='acc')
             record = Entrez.read(handle)
 
@@ -188,7 +188,8 @@ class VariationsView(View):
                 author=request.user,
                 source="({}) {}".format(patient.identifier, patient.full_name()),
                 seq_id=seq_id,
-                **variation_json)
+                **variation_json
+            )
             variation.save()
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
