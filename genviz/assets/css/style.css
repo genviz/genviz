@@ -77,3 +77,15 @@
 .profile-link {
     color: #007bff !important;
 }
+
+.field_detail{
+    display: inline;
+    margin-right: 5px;
+}
+
+.cont_detail{
+
+    display: inline;
+}
+
+
