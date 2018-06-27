@@ -207,7 +207,7 @@ class GeneDetails(TemplateView):
                 'seq_id': seq_id,
                 'variation_sources': set(map(lambda a: a.source, variations)),
                 'variations_json': json.dumps([x["fields"] for x in json.loads(serializers.serialize('json', variations))]),
-                'patients': request.user.patients
+                'patients': request.user.patients if request.user.is_authenticated and request.user.is_biologist else []
            })
 
 class VariationsView(View):
@@ -271,5 +271,5 @@ def profile(request):
 
 def patient_detail(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
-    anot = Variation.objects.filter(patient=patient)
-    return render(request, 'patient_detail.html', {'patient': patient,'anot':anot})
+    #anot = Variation.objects.filter(patient=patient)
+    return render(request, 'patient_detail.html', {'patient': patient})#,'anot':anot})

@@ -34,9 +34,17 @@ class UserManager(BaseUserManager):
 
 
 class Patient(models.Model):
+    #SEX_CHOICES = (
+    #    ('F','Female'),
+    #    ('M','Male')
+    #)
+
     first_name = models.CharField(max_length=100) 
     last_name  = models.CharField(max_length=100)
-    identifier = models.CharField(max_length=30, unique=True) 
+    identifier = models.CharField(max_length=30, unique=True)
+    age = models.IntegerField()
+    #sex = models.CharField(max_length=1, choices=SEX_CHOICES)
+    #phone  = models.CharField(max_length=10, default=None,null=True)
 
     def __str__(self):
         return self.full_name()
