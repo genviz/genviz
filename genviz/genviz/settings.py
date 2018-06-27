@@ -26,7 +26,9 @@ SECRET_KEY = '5(!o&ny2gjn$!0n+fwq#9#1#fz&ev@4e*9*x%c%yo5=&s-k67s'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+'davidaam.me'
+]
 
 
 # Application definition
