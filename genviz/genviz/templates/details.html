@@ -101,10 +101,11 @@
             var gene_length = {{gene_length}}
             formatGeneSequence(sequence, features, variations, gene_length, 30)
             plotGeneFeatures(features)
-
-            var variation_popover_html = `{% include 'handlebars/details/variation-popover.html' with patients=patients %}`
-            var variation_popover_template = Handlebars.compile(variation_popover_html);
-            bindVariations(variation_popover_template)
+            {% if request.user.is_authenticated and request.user.is_biologist %}
+                var variation_popover_html = `{% include 'handlebars/details/variation-popover.html' with patients=patients %}`
+                var variation_popover_template = Handlebars.compile(variation_popover_html);
+                bindVariations(variation_popover_template)
+            {% endif %}
             bindScroll()
             bindVariationsSelect()
         })

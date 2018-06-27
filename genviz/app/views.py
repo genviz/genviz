@@ -207,7 +207,7 @@ class GeneDetails(TemplateView):
                 'seq_id': seq_id,
                 'variation_sources': set(map(lambda a: a.source, variations)),
                 'variations_json': json.dumps([x["fields"] for x in json.loads(serializers.serialize('json', variations))]),
-                'patients': request.user.patients
+                'patients': request.user.patients if request.user.is_authenticated and request.user.is_biologist else []
            })
 
 class VariationsView(View):
