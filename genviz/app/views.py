@@ -271,5 +271,5 @@ def profile(request):
 
 def patient_detail(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
-    anot = Variation.objects.filter(patient=patient)
-    return render(request, 'patient_detail.html', {'patient': patient,'anot':anot})
+    #anot = Variation.objects.filter(patient=patient)
+    return render(request, 'patient_detail.html', {'patient': patient})#,'anot':anot})
