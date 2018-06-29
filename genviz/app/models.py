@@ -34,8 +34,8 @@ class UserManager(BaseUserManager):
 
 class Patient(models.Model):
     SEX_CHOICES = (
-       ('F','Female'),
-       ('M','Male')
+        ('F','Female'),
+        ('M','Male')
     )
 
     first_name = models.CharField(max_length=100) 
@@ -201,12 +201,15 @@ class Variation(models.Model):
             coordinate_type=hgvs_variation.type
         )
 
+class VariationLocation(models.Model):
+    seq_id    = models.CharField(max_length=30)
+    start     = models.IntegerField(null=True)
+    end       = models.IntegerField(null=True)
+    source    = models.CharField(max_length=30, default='Unknown')
+    hgvs      = models.CharField(max_length=200, null=True)
 
-
-
-
-
-
-
-
-
+class Pathology(models.Model):
+    name = models.CharField(max_length=200)
+    # Path to pickled model
+    prediction_model = models.CharField(max_length=200)
+    variations = models.ManyToManyField(VariationLocation)
