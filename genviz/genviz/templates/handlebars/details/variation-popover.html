@@ -90,7 +90,7 @@
             {{#if singleBaseSelected }}
                 <span>Duplicate base ({{bases}}) at position {{startLocation}}</span>
             {{else}}
-                <label>Substitute bases <span class='popover-bases'>({{ bases }})</span> from position {{ startLocation }} to {{ endLocation }} with:</label>
+                <label>Duplicate bases <span class='popover-bases'>({{ bases }})</span> from position {{ startLocation }} to {{ endLocation }} with:</label>
             {{/if}}
             {% endverbatim %}
             {% include 'handlebars/details/_variation-patient-select.html' with patients=patients %}

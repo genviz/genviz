@@ -48,8 +48,9 @@ function plotGeneFeatures(features) {
 			exons_dp.push({
 				start: start + dummyTs,
 				end: end + dummyTs,
-				content: `${feature_type} ${i+1}`, group: feature_type,
-				className: `${feature_type.toLowerCase()}-viz-block` 
+				content: feature['display_name'],
+				group: feature_type,
+				className: feature_type.toLowerCase() + '-viz-block' 
 			})
 		})
 	})
@@ -123,6 +124,7 @@ function splitVariationsInRows(variations, basesPerRow) {
 		annotatedBases = 0
 		for (var i = startRow; i <= endRow; i++) {
 			start = Math.max(1 + i * basesPerRow, variation.start)
+			offset = start - (1 + i * basesPerRow)
 			end = Math.min((i+1) * basesPerRow, variation.end)
 			if (variation.operation != 'del' && variation.operation != 'dup') {
 				seq = variation.alt.substr(annotatedBases, end - start + 1)				
@@ -135,10 +137,12 @@ function splitVariationsInRows(variations, basesPerRow) {
 			variationsPerRow[i][variation.source].push({
 				start: start,
 				end: end,
+				offset: offset,
 				sequence: seq,
 				operation: variation.operation,
 				changeLength: end - start + 1,
-				variation: variation
+				variation: variation,
+				comment: variation.comment
 			})
 		}
 	})
@@ -203,10 +207,10 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 	
 	var maxLengthDigits = sequenceLength.toString().length
 
-	var rowCount = parseInt(sequenceLength / basesPerRow)
+	var rowCount = parseInt(sequenceLength / basesPerRow) + 1
 
 	var rows = {}
-	for (var row_i = 0; row_i <= rowCount; row_i++) {
+	for (var row_i = 0; row_i < rowCount; row_i++) {
 		var seq = sequence.substr(row_i * basesPerRow, basesPerRow)
 		var rowCDS = featuresPerRow[row_i].features.findIndex(function(f) { return f.type.toLowerCase() == 'cds' })
 
@@ -220,7 +224,8 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 				}
 			}),
 			variations: variationsPerRow[row_i],
-			translation: featuresPerRow[row_i].translation
+			translation: featuresPerRow[row_i].translation,
+			features: featuresPerRow[row_i].features
 		}
 	}
 	console.log(rows)
@@ -234,9 +239,11 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 	}))
 }
 
+
 var currentVariations = [];
 function bindVariations(popover_template) {
 	$('.seq .base').mouseup(function() {
+		$('.selected-base').removeClass('selected-base')
 		var range = window.getSelection().getRangeAt(0)
 		var $startNode = $(range.startContainer.parentNode)
 		var $endNode = $(range.endContainer.parentNode)
@@ -261,6 +268,9 @@ function bindVariations(popover_template) {
 				bases: bases.replace(/[^ATGC]/g, ''),
 				singleBaseSelected: false
 			})
+		}).on('hide.bs.popover', function () {
+			console.log('Hiding popover')
+			$('.selected-base').removeClass('selected-base')
 		})
 		for (var i = startLocation; i <= endLocation; i++) {
 			document.getElementById('base-'+i).classList.add('selected-base')
@@ -268,6 +278,7 @@ function bindVariations(popover_template) {
 	})
 
 	$('.seq .base').click(function(e) {
+		$('.selected-base').removeClass('selected-base')
 		var $node = $(this)
 		$node.addClass('selected-base')
 		var location = $node.data('location')
@@ -284,6 +295,9 @@ function bindVariations(popover_template) {
 				bases: base.replace(/\s/g, ''),
 				singleBaseSelected: true
 			})
+		}).on('hide.bs.popover', function () {
+			console.log('Hiding popover')
+			$('.selected-base').removeClass('selected-base')
 		})
 	})
 
@@ -301,6 +315,7 @@ function bindVariations(popover_template) {
 		variation = getFormData($form)
 		variation.operation = $form.data('operation')
 		currentVariations.push(variation)
+		$('.selected-base').addClass('.pending-variation')
 		$('#variations-form input[name="variations"]').val(JSON.stringify(currentVariations))
 		$('.sequence').popover('dispose')
 	})
@@ -319,7 +334,7 @@ function bindScroll() {
 
 			}
 		})
-		$('.current-region').html($topRow.data('features').join(', '))
+		$('.current-region').html($topRow.data('features').map(function(e) { return e.display_name }).join(', '))
 	})
 	$('.sequence').scroll()
 }

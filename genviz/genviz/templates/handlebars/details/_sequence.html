@@ -1,29 +1,29 @@
 {% verbatim %}
-<div class="col-location">
-	<span class="inline-block" style="margin-left: {{ maxLengthDigits }}em"></span>
+<!-- Can't use em since font-size is 0 to avoid whitespace between tags -->
+<div class="col-location" style="margin-left: {{ multiply 16 maxLengthDigits }}px;">
 	{{#times1 30}}
 		{{#if (divisible this 10)}}
-			<span class="red">0</span>
+			<span class="red padded-char">0</span>
 		{{else}}
-			<span>{{mod this 10}}</span>
+			<span class="padded-char">{{mod this 10}}</span>
 		{{/if}}
 	{{/times1}}
 </div>
 <div class="sequence">
-	{{#times1 rowCount}}
-		<div class="seq-row">
+	{{#times rowCount}}
+		<div class="seq-row" data-row-number='{{this}}' data-features='{{jsonStringify (lookup (lookup ../rows this) "features") }}'>
 			{{#if (lookup (lookup ../rows this) "variations")}}
-				{{> variationsRow variations=(lookup (lookup ../rows this) "variations" maxLengthDigits=../maxLengthDigits)}}
+				{{> variationsRow variations=(lookup (lookup ../rows this) "variations") maxLengthDigits=../maxLengthDigits}}
 			{{/if}}
 			<div class="seq">
-				<span class="row-location" style="min-width: {{ ../maxLengthDigits }}em;">
-					{{ multiply (dec this) ../basesPerRow }}
+				<span class="row-location padded-char" style="min-width: {{ ../maxLengthDigits }}em;">
+					{{ multiply this ../basesPerRow }}
 				</span>
 				{{#each (lookup (lookup ../rows this) "sequence")}}
-					<span id='base-{{ lookup this "position" }}' class="base" title='cDNA location: {{ lookup this "position" }}'>{{ lookup this "base" }}</span>
+					<span id='base-{{ lookup this "position" }}' class="base padded-char" title='cDNA location: {{ lookup this "position" }}' data-location='{{ lookup this "position" }}'>{{ lookup this "base" }}</span>
 				{{/each}}
 			</div>
 		</div>
-	{{/times1}}
+	{{/times}}
 </div>
 {% endverbatim %}

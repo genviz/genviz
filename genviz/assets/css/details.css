@@ -1,3 +1,7 @@
+.sequence-container {
+	font-size: 0;
+}
+
 .sequence, .col-location {
 	word-break:break-all;
 	font-family:'monospace';
@@ -73,6 +77,10 @@ span.red {
 	margin-bottom: 2em;
 }
 
+#variations-form {
+	margin-left: 1em;
+}
+
 .goto-form {
 	margin-bottom: 2em;
 }
@@ -85,7 +93,7 @@ span.red {
 	margin: 0 1em;
 }
 
-.selected-base {
+.selected-base, .pending-variation {
 	background: yellow;
 }
 
@@ -102,7 +110,7 @@ span.red {
 	color: #FFF;
 }
 .variation-sub {
-	background: yellow;
+	background: orange;
 	color: #000;
 }
 
@@ -143,9 +151,32 @@ span.red {
 }
 
 .padded-char {
-	margin: 0 0.25em;
+	font-size: 16px;
+	display: inline-block;
+	min-width: 1em;
+	text-align: center;
+	min-height: 16px;
+}
+
+.row-location.padded-char {
+	text-align: left;
 }
 
 .inline-block {
+	display: inline-block;
+}
+
+.legend {
+	margin-bottom: 1em;
+}
+
+.legend-box {
+	width: 1em;
+	height: 1em;
+	display: inline-block;
+}
+
+.legend-item {
+	margin-left: 1em;
 	display: inline-block;
 }

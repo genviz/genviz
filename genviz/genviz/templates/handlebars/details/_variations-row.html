@@ -1,17 +1,29 @@
 {% verbatim %}
-<div class="variations" style="margin-left: {{ maxLengthDigits }}em;">
+<!-- Can't use em since font-size is 0 to avoid whitespace between tags -->
+<div class="variations" style="margin-left: {{ multiply 16 maxLengthDigits }}px;">
 	{{#each variations as |vars source|}}
-		<div class="variation-row" data-source="{{ source }}">
+		<div class="variation-row hidden" data-source="{{ source }}">
 			{{#each vars}}
-				<span style='margin-left: {{ lookup this "offset" }}em;' class='variation-{{ lookup this "operation" }}'>
+				<a style='margin-left: {{ multiply 16 (lookup this "offset") }}px;'
+					  title='{{lookup this "comment"}}'
+					  data-toggle='tooltip'
+					  href='{{lookup this "url"}}'>
 					{{#if (eq (lookup this "operation") "del")}}
+						<span class="padded-char variation-{{ lookup this 'operation' }}" style="width: {{lookup this "changeLength"}}em;"></span>
+					{{else if (eq (lookup this "operation") "dup")}}
 						{{#times (lookup this "changeLength")}}
-							<span class="padded-char">
-								&nbsp;
+							<span class="padded-char variation-{{ lookup ../this 'operation' }}">
+								<span class="arrow-up"></span>
 							</span>
 						{{/times}}
+					{{else if (lookup this "sequence") }}
+						{{#eachChar (lookup this "sequence")}}
+							<span class="padded-char variation-{{ lookup ../this 'operation' }}">
+								{{this}}
+							</span>
+						{{/eachChar}}
 					{{/if}}
-				</span>
+				</a>
 			{{/each}}
 		</div>
 	{{/each}}

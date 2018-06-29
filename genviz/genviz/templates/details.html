@@ -23,13 +23,6 @@
             <div class='form-inline goto-form'>
                 <label class="inline">Go to: </label>
                 <input class="form-control mr-sm-2 goto-location" name="cdna_location" type="number" placeholder="cDNA location" aria-label="cDNA location">
-                <form action="/variations/" method="post" id="variations-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <input type="hidden" name="variations">
-                    <input type="hidden" name="seq_id" value="{{seq_id}}">
-                    <button type="submit" class="btn btn-outline-success">Save variations</button>
-                </form>
             </div>
         </div>
     </div>
@@ -40,9 +33,7 @@
                 <select name="" class="form-control" id="goto-region">
                     {% for feature_type in features %}
                         {% for feature in features|keyvalue:feature_type %}
-                            {% with forloop.counter|stringformat:"s" as feature_type_i %}
-                                <option value="" data-start="{{feature.location.0}}">{{ feature_type|add:" "|add:feature_type_i }}</option>
-                            {% endwith %}
+                            <option value="" data-start="{{feature.location.0}}">{{ feature|keyvalue:"display_name" }}</option>
                         {% endfor %}
                     {% endfor %}
                 </select>
@@ -60,9 +51,24 @@
                         <option value="{{source}}">{{source}}</option>
                     {% endfor %}
                 </select>
+                <form action="/variations/" method="post" id="variations-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <input type="hidden" name="variations">
+                    <input type="hidden" name="seq_id" value="{{seq_id}}">
+                    <button type="submit" class="btn btn-outline-success">Save variations</button>
+                </form>
             </div>
         </div>
-    </div>  
+    </div>
+    <div class="legend">
+        <b class="inline-block">Legend: </b>
+        <span class="legend-item"><span class="variation-ins legend-box"></span><em>Ins</em></span>
+        <span class="legend-item"><span class="variation-delins legend-box"></span><em>Del-ins</em></span>
+        <span class="legend-item"><span class="variation-sub legend-box"></span><em>Sub</em></span>
+        <span class="legend-item"><span class="variation-del legend-box"></span><em>Del</em></span>
+        <span class="legend-item"><span class="variation-dup"><span class="arrow-up"></span></span><em>Dup</em></span>
+    </div>
     <div class="sequence-container">
         
     </div>
@@ -86,7 +92,6 @@
             var sequence_template = Handlebars.compile(`{% include 'handlebars/details/_sequence.html' %}`)
 
             formatGeneSequence(sequence, features, variations, gene_length, 30, sequence_template)
-            plotGeneFeatures(features)
             {% if request.user.is_authenticated and request.user.is_biologist %}
                 var variation_popover_html = `{% include 'handlebars/details/variation-popover.html' with patients=patients %}`
                 var variation_popover_template = Handlebars.compile(variation_popover_html);
@@ -94,6 +99,7 @@
             {% endif %}
             bindScroll()
             bindVariationsSelect()
+            plotGeneFeatures(features)
         })
     </script>
 {% endblock %}

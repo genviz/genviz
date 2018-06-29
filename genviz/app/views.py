@@ -16,11 +16,21 @@ from django.shortcuts import render, get_object_or_404
 class Home(TemplateView):
     template_name = 'home.html'
 
-# TODO: Create view to show details of a gene
+
+def feature_name(feature):
+    """
+    Given a feature, return a friendly display name
+    """
+    if 'number' in feature['qualifiers']:
+        return '{feature_type} {number}'.format(feature_type=feature['type'], number=feature['qualifiers']['number'][0])
+    elif 'standard_name' in feature['qualifiers']:
+        return '{feature_type} ({name})'.format(feature_type=feature['type'], name=feature['qualifiers']['standard_name'][0])
+    return feature['type']
+
 def fetch_gene_details(ids):
     handle_genes = Entrez.efetch(id=','.join(ids), db='nucleotide', rettype='gb', retmode='text')
     records_genes = SeqIO.parse(handle_genes, 'gb')
-    res = {r.id: str(r.seq) for r in records_genes}
+    res = { r.id: str(r.seq) for r in records_genes }
 
 def fetch_clinvar_variations(acc_id):
     handle = Entrez.esearch(term='%s[Nucleotide/Protein Accession]' % acc_id, db='clinvar')
@@ -69,10 +79,8 @@ def fetch_dbsnp_variations(acc_id):
                     #clinical_significance = variation['ClinicalAssertionList']['GermlineList']['Germline']['ClinicalSignificance']['Description']
                     comment = textwrap.dedent("""\
                     {hgvs}
-                    Clinical significance: {significance}
-                    
                     (click for more information)
-                    """.format(hgvs=hgvs_var, significance='WIP'))
+                    """.format(hgvs=hgvs_var))
                     
                     variation_obj = Variation.from_hgvs_obj(hgvsparser.parse_hgvs_variant(hgvs_var), 'dbSNP')
                     variation_obj.url = 'https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={}'.format(variation['@rsId'])
@@ -133,6 +141,7 @@ class GeneDetails(TemplateView):
                 f_type = f.type
                 f = f.__dict__
                 f['location'] = (f['location'].start, f['location'].end)
+                f['display_name'] = feature_name(f)
                 features[f_type] = features.setdefault(f_type, []) + [f]
 
             for f_type in features:
@@ -149,6 +158,7 @@ class GeneDetails(TemplateView):
                 if v.operation == 'unknown':
                     continue
                 if v.coordinate_type == 'c' and 'CDS' in features:
+                    cds_start = features['CDS'][0]['location'][0]
                     v.start += cds_start
                     v.end += cds_start
                 if v.start >= 0 and v.end <= gene_length:
@@ -157,7 +167,6 @@ class GeneDetails(TemplateView):
             # Get variations
             user_variations = list(Variation.objects.filter(seq_id=seq_id).all())
             variations = external_variations + user_variations
-
             return self.render_to_response(context={
                 'entry': res,
                 'entry_dict': res.__dict__,
