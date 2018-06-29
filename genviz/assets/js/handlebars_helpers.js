@@ -2,6 +2,10 @@ Handlebars.registerHelper("jsonStringify", function(value, options) {
     return JSON.stringify(value);
 });
 
+Handlebars.registerHelper("last", function(arr, options) {
+    return arr[arr.length - 1];
+});
+
 Handlebars.registerHelper("inc", function(value, options) {
     return parseInt(value) + 1;
 });
@@ -45,4 +49,10 @@ Handlebars.registerHelper('eachChar', function(str, block) {
     for(var i = 0; i < str.length; ++i)
         accum += block.fn(str[i]);
     return accum;
+});
+
+
+Handlebars.registerHelper("sourceOffset", function(vars, row_i, basesPerRow, options) {
+    console.log("Vars", vars, (row_i+1)*basesPerRow, vars[vars.length - 1].end)
+    return (row_i+1)*basesPerRow - vars[vars.length - 1].end + 1;
 });

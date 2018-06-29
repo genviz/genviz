@@ -1,7 +1,7 @@
 {% verbatim %}
 <!-- Can't use em since font-size is 0 to avoid whitespace between tags -->
 <div class="col-location" style="margin-left: {{ multiply 16 maxLengthDigits }}px;">
-	{{#times1 30}}
+	{{#times1 basesPerRow}}
 		{{#if (divisible this 10)}}
 			<span class="red padded-char">0</span>
 		{{else}}
@@ -13,7 +13,7 @@
 	{{#times rowCount}}
 		<div class="seq-row" data-row-number='{{this}}' data-features='{{jsonStringify (lookup (lookup ../rows this) "features") }}'>
 			{{#if (lookup (lookup ../rows this) "variations")}}
-				{{> variationsRow variations=(lookup (lookup ../rows this) "variations") maxLengthDigits=../maxLengthDigits}}
+				{{> variationsRow basesPerRow=../basesPerRow row_i=this variations=(lookup (lookup ../rows this) "variations") maxLengthDigits=../maxLengthDigits}}
 			{{/if}}
 			<div class="seq">
 				<span class="row-location padded-char" style="min-width: {{ ../maxLengthDigits }}em;">

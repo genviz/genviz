@@ -7,7 +7,12 @@
 				<a style='margin-left: {{ multiply 16 (lookup this "offset") }}px;'
 					  title='{{lookup this "comment"}}'
 					  data-toggle='tooltip'
-					  href='{{lookup this "url"}}'>
+					  {{#if (lookup this "url")}}
+					  	href='{{lookup this "url"}}'
+					  {{else}}
+					  	href='#'
+					  {{/if}}
+				>
 					{{#if (eq (lookup this "operation") "del")}}
 						<span class="padded-char variation-{{ lookup this 'operation' }}" style="width: {{lookup this "changeLength"}}em;"></span>
 					{{else if (eq (lookup this "operation") "dup")}}
@@ -25,6 +30,9 @@
 					{{/if}}
 				</a>
 			{{/each}}
+			<span class="variation-source" style="margin-left: {{multiply 16 (sourceOffset vars ../row_i ../basesPerRow)}}px;">
+				{{source}}
+			</span>
 		</div>
 	{{/each}}
 </div>

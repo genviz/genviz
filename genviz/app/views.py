@@ -135,6 +135,7 @@ class GeneDetails(TemplateView):
             handle = Entrez.efetch(id=seq_id, db='nucleotide', rettype='gb', retmode='text')
             res = SeqIO.read(handle, format='gb')
 
+            acc_id = res.name
             # Add coordinates to plot gene features
             features = {}
             for f in res.features:
@@ -165,7 +166,7 @@ class GeneDetails(TemplateView):
                     external_variations.append(v)
 
             # Get variations
-            user_variations = list(Variation.objects.filter(seq_id=seq_id).all())
+            user_variations = list(Variation.objects.filter(acc_id=acc_id).all())
             variations = external_variations + user_variations
             return self.render_to_response(context={
                 'entry': res,
@@ -183,7 +184,7 @@ class GeneDetails(TemplateView):
 class VariationsView(View):
     def post(self, request, *args, **kwargs):
         variations_json = json.loads(request.POST.get('variations', '[]'))
-        seq_id = request.POST.get('seq_id', None)
+        acc_id = request.POST.get('acc_id', None)
         for variation_json in variations_json:
             # Renaming key to pass it to django model instantiation
             variation_json['patient_id'] = variation_json['patient']
@@ -192,7 +193,7 @@ class VariationsView(View):
             variation = Variation(
                 author=request.user,
                 source="({}) {}".format(patient.identifier, patient.full_name()),
-                seq_id=seq_id,
+                acc_id=acc_id,
                 **variation_json
             )
             variation.save()

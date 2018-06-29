@@ -78,7 +78,7 @@ class Variation(models.Model):
         ('dup', 'Duplication'),
     )
     author    = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    seq_id    = models.CharField(max_length=30)
+    acc_id    = models.CharField(max_length=30)
     start     = models.IntegerField(null=True)
     end       = models.IntegerField(null=True)
     ref       = models.CharField(max_length=1000)
@@ -87,9 +87,70 @@ class Variation(models.Model):
     comment   = models.TextField(null=True)
     patient   = models.ForeignKey(Patient, on_delete=models.CASCADE, null=True)
     source    = models.CharField(max_length=30, default='Unknown')
-    hgvs      = models.CharField(max_length=200, null=True)
     url       = models.CharField(max_length=255, null=True)
     coordinate_type = models.CharField(max_length=1, default='n')
+
+    def hgvs(self):
+        if self.operation == 'ins':
+            return '{acc}:{coordinate_type}.{start}_{end}ins{alt}'.format(
+                acc=self.acc_id,
+                coordinate_type=self.coordinate_type,
+                start=self.start,
+                end=self.end,
+                alt=self.alt
+            )
+        elif self.operation == 'sub':
+            return '{acc}:{coordinate_type}.{loc}{ref}>{alt}'.format(
+                acc=self.acc_id,
+                coordinate_type=self.coordinate_type,
+                loc=self.start,
+                ref=self.ref,
+                alt=self.alt
+            )
+        elif self.operation == 'delins':
+            if self.start - self.end + 1 > 1:
+                return '{acc}:{coordinate_type}.{start}_{end}delins{alt}'.format(
+                    acc=self.acc_id,
+                    coordinate_type=self.coordinate_type,
+                    start=self.start,
+                    end=self.end,
+                    alt=self.alt
+                )
+            else:
+                return '{acc}:{coordinate_type}.{start}delins{alt}'.format(
+                    acc=self.acc_id,
+                    coordinate_type=self.coordinate_type,
+                    start=self.start,
+                    alt=self.alt
+                )
+        elif self.operation == 'del':
+            if self.start - self.end + 1 > 1:
+                return '{acc}:{coordinate_type}.{start}_{end}del'.format(
+                    acc=self.acc_id,
+                    coordinate_type=self.coordinate_type,
+                    start=self.start,
+                    end=self.end
+                )
+            else:
+                return '{acc}:{coordinate_type}.{start}del'.format(
+                    acc=self.acc_id,
+                    coordinate_type=self.coordinate_type,
+                    start=self.start
+                )
+        elif self.operation == 'dup':
+            if self.start - self.end + 1 > 1:
+                return '{acc}:{coordinate_type}.{start}_{end}dup'.format(
+                    acc=self.acc_id,
+                    coordinate_type=self.coordinate_type,
+                    start=self.start,
+                    end=self.end
+                )
+            else:
+                return '{acc}:{coordinate_type}.{start}dup'.format(
+                    acc=self.acc_id,
+                    coordinate_type=self.coordinate_type,
+                    start=self.start
+                )
 
     @staticmethod
     def from_hgvs(variation, source):
@@ -125,7 +186,7 @@ class Variation(models.Model):
             operation = 'unknown'
 
         return Variation(
-            seq_id=acc_id,
+            acc_id=acc_id,
             start=int(start.base),
             end=int(end.base),
             ref=ref,

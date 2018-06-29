@@ -110,8 +110,8 @@ span.red {
 	color: #FFF;
 }
 .variation-sub {
-	background: orange;
-	color: #000;
+	background: blue;
+	color: #FFF;
 }
 
 .popover-bases {
@@ -131,6 +131,7 @@ span.red {
 
 .variation-source {
 	letter-spacing: 0em;
+	font-size: 16px;
 }
 
 .arrow-up {
