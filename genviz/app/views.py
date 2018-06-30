@@ -224,7 +224,9 @@ def patient_new(request):
     if request.method == 'POST':
         form = PatientForm(request.POST)
         if form.is_valid():
-            form.save()
+            patient = form.save()
+            request.user.patients.add(patient)
+            request.user.save()
             return redirect('/profile')
     else:
         form = PatientForm()
@@ -233,9 +235,12 @@ def patient_new(request):
 
 
 def profile(request):
-    patients = Patient.objects.all()
+    patients = request.user.patients.all()
     return render(request,'profile.html',{'patients':patients})
-    
+
+def var(request):
+    variations = Variation.objects.all()
+    return render(request,'vars.html',{'variations':variations})
  # url(r'^$', views.post_list),
  # def post_list(request):
  #        return render(request, 'blog/post_list.html', {})

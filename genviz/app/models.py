@@ -32,20 +32,21 @@ class UserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
 
-
 class Patient(models.Model):
-    #SEX_CHOICES = (
-    #    ('F','Female'),
-    #    ('M','Male')
-    #)
+    SEX_CHOICES = (
+       ('F','Female'),
+       ('M','Male')
+    )
 
     first_name = models.CharField(max_length=100) 
     last_name  = models.CharField(max_length=100)
     identifier = models.CharField(max_length=30, unique=True)
     age = models.IntegerField()
-    #sex = models.CharField(max_length=1, choices=SEX_CHOICES)
-    #phone  = models.CharField(max_length=10, default=None,null=True)
-
+    sex = models.CharField(max_length=1, choices=SEX_CHOICES, default='M')
+    phone  = models.CharField(max_length=10, default=None,null=True)
+    diagnosis = models.CharField(max_length=100) 
+    email = models.EmailField(max_length=100)
+   
     def __str__(self):
         return self.full_name()
 
@@ -53,12 +54,14 @@ class Patient(models.Model):
         return "%s %s" % (self.first_name, self.last_name)
 
 
+
+
 class User(AbstractUser):
     username     = models.CharField(max_length=100, default="None")
     email        = models.EmailField(_('email address'), unique=True)
     is_doctor    = models.BooleanField('student status', default=False)
     is_biologist = models.BooleanField('teacher status', default=True)
-    patients     = models.ManyToManyField(Patient)
+    patients = models.ManyToManyField(Patient)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -67,6 +70,8 @@ class User(AbstractUser):
 
     def full_name(self):
         return self.first_name + ' ' + self.last_name
+
+
 
 class Variation(models.Model):
     OPERATION_CHOICES = (
@@ -195,3 +200,13 @@ class Variation(models.Model):
             source=source,
             coordinate_type=hgvs_variation.type
         )
+
+
+
+
+
+
+
+
+
+
