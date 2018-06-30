@@ -134,3 +134,7 @@ STATICFILES_DIRS = (
 
 LOGIN_REDIRECT_URL = '/'
 AUTH_USER_MODEL = 'app.User'
+
+
+# Automatically set database connection to postgres on Heroku
+django_heroku.settings(locals())
