@@ -17,6 +17,7 @@ django-registration==2.4.1
 entrypoints==0.2.3
 enum34==1.1.6
 fixmydjango==0.3.2
+gunicorn==19.8.1
 hgvs==1.1.2
 html5lib==1.0.1
 idna==2.6
