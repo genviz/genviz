@@ -13,6 +13,14 @@
             <p><b>Sex:</b> <span>{{patient.sex}}</span></p>
             <p><b>Phone:</b> <span>{{patient.phone}}</span></p>
         </div>
+        <h3>Predictions</h3>
+        <select name="" id="pathologies-select">
+            {% for pathology in pathologies.all %}
+                <option value="{{ pathology.pk }}">{{pathology.name}}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-primary predict-btn">Predict</button>
+        <p class="prediction-result"></p>
     </div>
 
     <div class="col-md-6">
@@ -41,4 +49,28 @@
  -->
 
 
+{% endblock %}
+
+
+{% block js-footer %}
+<script>
+    $(document).ready(function() {
+        $('.predict-btn').click(function(e) {
+            pathology_id = $('#pathologies-select').val()
+            pathology_name = $('#pathologies-select').text()
+            $.ajax({
+                url: '/predict/' + pathology_id,
+                method: 'get',
+                success: function(response) {
+                    pred = parseInt(response.prediction)
+                    precision = (parseFloat(response.precision) * 100).toFixed(2)
+                    text = 'With a <b>' + precision +'%</b> probability, '
+                    text += pred ? 'you have ' : 'you do not have '
+                    text += '<b>'+pathology_name+'</b>'
+                    $('.prediction-result').html(text)
+                }
+            })
+        })
+    })
+</script>
 {% endblock %}

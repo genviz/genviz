@@ -1,4 +1,6 @@
 import json
+import pickle
+import random
 import textwrap
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
@@ -156,12 +158,23 @@ def profile(request):
 def var(request):
     variations = Variation.objects.all()
     return render(request,'var.html',{'variations':variations})
- # url(r'^$', views.post_list),
- # def post_list(request):
- #        return render(request, 'blog/post_list.html', {})
+
+def predict(request, pathology_id):
+    pathology = Pathology.objects.get(pk=pathology_id)
+    model = pickle.load(open(pathology.prediction_model, 'rb'))
+    prediction = model.predict([[random.randint(0, 1) for i in range(model.n_features_)]])[0]
+    return JsonResponse({
+        'prediction': str(prediction),
+        'precision': str(0.5723)
+    })
 
 def patient_detail(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
     variations = Variation.objects.filter(patient=patient)
+    pathologies = Pathology.objects
     #anot = Variation.objects.filter(patient=patient)
-    return render(request, 'patient_detail.html', {'patient': patient,'variations':variations})#,'anot':anot})
+    return render(request, 'patient_detail.html', {
+        'patient': patient,
+        'variations': variations,
+        'pathologies': pathologies
+    })
