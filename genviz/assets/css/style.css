@@ -107,3 +107,16 @@
     height: 100%;
     width: 100%;
 }
+
+a.add-plus-btn {
+    color: green;
+}
+
+a.add-plus-btn:hover {
+    text-decoration: none;
+    color: darkgreen;
+}
+
+.patient-info {
+    margin:2em 0;
+}

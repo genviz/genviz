@@ -3,46 +3,33 @@
 
 {% block content %}
 
+<h1 class="patient-name">{{patient.full_name}}</h1>
 
-<h1>Patient ID: {{patient.identifier}}</h1>
+<div class="row">
+    <div class="col-md-6">
+        <div class="patient-info">
+            <p><b>Patient ID:</b> <span>{{patient.identifier}}</span></p>
+            <p><b>Age:</b> <span>{{patient.age}}</span></p>
+            <p><b>Sex:</b> <span>{{patient.sex}}</span></p>
+            <p><b>Phone:</b> <span>{{patient.phone}}</span></p>
+        </div>
+    </div>
 
-<h2>Name: {{patient.full_name}}</h2>
-
-<div id="patient_personal_info">
-	<h3 class="field_detail">Age:</h3><h4 class="cont_detail">{{patient.age}}</h4>
-	<br>
-	<h3 class="field_detail">sex:</h3><h4 class="cont_detail">{{patient.sex}}</h4>
-	<br>
-	<h3 class="field_detail">phone:</h3><h4 class="cont_detail">{{patient.phone}}</h4>
-	<br>
-
+    <div class="col-md-6">
+        <h2>Variations</h2>
+        {% if variations %}
+            <ul>
+            {% for var in variations.all %}
+            <li>
+                {{ var.hgvs }}
+            </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <em>No variations registered for this patient</em>
+        {% endif %}
+    </div>
 </div>
-
-
-
-
-
-<h2>Vars</h2>
-<ul>
-{% for var in variations.all %}
-<li>
-    <h4>{{ var.acc_id }}</h4> 
-    <h4>{{ var.author.full_name }}</h4>
-    <h4>{{ var.from_hgvs }}</h4>
-    <h4>{{ var.end }}</h4> 
-    <h4>{{ var.ref }}</h4>
-    <h4>{{ var.alt }}</h4>
-    <h4>{{ var.operation }}</h4>
-    <h4>{{ var.comment }}</h4>
-    <h4>{{ var.source }}</h4>
-    <h4>{{ var.url }}</h4>
-    <h4>{{ var.coordinate_type }}</h4>
-</li>
-{% endfor %}
-</ul>
-
-
-
 
 
 <!-- {% for a in anot.all %}

@@ -1,5 +1,5 @@
 <p><b>Patient</b></p>
-<select name="patient" class="patient-select">
+<select name="patient_id" class="patient-select">
     {% for patient in patients.all %}
         <option value="{{ patient.pk }}">{{ patient.full_name }}</option>
     {% endfor %}

@@ -5,41 +5,19 @@
 
 
 {% if user.is_authenticated %}
-
+<!--
 <h1><b>WELCOME {{ user.full_name }}</b></h1>
-
+-->
     
-<h2>Patients</h2>
-<ul>
-{% for patient in patients.all %}
-<li>
-    <h41><a href="{% url 'patient_detail' pk=patient.pk %}"> {{ patient.full_name }}</a></h4>   
-</li>
-{% endfor %}
-</ul>
+	<h2>Patients <a class="add-plus-btn" href="{% url 'patient_new' %}">+</a></h2>
 
-<a href="{% url 'patient_new' %}"><button class="btn btn-info btn-lg"> Add Patient </button></a>
-
-
-
-
-
-
-
-
-<h2>Vars</h2>
-<ul>
-{% for var in variations.all %}
-<li>
-    <h41><a href=""> {{ var.acc_id }}</a></h4>   
-</li>
-{% endfor %}
-</ul>
-
-
-
-
-
+	<ul>
+		{% for patient in patients.all %}
+		<li>
+		    <a href="{% url 'patient_detail' pk=patient.pk %}">({{patient.identifier}}) {{ patient.full_name }}</a>
+		</li>
+		{% endfor %}
+	</ul>
 
 
 {% endif %}
