@@ -54,8 +54,18 @@
     top: 50%;
     transform: translate(-50%, -50%);
     -webkit-transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 50px;
 }
 
+.center{
+    width: 50%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+}
 
 #info-home h1{
     margin-bottom: 100px;
@@ -90,4 +100,10 @@
 
 .inline-block {
     display: inline-block;
+}
+
+#home{
+    background-image: url('../src/dna.jpg');
+    height: 100%;
+    width: 100%;
 }

@@ -21,6 +21,27 @@
 <a href="{% url 'patient_new' %}"><button class="btn btn-info btn-lg"> Add Patient </button></a>
 
 
+
+
+
+
+
+
+<h2>Vars</h2>
+<ul>
+{% for var in variations.all %}
+<li>
+    <h41><a href=""> {{ var.acc_id }}</a></h4>   
+</li>
+{% endfor %}
+</ul>
+
+
+
+
+
+
+
 {% endif %}
 
 

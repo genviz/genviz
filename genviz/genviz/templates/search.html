@@ -137,5 +137,18 @@
 		}
 		$('#modificar').html('<button id="cambiar" type="submit" class="btn btn-info btn-lg">Modify shortcuts</button>');
 	});
+
+
+	$('.scut').click(function(){
+		this.text
+		var aux2;
+		for (var i = 0; i < $('.scut').length; i++) {
+			aux2=jQuery($('.scut input')[i]).val();
+			jQuery($('.scut')[i]).html('<button type="button" class="btn btn-default">'+aux2+'</button></div>');
+		}
+		$('#modificar').html('<button id="cambiar" type="submit" class="btn btn-info btn-lg">Modify shortcuts</button>');
+	});
+
+
 </script>
 {% endblock %}

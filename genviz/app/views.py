@@ -200,20 +200,12 @@ class VariationsView(View):
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
-
-
-# def profile(request):
-#     patient_list = Patient.objects.all()
-#     context = {'object_list': patient_list}
-#     return render(request, 'profile.html', context)
-
-
-
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
             form.save()
+            #falta login
             return redirect('/accounts/login/')
     else:
         form = SignUpForm()
@@ -236,16 +228,18 @@ def patient_new(request):
 
 def profile(request):
     patients = request.user.patients.all()
-    return render(request,'profile.html',{'patients':patients})
+    variations = Variation.objects.all()
+    return render(request,'profile.html',{'patients':patients,'variations':variations})
 
 def var(request):
     variations = Variation.objects.all()
-    return render(request,'vars.html',{'variations':variations})
+    return render(request,'var.html',{'variations':variations})
  # url(r'^$', views.post_list),
  # def post_list(request):
  #        return render(request, 'blog/post_list.html', {})
 
 def patient_detail(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
+    variations = Variation.objects.filter(patient=patient)
     #anot = Variation.objects.filter(patient=patient)
-    return render(request, 'patient_detail.html', {'patient': patient})#,'anot':anot})
+    return render(request, 'patient_detail.html', {'patient': patient,'variations':variations})#,'anot':anot})
