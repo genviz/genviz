@@ -37,8 +37,10 @@ class GeneSearchResults(TemplateView):
             record = Entrez.read(handle)
 
             handle_summary = Entrez.esummary(id=','.join(record['IdList']), db='nucleotide', rettype='gb', retmode='text')
-            
-            res = list(Entrez.parse(handle_summary))
+            try:
+                res = list(Entrez.parse(handle_summary))
+            except RuntimeError:
+                res = []
             return self.render_to_response(context={
                 'results': res,
                 'gene': gene,
