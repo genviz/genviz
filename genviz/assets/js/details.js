@@ -115,17 +115,17 @@ function plotGeneFeatures(features) {
 	})
 }
 
-function splitVariationsInRows(variations, basesPerRow) {
+function splitVariationsInRows(variations, offset, basesPerRow) {
 	var variationsPerRow = {}
 	variations.forEach(function(variation, _) {
-		startRow = parseInt((variation.start - 1) / basesPerRow)
-		endRow = parseInt((variation.end - 1) / basesPerRow)
+		startRow = parseInt((variation.start - offset - 1) / basesPerRow)
+		endRow = parseInt((variation.end - offset - 1) / basesPerRow)
 		rowCount = startRow - endRow + 1
 		annotatedBases = 0
 		for (var i = startRow; i <= endRow; i++) {
-			start = Math.max(1 + i * basesPerRow, variation.start)
+			start = Math.max(1 + i * basesPerRow + offset, variation.start - offset)
 			offset = start - (1 + i * basesPerRow)
-			end = Math.min((i+1) * basesPerRow, variation.end)
+			end = Math.min((i+1) * basesPerRow + offset, variation.end - offset)
 			if (variation.operation != 'del' && variation.operation != 'dup') {
 				seq = variation.alt.substr(annotatedBases, end - start + 1)				
 			} else {
@@ -200,12 +200,12 @@ function getFeaturesPerRow(features, basesPerRow) {
 	return featuresPerRow
 }
 
-function formatGeneSequence(sequence, features, variations, sequenceLength, basesPerRow, template) {
+function formatGeneSequence(sequence, start, end, features, variations, sequenceLength, basesPerRow, template) {
 	// Get variations per row
 	var variationsPerRow = splitVariationsInRows(variations, basesPerRow)
 	var featuresPerRow = getFeaturesPerRow(features, basesPerRow)
 	
-	var maxLengthDigits = sequenceLength.toString().length
+	var maxLengthDigits = end.toString().length
 
 	var rowCount = parseInt(sequenceLength / basesPerRow) + 1
 
@@ -216,7 +216,7 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 
 		rows[row_i] = {
 			sequence: seq.split('').map(function(base, i) {
-				pos = basesPerRow * row_i + i + 1
+				pos = basesPerRow * row_i + i + 1 + (start - 1)
 				return {
 					position: pos,
 					base: base,
@@ -233,6 +233,7 @@ function formatGeneSequence(sequence, features, variations, sequenceLength, base
 	// Render Handlebars template
 	$('.sequence-container').html(template({
 		rows: rows,
+		start: start - 1,
 		maxLengthDigits,
 		rowCount: rowCount,
 		basesPerRow: basesPerRow

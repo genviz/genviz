@@ -1,6 +1,7 @@
 import json
 import pickle
 import random
+import re
 import textwrap
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
@@ -46,8 +47,32 @@ class GeneSearchResults(TemplateView):
 
         return self.render_to_response(context)
 
+
+class SnpSearchResults(TemplateView):
+    template_name = 'snp_results.html'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        #import pdb; pdb.set_trace()
+        snp = request.GET.get('snp', None)
+
+        if snp:
+            Entrez.email = "email@example.com"
+            variations = fetch_snp(snp)
+
+            return self.render_to_response(context={
+                'variations': variations,
+                'snp': snp
+            })
+
+        return self.render_to_response(context)
+
+
 class GeneSearch(TemplateView):
     template_name = 'search.html'
+
+class SnpSearch(TemplateView):
+    template_name = 'search_snp.html'
 
 class GeneDetails(TemplateView):
     template_name = 'details.html'
@@ -55,11 +80,23 @@ class GeneDetails(TemplateView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         seq_id = request.GET.get('id', None)
+        start = request.GET.get('start', None)
+        end = request.GET.get('end', None)
 
         if seq_id is not None:
             Entrez.email = "email@example.com"
-            
-            handle = Entrez.efetch(id=seq_id, db='nucleotide', rettype='gb', retmode='text')
+            params = {
+                'id': seq_id,
+                'db': 'nucleotide',
+                'rettype': 'gbwithparts',
+                'retmode': 'text'
+            }
+            if start and end:
+                params.update({
+                    'seq_start': start,
+                    'seq_stop': end    
+                })
+            handle = Entrez.efetch(**params)
             res = SeqIO.read(handle, format='gb')
 
             acc_id = res.name
@@ -76,10 +113,12 @@ class GeneDetails(TemplateView):
                 features[f_type].sort(key=lambda f: f['location'][1])
 
             gene_length = features['source'][0]['location'][1] - features['source'][0]['location'][0] + 1
+            start = start if start else 1
+            end = end if end else gene_length
 
             # Fetch variations from Clinvar
             clinvar_variations = fetch_clinvar_variations(res.id)
-            dbsnp_variations = fetch_dbsnp_variations(res.id)
+            dbsnp_variations = fetch_dbsnp_variations(res.id, start, end)
             external_variations = []
             for v in clinvar_variations + dbsnp_variations:
                 # TODO: Support all operations
@@ -95,8 +134,11 @@ class GeneDetails(TemplateView):
             # Get variations
             user_variations = list(Variation.objects.filter(acc_id=acc_id).all())
             variations = external_variations + user_variations
+
             return self.render_to_response(context={
                 'entry': res,
+                'start': start,
+                'end': end,
                 'entry_dict': res.__dict__,
                 'features_json': json.dumps(features),
                 'features': features,

@@ -68,18 +68,32 @@ def fetch_clinvar_variations(acc_id):
                     print(repr(e))
     return variations
 
-def fetch_dbsnp_variations(acc_id):
-    handle = Entrez.esearch(term='%s[Nucleotide/Protein Accession]' % acc_id, db='snp')
+def fetch_dbsnp_variations(acc_id, start=1, end=1e10):
+    # If it's a chromosome
+    if acc_id.startswith('NC'):
+        chromosome = re.sub(r'^NC_0+(\d{1,2})(?:\.\d+)', r'\1', acc_id)
+        term = '%s[Chromosome] AND (%s[CHRPOS]:%s[CHRPOS])' % (chromosome, start, end)
+    else:
+        term = '%s[Nucleotide/Protein Accession] AND (%s[CHRPOS]:%s[CHRPOS])' % (acc_id, start, end)
+    import pdb; pdb.set_trace()
+    handle = Entrez.esearch(term=term, db='snp')
     res = Entrez.read(handle, validate=False)
     var_ids = res['IdList']
-    handle = Entrez.efetch(id=var_ids, db='snp', retmode='xml')
+    return fetch_snp(var_ids, acc_id) if var_ids else []
+
+def fetch_snp(snp, acc_id=None):
+    handle = Entrez.efetch(id=snp, db='snp', retmode='xml')
     dbsnp_xml = handle.read()
     dbsnp_dict = xmltodict.parse(dbsnp_xml)
     hgvsparser = hgvs.parser.Parser()
     variations = []
-    for variation in dbsnp_dict['ExchangeSet']['Rs']:
+    # Handle cases with one and with multiple results
+    res = dbsnp_dict['ExchangeSet']['Rs']
+    rs_list = res if type(res) == list else [res]
+    for variation in rs_list:
         for hgvs_var in variation['hgvs']:
-            if acc_id in hgvs_var:
+            print(hgvs_var)
+            if (not acc_id) or acc_id in hgvs_var:
                 try:
                     #clinical_significance = variation['ClinicalAssertionList']['GermlineList']['Germline']['ClinicalSignificance']['Description']
                     comment = textwrap.dedent("""\

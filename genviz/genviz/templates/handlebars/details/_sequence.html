@@ -17,7 +17,7 @@
 			{{/if}}
 			<div class="seq">
 				<span class="row-location padded-char" style="min-width: {{ ../maxLengthDigits }}em;">
-					{{ multiply this ../basesPerRow }}
+					{{ sum ../start (multiply this ../basesPerRow) }}
 				</span>
 				{{#each (lookup (lookup ../rows this) "sequence")}}
 					<span id='base-{{ lookup this "position" }}' class="base padded-char" title='cDNA location: {{ lookup this "position" }}' data-location='{{ lookup this "position" }}'>{{ lookup this "base" }}</span>

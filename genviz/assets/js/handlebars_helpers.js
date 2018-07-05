@@ -14,6 +14,10 @@ Handlebars.registerHelper("dec", function(value, options) {
     return parseInt(value) - 1;
 });
 
+Handlebars.registerHelper("sum", function(a, b, options) {
+    return parseInt(a) + parseInt(b);
+});
+
 Handlebars.registerHelper("multiply", function(a, b, options) {
 	return parseInt(a) * parseInt(b);
 });
