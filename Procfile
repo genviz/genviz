@@ -1,1 +1,1 @@
-web: gunicorn genviz:app
+web: sh -c 'cd ./genviz/ && exec gunicorn genviz.wsgi --log-file -'
