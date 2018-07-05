@@ -60,6 +60,5 @@ Handlebars.registerHelper('eachChar', function(str, block) {
 
 
 Handlebars.registerHelper("sourceOffset", function(vars, row_i, basesPerRow, offset, options) {
-    console.log("Vars", vars, (row_i+1)*basesPerRow, vars[vars.length - 1].end, offset, vars[vars.length - 1].end - offset)
     return (row_i+1) * basesPerRow - (vars[vars.length - 1].end - offset) + 1;
 });

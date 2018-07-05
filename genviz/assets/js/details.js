@@ -146,7 +146,6 @@ function splitVariationsInRows(variations, offset, basesPerRow) {
 			})
 		}
 	})
-	console.log(variationsPerRow)
 
 	Object.keys(variationsPerRow).forEach(function(row_i, _) {
 		Object.keys(variationsPerRow[row_i]).forEach(function(source, _) {
@@ -236,7 +235,6 @@ function formatGeneSequence(sequence, start, end, features, variations, sequence
 			features: featuresPerRow[row_i].features
 		}
 	}
-	console.log(rows)
 
 	// Render Handlebars template
 	$('.sequence-container').html(template({
@@ -278,7 +276,6 @@ function bindVariations(popover_template) {
 				singleBaseSelected: false
 			})
 		}).on('hide.bs.popover', function () {
-			console.log('Hiding popover')
 			$('.selected-base').removeClass('selected-base')
 		})
 		for (var i = startLocation; i <= endLocation; i++) {
@@ -305,7 +302,6 @@ function bindVariations(popover_template) {
 				singleBaseSelected: true
 			})
 		}).on('hide.bs.popover', function () {
-			console.log('Hiding popover')
 			$('.selected-base').removeClass('selected-base')
 		})
 	})

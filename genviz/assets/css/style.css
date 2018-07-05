@@ -121,9 +121,8 @@ a.add-plus-btn:hover {
     margin:2em 0;
 }
 
-input[type="submit"], .second {
-
-   margin: 0 5%;
+input.nice-form[type="submit"], .second {
+    margin: 0 5%;
     margin-top: 0px;
     width: 90%;
     position: relative;
@@ -134,16 +133,16 @@ input[type="submit"], .second {
     border-radius: 10px;
 }
 
-input[type="submit"]:hover, .second:hover{
+input.nice-form[type="submit"]:hover, .second:hover{
     cursor: pointer;
     background-color: #9267db;
 }
 
 label {
+    display: block;
+}
 
-    display: block;}
-
-input{
+input.nice-form{
     width: 100%;
     height: 40px;
     background: transparent;
@@ -158,7 +157,7 @@ input{
     text-align: center;
 }
 
-input[type="submit"]{
+input.nice-form[type="submit"]{
     background-color: #5603e1;
     color: white;
     border-color: #5603e1;
@@ -168,6 +167,6 @@ input[type="submit"]{
     color: #5603e1;
 }
 
-input[type="text"], input[type="email"] {
+input.nice-form[type="text"], input[type="email"] {
     padding-left: 10px;
 }
