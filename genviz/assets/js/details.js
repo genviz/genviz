@@ -142,7 +142,8 @@ function splitVariationsInRows(variations, offset, basesPerRow) {
 				operation: variation.operation,
 				changeLength: end - start + 1,
 				variation: variation,
-				comment: variation.comment
+				comment: variation.comment,
+				url: variation.url
 			})
 		}
 	})

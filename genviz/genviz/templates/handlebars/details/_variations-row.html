@@ -10,8 +10,9 @@
 						  data-toggle='tooltip'
 						  {{#if (lookup this "url")}}
 						  	href='{{lookup this "url"}}'
+						  	target='_blank'
 						  {{else}}
-						  	href='#'
+						  	href='#base-{{lookup this "position"}}'
 						  {{/if}}
 					>
 						{{#if (eq (lookup this "operation") "del")}}
