@@ -123,9 +123,9 @@ function splitVariationsInRows(variations, offset, basesPerRow) {
 		rowCount = startRow - endRow + 1
 		annotatedBases = 0
 		for (var i = startRow; i <= endRow; i++) {
-			start = Math.max(1 + i * basesPerRow + offset, variation.start - offset)
-			offset = start - (1 + i * basesPerRow)
-			end = Math.min((i+1) * basesPerRow + offset, variation.end - offset)
+			start = Math.max(1 + i * basesPerRow + offset, variation.start)
+			row_offset = start - (1 + i * basesPerRow) - offset + 1
+			end = Math.min((i+1) * basesPerRow + offset, variation.end)
 			if (variation.operation != 'del' && variation.operation != 'dup') {
 				seq = variation.alt.substr(annotatedBases, end - start + 1)				
 			} else {
@@ -137,7 +137,7 @@ function splitVariationsInRows(variations, offset, basesPerRow) {
 			variationsPerRow[i][variation.source].push({
 				start: start,
 				end: end,
-				offset: offset,
+				offset: row_offset,
 				sequence: seq,
 				operation: variation.operation,
 				changeLength: end - start + 1,
@@ -155,11 +155,17 @@ function splitVariationsInRows(variations, offset, basesPerRow) {
 				return a1.start - a2.start
 			})
 			// Compute spaces between variations and offset from the beginning of the row
-			lastAnnotatedPosition = row_i * basesPerRow
+			lastAnnotatedPosition = row_i * basesPerRow + offset
+			lastVariation = null
 			variationsPerRow[row_i][source].forEach(function(variation, i, vars) {
+				if (variation.start == lastAnnotatedPosition && lastVariation) {
+					lastVariation.multiple = true
+					vars[i].hidden = true
+				}
 				vars[i].offset = variation.start - lastAnnotatedPosition - 1
 				vars[i].changeLength = variation.end - variation.start + 1
 				lastAnnotatedPosition = variation.end
+				lastVariation = vars[i]
 			})
 		})
 	})
@@ -202,7 +208,7 @@ function getFeaturesPerRow(features, basesPerRow) {
 
 function formatGeneSequence(sequence, start, end, features, variations, sequenceLength, basesPerRow, template) {
 	// Get variations per row
-	var variationsPerRow = splitVariationsInRows(variations, basesPerRow)
+	var variationsPerRow = splitVariationsInRows(variations, start-1, basesPerRow)
 	var featuresPerRow = getFeaturesPerRow(features, basesPerRow)
 	
 	var maxLengthDigits = end.toString().length
@@ -216,9 +222,11 @@ function formatGeneSequence(sequence, start, end, features, variations, sequence
 
 		rows[row_i] = {
 			sequence: seq.split('').map(function(base, i) {
-				pos = basesPerRow * row_i + i + 1 + (start - 1)
+				relative_pos = basesPerRow * row_i + i + 1
+				pos = relative_pos + (start - 1)
 				return {
 					position: pos,
+					relative_position: relative_pos,
 					base: base,
 					isCDS: rowCDS !== -1 && pos >= featuresPerRow[row_i].features[rowCDS][0] && pos <= featuresPerRow[row_i].features[rowCDS][1]
 				}

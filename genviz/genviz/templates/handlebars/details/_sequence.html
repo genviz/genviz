@@ -13,7 +13,7 @@
 	{{#times rowCount}}
 		<div class="seq-row" data-row-number='{{this}}' data-features='{{jsonStringify (lookup (lookup ../rows this) "features") }}'>
 			{{#if (lookup (lookup ../rows this) "variations")}}
-				{{> variationsRow basesPerRow=../basesPerRow row_i=this variations=(lookup (lookup ../rows this) "variations") maxLengthDigits=../maxLengthDigits}}
+				{{> variationsRow basesPerRow=../basesPerRow row_i=this variations=(lookup (lookup ../rows this) "variations") maxLengthDigits=../maxLengthDigits offset=../start}}
 			{{/if}}
 			<div class="seq">
 				<span class="row-location padded-char" style="min-width: {{ ../maxLengthDigits }}em;">

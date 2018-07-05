@@ -88,8 +88,8 @@
             var features = JSON.parse("{{features_json|escapejs}}")
             var sequence = "{{sequence}}"
             var acc_id = "{{entry.name}}"
-            var start = "{{start}}"
-            var end = "{{end}}"
+            var start = {{start}}
+            var end = {{end}}
             var variations = JSON.parse("{{variations_json|escapejs}}")
             var gene_length = {{gene_length}}
             Handlebars.registerPartial('variationsRow', `{% include 'handlebars/details/_variations-row.html' %}`)

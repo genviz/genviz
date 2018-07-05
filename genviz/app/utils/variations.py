@@ -1,4 +1,5 @@
 import textwrap
+import re
 from Bio import Entrez
 from ..models import *
 import xmltodict
@@ -75,7 +76,6 @@ def fetch_dbsnp_variations(acc_id, start=1, end=1e10):
         term = '%s[Chromosome] AND (%s[CHRPOS]:%s[CHRPOS])' % (chromosome, start, end)
     else:
         term = '%s[Nucleotide/Protein Accession] AND (%s[CHRPOS]:%s[CHRPOS])' % (acc_id, start, end)
-    import pdb; pdb.set_trace()
     handle = Entrez.esearch(term=term, db='snp')
     res = Entrez.read(handle, validate=False)
     var_ids = res['IdList']

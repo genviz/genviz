@@ -4,33 +4,35 @@
 	{{#each variations as |vars source|}}
 		<div class="variation-row hidden" data-source="{{ source }}">
 			{{#each vars}}
-				<a style='margin-left: {{ multiply 16 (lookup this "offset") }}px;'
-					  title='{{lookup this "comment"}}'
-					  data-toggle='tooltip'
-					  {{#if (lookup this "url")}}
-					  	href='{{lookup this "url"}}'
-					  {{else}}
-					  	href='#'
-					  {{/if}}
-				>
-					{{#if (eq (lookup this "operation") "del")}}
-						<span class="padded-char variation-{{ lookup this 'operation' }}" style="width: {{lookup this "changeLength"}}em;"></span>
-					{{else if (eq (lookup this "operation") "dup")}}
-						{{#times (lookup this "changeLength")}}
-							<span class="padded-char variation-{{ lookup ../this 'operation' }}">
-								<span class="arrow-up"></span>
-							</span>
-						{{/times}}
-					{{else if (lookup this "sequence") }}
-						{{#eachChar (lookup this "sequence")}}
-							<span class="padded-char variation-{{ lookup ../this 'operation' }}">
-								{{this}}
-							</span>
-						{{/eachChar}}
-					{{/if}}
-				</a>
+				{{#unless (lookup this "hidden")}}
+					<a style='margin-left: {{ multiply 16 (lookup this "offset") }}px;'
+						  title='{{#if (lookup this "multiple")}} (Multiple variations) {{/if}}{{lookup this "comment"}}'
+						  data-toggle='tooltip'
+						  {{#if (lookup this "url")}}
+						  	href='{{lookup this "url"}}'
+						  {{else}}
+						  	href='#'
+						  {{/if}}
+					>
+						{{#if (eq (lookup this "operation") "del")}}
+							<span class="padded-char variation-{{ lookup this 'operation' }}" style="width: {{lookup this "changeLength"}}em;"></span>
+						{{else if (eq (lookup this "operation") "dup")}}
+							{{#times (lookup this "changeLength")}}
+								<span class="padded-char variation-{{ lookup ../this 'operation' }}">
+									<span class="arrow-up"></span>
+								</span>
+							{{/times}}
+						{{else if (lookup this "sequence") }}
+							{{#eachChar (lookup this "sequence")}}
+								<span class="padded-char variation-{{ lookup ../this 'operation' }}">
+									{{this}}
+								</span>
+							{{/eachChar}}
+						{{/if}}
+					</a>
+				{{/unless}}
 			{{/each}}
-			<span class="variation-source" style="margin-left: {{multiply 16 (sourceOffset vars ../row_i ../basesPerRow)}}px;">
+			<span class="variation-source" style="margin-left: {{multiply 16 (sourceOffset vars ../row_i ../basesPerRow ../offset)}}px;">
 				{{source}}
 			</span>
 		</div>

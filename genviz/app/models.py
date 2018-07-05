@@ -213,3 +213,5 @@ class Pathology(models.Model):
     # Path to pickled model
     prediction_model = models.CharField(max_length=200)
     variations = models.ManyToManyField(VariationLocation)
+    # Precision reported by classification_report function
+    precision = models.FloatField()

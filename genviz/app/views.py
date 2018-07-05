@@ -113,12 +113,13 @@ class GeneDetails(TemplateView):
                 features[f_type].sort(key=lambda f: f['location'][1])
 
             gene_length = features['source'][0]['location'][1] - features['source'][0]['location'][0] + 1
-            start = start if start else 1
-            end = end if end else gene_length
+            start = int(start) if start else 1
+            end = int(end) if end else gene_length
 
             # Fetch variations from Clinvar
             clinvar_variations = fetch_clinvar_variations(res.id)
             dbsnp_variations = fetch_dbsnp_variations(res.id, start, end)
+
             external_variations = []
             for v in clinvar_variations + dbsnp_variations:
                 # TODO: Support all operations
@@ -128,7 +129,8 @@ class GeneDetails(TemplateView):
                     cds_start = features['CDS'][0]['location'][0]
                     v.start += cds_start
                     v.end += cds_start
-                if v.start >= 0 and v.end <= gene_length:
+                print(start, v.start, end, v.end)
+                if v.start >= start and v.end <= end:
                     external_variations.append(v)
 
             # Get variations
@@ -207,7 +209,7 @@ def predict(request, pathology_id):
     prediction = model.predict([[random.randint(0, 1) for i in range(model.n_features_)]])[0]
     return JsonResponse({
         'prediction': str(prediction),
-        'precision': str(0.5723)
+        'precision': str(pathology.model_precision)
     })
 
 def patient_detail(request, pk):
