@@ -69,13 +69,13 @@ def fetch_clinvar_variations(acc_id):
                     print(repr(e))
     return variations
 
-def fetch_dbsnp_variations(acc_id, start=1, end=1e10):
+def fetch_dbsnp_variations(acc_id, start=1, end=1e12):
     # If it's a chromosome
     if acc_id.startswith('NC'):
         chromosome = re.sub(r'^NC_0+(\d{1,2})(?:\.\d+)', r'\1', acc_id)
         term = '%s[Chromosome] AND (%s[CHRPOS]:%s[CHRPOS])' % (chromosome, start, end)
     else:
-        term = '%s[Nucleotide/Protein Accession] AND (%s[CHRPOS]:%s[CHRPOS])' % (acc_id, start, end)
+        term = '%s[Nucleotide/Protein Accession]' % acc_id
     handle = Entrez.esearch(term=term, db='snp')
     res = Entrez.read(handle, validate=False)
     var_ids = res['IdList']
