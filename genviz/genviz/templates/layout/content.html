@@ -13,9 +13,11 @@
 				<li class="nav-item menu-item">
 					<a href="{% url 'search' %}">Search</a>
 				</li>
-				<li class="nav-item menu-item">
-					<a href="{% url 'profile' %}">Patients</a>
-				</li>
+		      	{% if user.is_authenticated %}
+					<li class="nav-item menu-item">
+						<a href="{% url 'profile' %}">Patients</a>
+					</li>
+				{% endif %}
 			</ul>
 	  	</div>
   		<div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
