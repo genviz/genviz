@@ -25,7 +25,7 @@ from app import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/', include('django.contrib.auth.urls')),
-    url(r'^search/$', GeneSearch.as_view()),
+    url(r'^search/$', GeneSearch.as_view(), name='search'),
     url(r'^search/snp/$', SnpSearch.as_view()),
     url(r'^/?$', Home.as_view()),
     url(r'^results/$', GeneSearchResults.as_view(), name='gene_results'),

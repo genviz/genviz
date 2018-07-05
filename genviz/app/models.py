@@ -43,7 +43,7 @@ class Patient(models.Model):
     identifier = models.CharField(max_length=30, unique=True)
     age = models.IntegerField()
     sex = models.CharField(max_length=1, choices=SEX_CHOICES, default='M')
-    phone  = models.CharField(max_length=10, default=None,null=True)
+    phone  = models.CharField(max_length=25, default=None,null=True)
     diagnosis = models.CharField(max_length=100) 
     email = models.EmailField(max_length=100)
    
@@ -57,7 +57,7 @@ class Patient(models.Model):
 
 
 class User(AbstractUser):
-    username     = models.CharField(max_length=100, default="None")
+    username     = models.CharField(max_length=100, null=True)
     email        = models.EmailField(_('email address'), unique=True)
     is_doctor    = models.BooleanField('student status', default=False)
     is_biologist = models.BooleanField('teacher status', default=True)

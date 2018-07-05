@@ -9,12 +9,14 @@
 	  </button>
 
 		<div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2" id="navbarSupportedContent">
-			<div class="navbar-nav mr-auto"></div>
-				<form class="form-inline" id="search-navbar" action='/results'>
-					<input class="form-control mr-sm-2" name="gene" type="search" placeholder="Gene" aria-label="Gene" value="{{gene}}">
-					<input class="form-control mr-sm-2" name="organism" type="search" placeholder="Organism" aria-label="Organism" value="{{organism}}">
-					<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-	  		</form>
+			<ul class="navbar-nav nav mr-auto">
+				<li class="nav-item menu-item">
+					<a href="{% url 'search' %}">Search</a>
+				</li>
+				<li class="nav-item menu-item">
+					<a href="{% url 'profile' %}">Patients</a>
+				</li>
+			</ul>
 	  	</div>
   		<div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
     	<ul class="navbar-nav ml-auto">

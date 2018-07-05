@@ -1,33 +1,18 @@
-{% extends 'layout/base.html' %}
+{% extends 'layout/content.html' %}
 {% load static %}
 
 {% block head %}
 	<style type="text/css">
-		.sequence {
-			width:90%;
-			word-break:break-all;
-			font-family:'monospace';
-			letter-spacing:10px;
-			border: pink solid;
-			background-color: aliceblue;
-		}
-
-
+		
 		body {
 			background: #f2f2f2;
 		}
 
 		form {
-			width: 50%;
 		    background-color: white;
 		    box-shadow: 2px 2px 5px #d8d8d8;
 		    margin: auto auto;
-		    padding: 5%;
-		    position: absolute;
-		    left: 50%;
-		    top: 50%;
-		    transform: translate(-50%, -50%);
-		    -webkit-transform: translate(-50%, -50%);
+		    padding: 3em !important;
 		}
 
 		label {
@@ -63,92 +48,49 @@
 {% endblock %}
 
 {% block content %}
-<form method='GET' action='/results' id='search-form'>
-	<h1>GenViz</h1>
-	<div class="campo">
-		<label for="gen">Gene</label>
-		<input type="text" name="gene" placeholder="Insert gene name or identifier">
+<div class="col-md-8 mx-auto" id='search-form'>
+	<h3>Search sequence by</h1>
+
+	<ul class="nav nav-tabs" id="myTab" role="tablist">
+	  <li class="nav-item">
+	    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Gene name</a>
+	  </li>
+	  <li class="nav-item">
+	    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">SNP</a>
+	  </li>
+	</ul>
+	<div class="tab-content" id="myTabContent">
+	  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+	  	<form method='GET' action='/results'>
+			<div class="campo">
+				<label for="gen">Gene</label>
+				<input class="form-control" type="text" name="gene" placeholder="Insert gene name or identifier">
+			</div>
+			<div class="campo">
+				<label for="gen">Organism</label>
+				<input class="form-control" type="text" name="organism" placeholder="Homo sapiens (default)">
+			</div>
+
+			<div class="row">
+				<div class="col-md-12">
+					<button type="submit" class="btn btn-success btn-lg">Search</button>
+				</div>
+			</div>
+		</form>
+	  </div>
+	  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+	  	<form method='GET' action='{% url "snp_results" %}'>
+			<div class="campo">
+				<label for="gen">dbSNP ref</label>
+				<input class="form-conrol" type="text" name="snp" placeholder="rsXXXXXXX">
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<button type="submit" class="btn btn-success btn-lg">Search</button>
+				</div>
+			</div>
+		</form>
+	  </div>
 	</div>
-	<div class="campo">
-		<label for="gen">Organism</label>
-		<input type="text" name="organism" placeholder="Homo sapiens (default)">
-	</div>
-
-	<div id="shortcuts">
-		<div class="row">
-			<div class="scut col-md-3" id="test"><button type="button" class="btn btn-default">BRCA1</button></div>
-
-			<div class="scut col-md-3"><button type="button" class="btn btn-default">BRCA2</button></div>
-
-			<div class="scut col-md-3"><button type="button" class="btn btn-default">CFTR</button></div>
-
-			<div class="scut col-md-3"><button type="button" class="btn btn-default">MLH1</button></div>
-		</div>
-
-		<div class="row">
-			<div class="scut col-md-3"><button type="button" class="btn btn-default">MSH2</button></div>
-
-			<div class="scut col-md-3"><button type="button" class="btn btn-default">APC</button></div>
-
-			<div class="scut col-md-3"><button type="button" class="btn btn-default">MYBPC3</button></div>
-
-			<div class="scut col-md-3"><button type="button" class="btn btn-default">NF1</button></div>
-		</div>
-
-
-		<div class="row">
-			<div class="scut col-md-3"><button type="button" class="btn btn-default">MSH6</button></div>
-
-			<div class="scut col-md-3"><button type="button" class="btn btn-default">MYH7</button></div>
-
-			<div class="scut col-md-3"><button type="button" class="btn btn-default">...</button></div>
-
-			<div class="scut col-md-3"><button type="button" class="btn btn-default">...</button></div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-6" id="modificar">
-			<button id="cambiar" type="submit" class="btn btn-info btn-lg">Modify shortcuts</button>
-		</div>
-		<div class="col-md-6">
-			<button type="submit" class="btn btn-success btn-lg">Search</button>
-		</div>
-	</div>
-</form>
-{% endblock %}
-
-{% block js-footer %}
-<script type="text/javascript">
-	$('#cambiar').click(function(){
-		var aux;
-		for (var i = 0; i < $('.scut').length; i++) {
-			aux = jQuery($('.scut')[i]).text();
-			jQuery($('.scut')[i]).html('<input type="text" class="form-control" aria-describedby="basic-addon1" value="'+aux+'">');
-		}
-		$('#modificar').html('<button id="guardar" type="submit" class="btn btn-info btn-lg">Save</button>');
-	});
-
-
-	$('#guardar').click(function(){
-		var aux2;
-		for (var i = 0; i < $('.scut').length; i++) {
-			aux2=jQuery($('.scut input')[i]).val();
-			jQuery($('.scut')[i]).html('<button type="button" class="btn btn-default">'+aux2+'</button></div>');
-		}
-		$('#modificar').html('<button id="cambiar" type="submit" class="btn btn-info btn-lg">Modify shortcuts</button>');
-	});
-
-
-	$('.scut').click(function(){
-		this.text
-		var aux2;
-		for (var i = 0; i < $('.scut').length; i++) {
-			aux2=jQuery($('.scut input')[i]).val();
-			jQuery($('.scut')[i]).html('<button type="button" class="btn btn-default">'+aux2+'</button></div>');
-		}
-		$('#modificar').html('<button id="cambiar" type="submit" class="btn btn-info btn-lg">Modify shortcuts</button>');
-	});
-
-
-</script>
+</div>
 {% endblock %}

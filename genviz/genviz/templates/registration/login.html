@@ -26,17 +26,17 @@
 
   <div>
     <td>{{ form.username.label_tag }}</td>
-    <td>{% render_field form.username class+="nice-form" %}</td>
+    <td>{% render_field form.username class+="form-control" %}</td>
   </div>
   <div>
     <td>{{ form.password.label_tag }}</td>
-    <td>{% render_field form.password class+="nice-form" %}</td>
+    <td>{% render_field form.password class+="form-control" %}</td>
   </div>
 <br>
   <div>
-    <input class='nice-form' type="submit" value="Login" />
+    <input class='form-control' type="submit" value="Login" />
 
-    <input class='nice-form' type="hidden" name="next" value="{{ next }}" />
+    <input class='form-control' type="hidden" name="next" value="{{ next }}" />
   </div>
   </form>
    

@@ -14,12 +14,14 @@
             <p><b>Phone:</b> <span>{{patient.phone}}</span></p>
         </div>
         <h3>Predictions</h3>
-        <select name="" id="pathologies-select">
-            {% for pathology in pathologies.all %}
-                <option value="{{ pathology.pk }}">{{pathology.name}}</option>
-            {% endfor %}
-        </select>
-        <button class="btn btn-primary predict-btn">Predict</button>
+        <div class="form-inline">
+            <select class="form-control col-md-6" name="" id="pathologies-select">
+                {% for pathology in pathologies.all %}
+                    <option value="{{ pathology.pk }}">{{pathology.name}}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-primary predict-btn">Predict</button>
+        </div>
         <p class="prediction-result"></p>
     </div>
 
