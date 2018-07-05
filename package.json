@@ -1,0 +1,19 @@
+{
+  "name": "genviz",
+  "version": "1.0.0",
+  "description": "Herramienta de visualización de genes. Miniproyecto de desarrollo de software USB",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "cd genviz && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidaam/genviz.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davidaam/genviz/issues"
+  },
+  "homepage": "https://github.com/davidaam/genviz#readme"
+}
