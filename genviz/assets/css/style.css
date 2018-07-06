@@ -179,3 +179,7 @@ input.form-control[type="text"], input[type="email"] {
 .menu-item {
     margin-left:1.5em;
 }
+
+.gene-results {
+    margin-bottom: 2em;
+}

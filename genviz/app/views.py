@@ -35,14 +35,34 @@ class GeneSearchResults(TemplateView):
             term = 'RefSeqGene[keyword] AND "{}"[gene] AND "{}"[orgn]'.format(gene, organism)        
             handle = Entrez.esearch(term=term, db='nucleotide', idtype='acc')
             record = Entrez.read(handle)
-
-            handle_summary = Entrez.esummary(id=','.join(record['IdList']), db='nucleotide', rettype='gb', retmode='text')
+            ids = record['IdList']
+            handle_summary = Entrez.esummary(id=','.join(ids), db='nucleotide', rettype='gb', retmode='text')
+            
+            other_term = '"{}"[gene] AND "{}"[orgn]'.format(gene, organism)        
+            other_handle = Entrez.esearch(term=other_term, db='nucleotide', idtype='acc')
+            other_record = Entrez.read(other_handle)
+            other_ids = list(set(other_record['IdList']) - set(ids))
+            other_handle_summary = Entrez.esummary(id=','.join(other_ids), db='nucleotide', rettype='gb', retmode='text')
+    
             try:
                 res = list(Entrez.parse(handle_summary))
             except RuntimeError:
                 res = []
+
+            try:
+                other_res = sorted(
+                    list(filter(
+                        lambda r: 'transcript variant' in r['Title'].lower(),
+                        Entrez.parse(other_handle_summary
+                    ))),
+                    key=lambda r: r['Title']
+                )
+            except RuntimeError:
+                other_res = []
+
             return self.render_to_response(context={
                 'results': res,
+                'other_results': other_res,
                 'gene': gene,
                 'organism': organism
             })

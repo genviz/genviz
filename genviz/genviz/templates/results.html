@@ -2,18 +2,31 @@
 {% load static %}
 
 {% block content %}
-<h4>Results ({{gene}})</h4>
-	<ul class="list-group">
-		{% if results %}
-			{% for result in results %}
-			  <li class="list-group-item d-flex justify-content-between align-items-center">
-			    <a href='/details?id={{result.Id}}'>{{result.Title}}</a>
-			    <span class="badge badge-primary badge-pill">{{result.Length}} bp</span>
-			  </li>
-			{% endfor %}
-		{% else %}
-			<em>No results found for {{gene}}. Please <a href="{% url 'search' %}">try again</a></em>
-		{% endif %}
-	</ul>
+<h4>Gene reference sequences ({{gene}})</h4>
+<ul class="gene-results list-group">
+	{% if results %}
+		{% for result in results %}
+		  <li class="list-group-item d-flex justify-content-between align-items-center">
+		    <a href='/details?id={{result.Id}}'>{{result.Title}}</a>
+		    <span class="badge badge-primary badge-pill">{{result.Length}} bp</span>
+		  </li>
+		{% endfor %}
+	{% else %}
+		<em>No results found for {{gene}}. Please <a href="{% url 'search' %}">try again</a></em>
+	{% endif %}
+</ul>
 
+<h4>Transcript variants ({{gene}})</h4>
+<ul class="list-group">
+	{% if other_results %}
+		{% for result in other_results %}
+		  <li class="list-group-item d-flex justify-content-between align-items-center">
+		    <a href='/details?id={{result.Id}}'>{{result.Title}}</a>
+		    <span class="badge badge-primary badge-pill">{{result.Length}} bp</span>
+		  </li>
+		{% endfor %}
+	{% else %}
+		<em>No results found for {{gene}}. Please <a href="{% url 'search' %}">try again</a></em>
+	{% endif %}
+</ul>
 {% endblock %}
