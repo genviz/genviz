@@ -38,7 +38,7 @@ class GeneSearchResults(TemplateView):
             ids = record['IdList']
             handle_summary = Entrez.esummary(id=','.join(ids), db='nucleotide', rettype='gb', retmode='text')
             
-            other_term = '"{}"[gene] AND "{}"[orgn]'.format(gene, organism)        
+            other_term = '"transcript variant"[All fields] AND "{}"[gene] AND "{}"[orgn]'.format(gene, organism)        
             other_handle = Entrez.esearch(term=other_term, db='nucleotide', idtype='acc')
             other_record = Entrez.read(other_handle)
             other_ids = list(set(other_record['IdList']) - set(ids))

@@ -82,8 +82,6 @@ def fetch_dbsnp_variations(acc_id, start=1, end=1e12):
     return fetch_snp(var_ids, acc_id) if var_ids else []
 
 def fetch_snp(snp, acc_id=None):
-    if not snp.lower().startswith('rs'):
-        return []
     handle = Entrez.efetch(id=snp, db='snp', retmode='xml')
     dbsnp_xml = handle.read()
     dbsnp_dict = xmltodict.parse(dbsnp_xml)
