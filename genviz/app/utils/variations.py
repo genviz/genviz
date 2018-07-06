@@ -4,6 +4,7 @@ from Bio import Entrez
 from ..models import *
 import xmltodict
 import hgvs.parser
+import collections
 
 Entrez.email = 'example@example.com'
 
@@ -82,30 +83,33 @@ def fetch_dbsnp_variations(acc_id, start=1, end=1e12):
     return fetch_snp(var_ids, acc_id) if var_ids else []
 
 def fetch_snp(snp, acc_id=None):
-    handle = Entrez.efetch(id=snp, db='snp', retmode='xml')
-    dbsnp_xml = handle.read()
-    dbsnp_dict = xmltodict.parse(dbsnp_xml)
-    hgvsparser = hgvs.parser.Parser()
-    variations = []
-    # Handle cases with one and with multiple results
-    res = dbsnp_dict['ExchangeSet']['Rs']
-    rs_list = res if type(res) == list else [res]
-    for variation in rs_list:
-        for hgvs_var in variation['hgvs']:
-            print(hgvs_var)
-            if (not acc_id) or acc_id in hgvs_var:
-                try:
-                    #clinical_significance = variation['ClinicalAssertionList']['GermlineList']['Germline']['ClinicalSignificance']['Description']
-                    comment = textwrap.dedent("""\
-                    {hgvs}
-                    (click for more information)
-                    """.format(hgvs=hgvs_var))
-                    
-                    variation_obj = Variation.from_hgvs_obj(hgvsparser.parse_hgvs_variant(hgvs_var), 'dbSNP')
-                    variation_obj.url = 'https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={}'.format(variation['@rsId'])
-                    variation_obj.comment = comment
-                    variations.append(variation_obj)
-                except Exception as e:
-                    print('Couldn\'t parse variation {}'.format(hgvs_var))
-                    print(repr(e))
-    return variations
+    try:
+        handle = Entrez.efetch(id=snp, db='snp', retmode='xml')
+        dbsnp_xml = handle.read()
+        dbsnp_dict = xmltodict.parse(dbsnp_xml)
+        hgvsparser = hgvs.parser.Parser()
+        variations = []
+        # Handle cases with one and with multiple results
+        res = dbsnp_dict['ExchangeSet']['Rs']
+        rs_list = res if type(res) == list else [res]
+        for variation in rs_list:
+            for hgvs_var in variation['hgvs']:
+                print(hgvs_var)
+                if (not acc_id) or acc_id in hgvs_var:
+                    try:
+                        #clinical_significance = variation['ClinicalAssertionList']['GermlineList']['Germline']['ClinicalSignificance']['Description']
+                        comment = textwrap.dedent("""\
+                        {hgvs}
+                        (click for more information)
+                        """.format(hgvs=hgvs_var))
+                        
+                        variation_obj = Variation.from_hgvs_obj(hgvsparser.parse_hgvs_variant(hgvs_var), 'dbSNP')
+                        variation_obj.url = 'https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={}'.format(variation['@rsId'])
+                        variation_obj.comment = comment
+                        variations.append(variation_obj)
+                    except Exception as e:
+                        print('Couldn\'t parse variation {}'.format(hgvs_var))
+                        print(repr(e))
+        return variations
+    except:
+        return []

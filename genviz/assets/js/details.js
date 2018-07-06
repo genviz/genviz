@@ -172,10 +172,15 @@ function splitVariationsInRows(variations, offset, basesPerRow) {
 	return variationsPerRow
 }
 
-function getFeaturesPerRow(features, basesPerRow) {
+function getFeaturesPerRow(features, basesPerRow, length) {
 	// Get features in each row
 	var featuresPerRow = {}
 	var translationPerRow = {}
+	for (var i = 0; i <= parseInt(length / basesPerRow); i++) {
+		featuresPerRow[i] = {
+			features: []
+		}
+	}
 	Object.keys(features).forEach(function(feature_type, _) {
 		features[feature_type].forEach(function(feature, feature_i) {
 			startFeature = feature.location[0]
@@ -184,8 +189,6 @@ function getFeaturesPerRow(features, basesPerRow) {
 			endRow = parseInt((endFeature - 1) / basesPerRow)
 			translationInserted = 0
 			for (var i = startRow; i <= endRow; i++) {
-				featuresPerRow[i] = featuresPerRow[i] || {}
-				featuresPerRow[i].features = featuresPerRow[i].features || []
 				featuresPerRow[i].features.push(feature)
 				if (feature_type.toLowerCase() == 'cds') {
 					start = Math.max(1 + i * basesPerRow, startFeature)
@@ -209,7 +212,7 @@ function getFeaturesPerRow(features, basesPerRow) {
 function formatGeneSequence(sequence, start, end, features, variations, sequenceLength, basesPerRow, template) {
 	// Get variations per row
 	var variationsPerRow = splitVariationsInRows(variations, start-1, basesPerRow)
-	var featuresPerRow = getFeaturesPerRow(features, basesPerRow)
+	var featuresPerRow = getFeaturesPerRow(features, basesPerRow, end - start + 1)
 	
 	var maxLengthDigits = end.toString().length
 
