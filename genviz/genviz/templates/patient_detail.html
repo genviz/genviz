@@ -31,7 +31,9 @@
             <ul>
             {% for var in variations.all %}
             <li>
-                {{ var.hgvs }}
+                <a href="{% url 'details' %}?id={{var.acc_id}}&start={{ var.start|add:-500 }}&end={{ var.end|add:500 }}">
+                    {{ var.hgvs }}
+                </a>
             </li>
             {% endfor %}
             </ul>
