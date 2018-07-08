@@ -11,16 +11,20 @@
     
 	<h2>Patients <a class="add-plus-btn" href="{% url 'patient_new' %}">+</a></h2>
 
-	<ul>
-		{% for patient in patients.all %}
-		<li>
-		    <a href="{% url 'patient_detail' pk=patient.pk %}">({{patient.identifier}}) {{ patient.full_name }}</a>
-		</li>
+
+<div class="list-group list-group-flush">
+{% for patient in patients.all %}
+		
+		    <a href="{% url 'patient_detail' pk=patient.pk %}" class="list-group-item list-group-item-action">({{patient.identifier}}) {{ patient.full_name }}</a>
+		
 		{% endfor %}
-	</ul>
+</div>
+
+
 
 
 {% endif %}
 
 
 {% endblock %}
+
