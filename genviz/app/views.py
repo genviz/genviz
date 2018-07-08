@@ -214,8 +214,6 @@ def patient_new(request):
         form = PatientForm()
     return render(request, 'patient/patient_new.html', {'form': form})
 
-
-
 def profile(request):
     patients = request.user.patients.all()
     variations = Variation.objects.all()

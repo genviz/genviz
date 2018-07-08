@@ -82,6 +82,13 @@ class Variation(models.Model):
         ('sub', 'Substitution'),
         ('dup', 'Duplication'),
     )
+    GENOTYPE_CHOICES = (
+        ('homozyg', 'Homozygous'),
+        ('heterocyg', 'Heterozygous'),
+        ('homocyg-ref', 'Homozygous reference'),
+    )
+    
+    coordinate_type = models.CharField(max_length=1, default='g')
     author    = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     acc_id    = models.CharField(max_length=30)
     start     = models.IntegerField(null=True)
@@ -93,7 +100,7 @@ class Variation(models.Model):
     patient   = models.ForeignKey(Patient, on_delete=models.CASCADE, null=True)
     source    = models.CharField(max_length=30, default='Unknown')
     url       = models.CharField(max_length=255, null=True)
-    coordinate_type = models.CharField(max_length=1, default='n')
+    genotype  = models.CharField(max_length=10, choices=GENOTYPE_CHOICES)
 
     def hgvs(self):
         if self.operation == 'ins':
