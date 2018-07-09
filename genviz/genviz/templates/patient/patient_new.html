@@ -6,7 +6,12 @@
     		<form method="POST" class="patient-form">{% csrf_token %}
 		    	{% for field in form %}
 			      <p>
-			        {{ field.label_tag }}
+			        <label>
+			        	{{ field.label }}
+				        {% if field.field.required %}
+				        	<span class="red">*</span>
+				        {% endif %}
+				    </label>
 			        {% render_field field class+="form-control" %}
 			        {% if field.help_text %}
 			          <!-- <small style="color: grey">{{ field.help_text }}</small> -->

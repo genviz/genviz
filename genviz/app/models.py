@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from datetime import datetime
+from dateutil import relativedelta
 import hgvs.location
 import hgvs.posedit
 
@@ -38,22 +40,25 @@ class Patient(models.Model):
         ('M','Male')
     )
 
-    first_name = models.CharField(max_length=100) 
-    last_name  = models.CharField(max_length=100)
-    identifier = models.CharField(max_length=30, unique=True)
-    age = models.IntegerField()
-    sex = models.CharField(max_length=1, choices=SEX_CHOICES, default='M')
-    phone  = models.CharField(max_length=25, default=None,null=True)
-    diagnosis = models.CharField(max_length=100) 
-    email = models.EmailField(max_length=100)
-   
+    first_name  = models.CharField(max_length=100) 
+    last_name   = models.CharField(max_length=100)
+    identifier  = models.CharField(max_length=30, unique=True)
+    sex         = models.CharField(max_length=1, choices=SEX_CHOICES, default='M')
+    phone       = models.CharField(max_length=25, blank=True, null=True)
+    diagnosis   = models.CharField(max_length=100, blank=True, null=True) 
+    email       = models.EmailField(max_length=100, blank=True, null=True)
+    birthday    = models.DateField()
+    sample_date = models.DateField() 
+
     def __str__(self):
         return self.full_name()
 
     def full_name(self):
         return "%s %s" % (self.first_name, self.last_name)
 
-
+    def age_at_sample_date(self):
+        difference = relativedelta.relativedelta(self.sample_date, self.birthday)
+        return difference.years
 
 
 class User(AbstractUser):

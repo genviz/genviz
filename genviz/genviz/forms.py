@@ -14,12 +14,19 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('first_name', 'last_name', 'email', 'password1', 'password2', )
 
-
-
 class PatientForm(forms.ModelForm):
-
     class Meta:
         model = Patient
-        fields = ('first_name', 'last_name', 'identifier','age','sex','phone','diagnosis','email')
+        fields = (
+        	'identifier',
+        	'first_name',
+        	'last_name',
+        	'sex',
+        	'birthday',
+        	'sample_date',
+        	'phone',
+        	'diagnosis',
+        	'email'
+        )
 
 

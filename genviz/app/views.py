@@ -1,20 +1,21 @@
+import hgvs.parser
 import json
+import os
 import pickle
 import random
 import re
 import textwrap
+import xmltodict
+from Bio import Entrez
+from Bio import SeqIO
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, View
-from Bio import Entrez
-from Bio import SeqIO
-from .models import *
-import xmltodict
-import hgvs.parser
 from django.contrib.auth import login, authenticate
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from genviz.forms import *
-from django.shortcuts import render, get_object_or_404
+from genviz.settings import BASE_DIR
+from .models import *
 from .utils.variations import *
 
 class Home(TemplateView):
@@ -227,7 +228,8 @@ def var(request):
 
 def predict(request, pathology_id):
     pathology = Pathology.objects.get(pk=pathology_id)
-    model = pickle.load(open(pathology.prediction_model, 'rb'))
+    path = os.path.join(BASE_DIR, pathology.prediction_model)
+    model = pickle.load(open(path, 'rb'))
     prediction = model.predict([[random.randint(0, 1) for i in range(model.n_features_)]])[0]
     return JsonResponse({
         'prediction': str(prediction),
