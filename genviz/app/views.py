@@ -17,6 +17,7 @@ from genviz.forms import *
 from genviz.settings import BASE_DIR
 from .models import *
 from .utils.variations import *
+from .utils.prediction import *
 
 class Home(TemplateView):
     template_name = 'home.html'
@@ -225,12 +226,20 @@ def var(request):
 
 def predict(request, pathology_id):
     pathology = Pathology.objects.get(pk=pathology_id)
+    patient_id = request.GET['patient_id']
+    patient = Patient.objects.get(pk=patient_id)
     path = os.path.join(BASE_DIR, pathology.prediction_model)
     model = pickle.load(open(path, 'rb'))
-    prediction = model.predict([[random.randint(0, 1) for i in range(model.n_features_)]])[0]
+    vector = feature_from_patient(pathology, patient)
+    print("Predicting with ", vector)
+    prediction = model.predict([vector])[0]
+    if prediction == 0:
+        precision = pathology.precision_negative
+    else:
+        precision = pathology.precision_positive
     return JsonResponse({
         'prediction': str(prediction),
-        'precision': str(pathology.model_precision)
+        'precision': str(precision)
     })
 
 def patient_detail(request, pk):

@@ -35,8 +35,8 @@
             <ul>
             {% for var in variations.all %}
             <li>
-                <a href="{% url 'details' %}?id={{var.acc_id}}&start={{ var.start|add:-500 }}&end={{ var.end|add:500 }}">
-                    {{ var.hgvs }}
+                <a href="{% url 'details' %}?id={{var.acc_id}}&start={{ var.start|add:-500 }}&end={{ var.end|add:500 }}" data-toggle='tooltip' title='{{var.comment}}'>
+                    {{ var.hgvs }} ({{ var.genotype }})
                 </a>
             </li>
             {% endfor %}
@@ -67,7 +67,7 @@
             pathology_id = $('#pathologies-select').val()
             pathology_name = $('#pathologies-select').text()
             $.ajax({
-                url: '/predict/' + pathology_id,
+                url: '/predict/' + pathology_id + '?patient_id={{patient.pk}}',
                 method: 'get',
                 success: function(response) {
                     pred = parseInt(response.prediction)
