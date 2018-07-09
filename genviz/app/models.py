@@ -88,11 +88,11 @@ class Variation(models.Model):
         ('dup', 'Duplication'),
     )
     GENOTYPE_CHOICES = (
-        ('homozyg', 'Homozygous'),
-        ('heterocyg', 'Heterozygous'),
-        ('homocyg-ref', 'Homozygous reference'),
+        ('homozygous', 'Homozygous'),
+        ('heterozygous', 'Heterozygous'),
+        ('homozygous-ref', 'Homozygous reference'),
     )
-    
+
     coordinate_type = models.CharField(max_length=1, default='g')
     author    = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     acc_id    = models.CharField(max_length=30)
@@ -214,11 +214,10 @@ class Variation(models.Model):
         )
 
 class VariationLocation(models.Model):
-    seq_id    = models.CharField(max_length=30)
-    start     = models.IntegerField(null=True)
-    end       = models.IntegerField(null=True)
-    source    = models.CharField(max_length=30, default='Unknown')
-    hgvs      = models.CharField(max_length=200, null=True)
+    acc_id       = models.CharField(max_length=30)
+    start        = models.IntegerField(null=True)
+    end          = models.IntegerField(null=True)
+    header_order = models.IntegerField()
 
 class Pathology(models.Model):
     name = models.CharField(max_length=200)
@@ -226,4 +225,5 @@ class Pathology(models.Model):
     prediction_model = models.CharField(max_length=200)
     variations = models.ManyToManyField(VariationLocation)
     # Precision reported by classification_report function
-    model_precision = models.FloatField()
+    precision_positive = models.FloatField()
+    precision_negative = models.FloatField()

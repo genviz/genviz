@@ -8,7 +8,7 @@ import collections
 
 Entrez.email = 'example@example.com'
 
-def snp_to_hgvs(snp):
+def snp_to_hgvs(snp, acc_id=None):
     handle = Entrez.efetch(id=snp, db='snp', retmode='xml')
     dbsnp_xml = handle.read()
     dbsnp_dict = xmltodict.parse(dbsnp_xml)
@@ -16,7 +16,7 @@ def snp_to_hgvs(snp):
     variations = []
     variation = dbsnp_dict['ExchangeSet']['Rs']
     for hgvs_var in variation['hgvs']:
-        if acc_id in hgvs_var:
+        if not acc_id or acc_id in hgvs_var:
             try:
                 variations.append(hgvsparser.parse_hgvs_variant(hgvs_var))
             except Exception as e:
