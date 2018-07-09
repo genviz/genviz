@@ -125,8 +125,7 @@ class GeneDetails(TemplateView):
                 })
             handle = Entrez.efetch(**params)
             res = SeqIO.read(handle, format='gb')
-
-            acc_id = res.name
+            acc_id = res.id
             # Add coordinates to plot gene features
             features = {}
             for f in res.features:
