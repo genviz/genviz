@@ -27,7 +27,7 @@ function getFormData($form){
     return indexed_array;
 }
 
-function plotGeneFeatures(features) {
+function plotGeneFeatures(features, offset) {
 	// Dummy timestamp to use non-date values in timeline vis.js chart
 	var dummyTs = +new Date()
 
@@ -70,7 +70,7 @@ function plotGeneFeatures(features) {
 	var options = {
 		format: {
 			minorLabels: function(date, scale, step) {
-				return date - dummyTs
+				return date - dummyTs + offset
 			},
 			majorLabels: function(date, scale, step) {
 				return ''

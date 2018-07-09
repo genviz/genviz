@@ -106,10 +106,6 @@ class GeneDetails(TemplateView):
         start = request.GET.get('start', None)
         end = request.GET.get('end', None)
 
-        start = max(int(start), 1) if start else 1
-        end = int(end) if end else gene_length
-
-
         if seq_id is not None:
             Entrez.email = "email@example.com"
             params = {
@@ -139,6 +135,8 @@ class GeneDetails(TemplateView):
                 features[f_type].sort(key=lambda f: f['location'][1])
 
             gene_length = features['source'][0]['location'][1] - features['source'][0]['location'][0] + 1
+            start = max(int(start), 1) if start else 1
+            end = int(end) if end else gene_length
 
             # Fetch variations from Clinvar
             clinvar_variations = fetch_clinvar_variations(res.id)

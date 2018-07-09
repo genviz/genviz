@@ -12,7 +12,7 @@
 {% block content %}
     <h3 class="gene-title">{{entry.description}}</h3>
     <p>
-        <b>Accession ID: {{entry.name}}</b>
+        <b>Accession ID: {{entry.id}}</b>
     </p>
     <h4>Gene structure</h4>
     <div id="visualization"></div>
@@ -87,7 +87,7 @@
         $(document).ready(() => {
             var features = JSON.parse("{{features_json|escapejs}}")
             var sequence = "{{sequence}}"
-            var acc_id = "{{entry.name}}"
+            var acc_id = "{{entry.id}}"
             var start = {{start}}
             var end = {{end}}
             var variations = JSON.parse("{{variations_json|escapejs}}")
@@ -103,7 +103,7 @@
             {% endif %}
             bindScroll()
             bindVariationsSelect()
-            plotGeneFeatures(features)
+            plotGeneFeatures(features, start-1)
         })
     </script>
 {% endblock %}
