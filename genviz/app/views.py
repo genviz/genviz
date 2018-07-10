@@ -83,10 +83,15 @@ class SnpSearchResults(TemplateView):
         if snp:
             Entrez.email = "email@example.com"
             variations = fetch_snp(snp)
-
+            acc_ids = set(map(lambda v: v.acc_id, variations))
+            # Get name of sequences
+            handle = Entrez.esummary(id=','.join(acc_ids), db='nucleotide', rettype='gb', retmode='text')
+            res = list(Entrez.parse(handle))
+            acc_ids_titles = { x['AccessionVersion']: x['Title'] for x in res }
             return self.render_to_response(context={
                 'variations': variations,
-                'snp': snp
+                'snp': snp,
+                'acc_ids_titles': acc_ids_titles
             })
 
         return self.render_to_response(context)
