@@ -1,30 +1,36 @@
 {% extends 'layout/content.html' %}
 {% load static %}
 
+{% if user.is_authenticated %}
+
+{% block head %}
+	<link rel="stylesheet" href="{% static 'datatables.net-dt/css/jquery.dataTables.min.css' %}">
+{% endblock %}
+
 {% block content %}
 
-
-{% if user.is_authenticated %}
 <!--
 <h1><b>WELCOME {{ user.full_name }}</b></h1>
 -->
     
-	<h2>Patients <a class="add-plus-btn" href="{% url 'patient_new' %}">+</a></h2>
-
-
-<div class="list-group list-group-flush">
-{% for patient in patients.all %}
-		
-		    <a href="{% url 'patient_detail' pk=patient.pk %}" class="list-group-item list-group-item-action">({{patient.identifier}}) {{ patient.full_name }}</a>
-		
-		{% endfor %}
-</div>
-
-
-
-
-{% endif %}
-
+<h2>Patients <a class="add-plus-btn" href="{% url 'patient_new' %}">+</a></h2>
+<table id="patients-table"></table>
 
 {% endblock %}
 
+{% block js-footer %}
+<script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script>
+	var data = JSON.parse("{{patients_json|escapejs}}")
+	$('#patients-table').DataTable( {
+	    data: data,
+	    columns: [
+	        { data: 'identifier' },
+	        { data: 'first_name' },
+	        { data: 'last_name' },
+	    ]
+	});
+</script>
+{% endblock %}
+
+{% endif %}

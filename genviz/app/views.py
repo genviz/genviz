@@ -218,7 +218,15 @@ def patient_new(request):
 def profile(request):
     patients = request.user.patients.all()
     variations = Variation.objects.all()
-    return render(request,'profile.html',{'patients':patients,'variations':variations})
+    return render(
+        request,
+        'profile.html',
+        {
+            'patients': patients,
+            'patients_json': json.dumps([x["fields"] for x in json.loads(serializers.serialize('json', patients))]),
+            'variations': variations
+        }
+    )
 
 def var(request):
     variations = Variation.objects.all()
