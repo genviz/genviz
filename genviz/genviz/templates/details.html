@@ -46,10 +46,16 @@
             <div class='form-inline goto-form'>
                 <label class="inline">Show variations from: </label>
                 <select multiple name="show-variations" id="show-variations">
-                    <optgroup>Sources</optgroup>
-                    {% for source in variation_sources %}
-                        <option value="{{source}}">{{source}}</option>
-                    {% endfor %}
+                    <optgroup label='Databases'>
+                        {% for source in variations_databases %}
+                            <option value="{{source}}">{{source}}</option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label='Patients'>
+                        {% for source in variations_patients %}
+                            <option value="{{source}}">{{source}}</option>
+                        {% endfor %}
+                    </optgroup>
                 </select>
                 <form action="/variations/" method="post" id="variations-form">
                     {% csrf_token %}

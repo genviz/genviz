@@ -144,6 +144,7 @@ class GeneDetails(TemplateView):
             dbsnp_variations = fetch_dbsnp_variations(res.id, start, end)
 
             external_variations = []
+            variations_databases = set()
             for v in clinvar_variations + dbsnp_variations:
                 # TODO: Support all operations
                 if v.operation == 'unknown':
@@ -155,10 +156,12 @@ class GeneDetails(TemplateView):
                 print(start, v.start, end, v.end)
                 if v.start >= start and v.end <= end:
                     external_variations.append(v)
+                    variations_databases.add(v.source)
 
             # Get variations
             user_variations = list(Variation.objects.filter(acc_id=acc_id).all())
             variations = external_variations + user_variations
+
 
             return self.render_to_response(context={
                 'entry': res,
@@ -170,7 +173,8 @@ class GeneDetails(TemplateView):
                 'sequence': str(res.seq),
                 'gene_length': gene_length,
                 'seq_id': seq_id,
-                'variation_sources': set(map(lambda a: a.source, variations)),
+                'variations_databases': variations_databases,
+                'variations_patients': set(map(lambda a: a.source, user_variations)),
                 'variations_json': json.dumps([x["fields"] for x in json.loads(serializers.serialize('json', variations))]),
                 'patients': request.user.patients if request.user.is_authenticated and request.user.is_biologist else []
            })
