@@ -8,14 +8,66 @@
 <div class="row">
     <div class="col-md-6">
         <div class="patient-info">
-            <p><b>Patient ID:</b> <span>{{patient.identifier}}</span></p>
-            <p><b>Sex:</b> <span>{{patient.sex}}</span></p>
-            <p><b>Birthday:</b> <span>{{patient.birthday}}</span></p>
-            <p><b>Sample date:</b> <span>{{patient.sample_date}}</span></p>
-            <p><b>Age at sample date:</b> <span>{{patient.age_at_sample_date}}</span></p>
-            <p><b>Diagnosis:</b> <span>{{patient.diagnosis}}</span></p>
-            <p><b>Phone:</b> <span>{{patient.phone}}</span></p>
-            <p><b>Email:</b> <span><a href="mailto:{{patient.email}}">{{patient.email}}</a></span></p>
+            <p>
+                <b>Patient ID:</b> 
+                <span>{{patient.identifier}}</span>
+            </p>
+            <p>
+                <b>Sex:</b> 
+                {% if patient.sex %}
+                    <span>{{patient.sex}}</span>
+                {% else %}
+                    <span>Not provided</span>
+                {% endif %}
+            </p>
+            <p>
+                <b>Birthday:</b> 
+                {% if patient.birthday %}
+                    <span>{{patient.birthday}}</span>
+                {% else %}
+                    <span>Not provided</span>
+                {% endif %}
+            </p>
+            <p>
+                <b>Sample date:</b> 
+                {% if patient.sample_date %}
+                    <span>{{patient.sample_date}}</span>
+                {% else %}
+                    <span>Not provided</span>
+                {% endif %}
+            </p>
+            <p>
+                <b>Age at sample date:</b> 
+                {% if patient.sample_date %}
+                    <span>{{patient.age_at_sample_date}}</span>
+                {% else %}
+                    <span>Not provided</span>
+                {% endif %}
+            </p>
+            <p>
+                <b>Diagnosis:</b> 
+                {% if patient.diagnosis %}
+                    <span>{{patient.diagnosis}}</span>
+                {% else %}
+                    <span>Not provided</span>
+                {% endif %}
+            </p>
+            <p>
+                <b>Phone:</b> 
+                {% if patient.phone %}
+                    <span>{{patient.phone}}</span>
+                {% else %}
+                    <span>Not provided</span>
+                {% endif %}
+            </p>
+            <p>
+                <b>Email:</b>
+                {% if patient.email %}
+                    <span><a href="mailto:{{patient.email}}">{{patient.email}}</a></span>
+                {% else %}
+                    <span>Not provided</span>
+                {% endif %}    
+            </p>
         </div>
         <h3>Predictions</h3>
         <div class="form-inline">

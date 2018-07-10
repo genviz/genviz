@@ -47,27 +47,27 @@ def fetch_clinvar_variations(acc_id):
     clinvar_xml = handle.read()
     clinvar_dict = xmltodict.parse(clinvar_xml)
     hgvsparser = hgvs.parser.Parser()
-
     variations = []
-    for variation in clinvar_dict['ClinVarResult-Set']['VariationReport']:
-        for v in variation['Allele']['HGVSlist']['HGVS']:
-            if '@AccessionVersion' in v and v['@AccessionVersion'] == acc_id:
-                try:
-                    clinical_significance = variation['ClinicalAssertionList']['GermlineList']['Germline']['ClinicalSignificance']['Description']
-                    comment = textwrap.dedent("""\
-                    {hgvs}
-                    Clinical significance: {significance}
-                    
-                    (click for more information)
-                    """.format(hgvs=v['#text'], significance=clinical_significance))
-                    
-                    variation_obj = Variation.from_hgvs_obj(hgvsparser.parse_hgvs_variant(v['#text']), 'clinvar')
-                    variation_obj.url = 'https://www.ncbi.nlm.nih.gov/clinvar/variation/{}'.format(variation['@VariationID'])
-                    variation_obj.comment = comment
-                    variations.append(variation_obj)
-                except Exception as e:
-                    print('Couldn\'t parse variation {}'.format(v['#text']))
-                    print(repr(e))
+    if 'ClinVarResult-Set' in clinvar_dict:
+        for variation in clinvar_dict['ClinVarResult-Set']['VariationReport']:
+            for v in variation['Allele']['HGVSlist']['HGVS']:
+                if '@AccessionVersion' in v and v['@AccessionVersion'] == acc_id:
+                    try:
+                        clinical_significance = variation['ClinicalAssertionList']['GermlineList']['Germline']['ClinicalSignificance']['Description']
+                        comment = textwrap.dedent("""\
+                        {hgvs}
+                        Clinical significance: {significance}
+                        
+                        (click for more information)
+                        """.format(hgvs=v['#text'], significance=clinical_significance))
+                        
+                        variation_obj = Variation.from_hgvs_obj(hgvsparser.parse_hgvs_variant(v['#text']), 'clinvar')
+                        variation_obj.url = 'https://www.ncbi.nlm.nih.gov/clinvar/variation/{}'.format(variation['@VariationID'])
+                        variation_obj.comment = comment
+                        variations.append(variation_obj)
+                    except Exception as e:
+                        print('Couldn\'t parse variation {}'.format(v['#text']))
+                        print(repr(e))
     return variations
 
 def fetch_dbsnp_variations(acc_id, start=1, end=1e12):

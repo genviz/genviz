@@ -28,5 +28,9 @@ class PatientForm(forms.ModelForm):
         	'diagnosis',
         	'email'
         )
+        widgets = {
+            'birthday': forms.DateInput(attrs={'class':'datepicker'}),
+            'sample_date': forms.DateInput(attrs={'class':'datepicker'}),
+        }
 
 

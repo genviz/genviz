@@ -1,5 +1,11 @@
 {% extends 'layout/content.html' %}
+{% load static %}
 {% load widget_tweaks %}
+
+{% block head %}
+	<link rel="stylesheet" href="{% static 'bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+{% endblock %}
+
 {% block content %}
     <h3>Add new patient</h1>
     	<div class="new-patient">
@@ -25,4 +31,16 @@
 		    </form>
     	</div>
     
+{% endblock %}
+
+{% block js-footer %}
+	<script src="{% static 'bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+	<script>
+		$(function() {
+			$(".datepicker").datepicker({
+			  changeMonth: true,
+			  changeYear: true
+			});
+		});
+	</script>
 {% endblock %}
