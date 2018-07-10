@@ -33,4 +33,11 @@ class PatientForm(forms.ModelForm):
             'sample_date': forms.DateInput(attrs={'class':'datepicker'}),
         }
 
-
+    def clean(self):
+        cleaned_data = super().clean()
+        birthday = cleaned_data.get("birthday")
+        sample_date = cleaned_data.get("sample_date")
+        if sample_date < birthday:
+            msg = u"Sample date should be greater than Birthday."
+            self._errors["sample_date"] = self.error_class([msg])
+        return cleaned_data
