@@ -146,8 +146,9 @@ class GeneDetails(TemplateView):
 
             # Fetch variations from Clinvar
             clinvar_variations = fetch_clinvar_variations(res.id)
+            print('Loading dbSNP variations...')
             dbsnp_variations = fetch_dbsnp_variations(res.id, start, end)
-
+            print('Done dbSNP variations')
             external_variations = []
             variations_databases = set()
             for v in clinvar_variations + dbsnp_variations:
@@ -158,7 +159,6 @@ class GeneDetails(TemplateView):
                     cds_start = features['CDS'][0]['location'][0]
                     v.start += cds_start
                     v.end += cds_start
-                print(start, v.start, end, v.end)
                 if v.start >= start and v.end <= end:
                     external_variations.append(v)
                     variations_databases.add(v.source)
@@ -167,7 +167,7 @@ class GeneDetails(TemplateView):
             user_variations = list(Variation.objects.filter(acc_id=acc_id).all())
             variations = external_variations + user_variations
 
-
+            print('Rendering template')
             return self.render_to_response(context={
                 'entry': res,
                 'start': start,

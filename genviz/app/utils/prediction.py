@@ -64,7 +64,6 @@ def create_patients_from_csv(csv, pathology, doctor, rows):
 	n = pathology.variations.all().aggregate(Max('header_order'))['header_order__max']
 
 	for i in rows:
-		import pdb; pdb.set_trace()
 		row = data[i:i+1]
 		age = int(row['Edad'])
 		days_per_year = 365.24

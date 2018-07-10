@@ -20,7 +20,7 @@ def snp_to_hgvs(snp, acc_id=None):
             try:
                 variations.append(hgvsparser.parse_hgvs_variant(hgvs_var))
             except Exception as e:
-                print('Couldn\'t parse variation {}'.format(hgvs_var))
+                print('(dbSNP) Couldn\'t parse variation {}'.format(hgvs_var))
                 print(repr(e))
     return variations
 
@@ -66,7 +66,7 @@ def fetch_clinvar_variations(acc_id):
                         variation_obj.comment = comment
                         variations.append(variation_obj)
                     except Exception as e:
-                        print('Couldn\'t parse variation {}'.format(v['#text']))
+                        print('(Clinvar) Couldn\'t parse variation {}'.format(v['#text']))
                         print(repr(e))
     return variations
 
@@ -76,10 +76,12 @@ def fetch_dbsnp_variations(acc_id, start=1, end=1e12):
         chromosome = re.sub(r'^NC_0+(\d{1,2})(?:\.\d+)', r'\1', acc_id)
         term = '%s[Chromosome] AND (%s[CHRPOS]:%s[CHRPOS])' % (chromosome, start, end)
     else:
-        term = '%s[Nucleotide/Protein Accession]' % acc_id
-    handle = Entrez.esearch(term=term, db='snp', retmax='10000')
+        term = '"%s"[Accession] AND (pathogenic[Clinical_Significance] OR other[Clinical_Significance] OR "likely benign"[Clinical_Significance] OR "likely pathogenic"[Clinical_Significance] OR benign[Clinical_Significance])' % acc_id
+    print("Query on dbSNP: ", term)
+    handle = Entrez.esearch(term=term, db='snp', retmax='1000')
     res = Entrez.read(handle, validate=False)
     var_ids = res['IdList']
+    print('{} SNP fetched'.format(len(var_ids)))
     return fetch_snp(var_ids, acc_id) if var_ids else []
 
 def fetch_snp(snp, acc_id=None):
@@ -94,7 +96,6 @@ def fetch_snp(snp, acc_id=None):
         rs_list = res if type(res) == list else [res]
         for variation in rs_list:
             for hgvs_var in variation['hgvs']:
-                print(hgvs_var)
                 if (not acc_id) or acc_id in hgvs_var:
                     try:
                         #clinical_significance = variation['ClinicalAssertionList']['GermlineList']['Germline']['ClinicalSignificance']['Description']
@@ -111,5 +112,5 @@ def fetch_snp(snp, acc_id=None):
                         print('Couldn\'t parse variation {}'.format(hgvs_var))
                         print(repr(e))
         return variations
-    except:
+    except Exception as e:
         return []
