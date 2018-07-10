@@ -187,3 +187,12 @@ input.form-control[type="text"], input[type="email"] {
 .red {
     color: red;
 }
+
+#patients-table_wrapper {
+    margin-top:2em;
+}
+
+#patients-table tbody tr:hover {
+    background-color: whitesmoke !important;
+    cursor: pointer;
+}

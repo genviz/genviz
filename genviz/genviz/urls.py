@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^profile/$', views.profile ,name='profile'),
     url(r'^var/$', views.var ,name='var'),
     url(r'^predict/(?P<pathology_id>[\d]+)$', views.predict ,name='predict'),
-    url(r'^patient/(?P<pk>[\w]+)/$', views.patient_detail, name='patient_detail'),
+    url(r'^patient/(?P<patient_id>[\w]+)/$', views.patient_detail, name='patient_detail'),
 ]
 
 

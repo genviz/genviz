@@ -22,14 +22,19 @@
 <script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
 <script>
 	var data = JSON.parse("{{patients_json|escapejs}}")
-	$('#patients-table').DataTable( {
+	var table = $('#patients-table').DataTable( {
 	    data: data,
 	    columns: [
-	        { data: 'identifier' },
-	        { data: 'first_name' },
-	        { data: 'last_name' },
-	    ]
-	});
+	        { data: 'identifier', title: 'ID' },
+	        { data: 'first_name', title: 'First name' },
+	        { data: 'last_name',  title: 'Last_name' },
+	    ],
+	    fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+			$(nRow).click(function() {
+				document.location.href = '/patient/' + aData['identifier']
+			})
+		}
+	})
 </script>
 {% endblock %}
 

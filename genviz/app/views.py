@@ -226,13 +226,14 @@ def patient_new(request):
 
 def profile(request):
     patients = request.user.patients.all()
+    patients_json = json.dumps([x["fields"] for x in json.loads(serializers.serialize('json', patients))])
     variations = Variation.objects.all()
     return render(
         request,
         'profile.html',
         {
             'patients': patients,
-            'patients_json': json.dumps([x["fields"] for x in json.loads(serializers.serialize('json', patients))]),
+            'patients_json': patients_json,
             'variations': variations
         }
     )
@@ -259,8 +260,8 @@ def predict(request, pathology_id):
         'precision': str(precision)
     })
 
-def patient_detail(request, pk):
-    patient = get_object_or_404(Patient, pk=pk)
+def patient_detail(request, patient_id):
+    patient = get_object_or_404(Patient, identifier=patient_id)
     variations = Variation.objects.filter(patient=patient)
     pathologies = Pathology.objects
     #anot = Variation.objects.filter(patient=patient)
