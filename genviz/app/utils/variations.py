@@ -40,7 +40,7 @@ def fetch_gene_details(ids):
     res = { r.id: str(r.seq) for r in records_genes }
 
 def fetch_clinvar_variations(acc_id):
-    handle = Entrez.esearch(term='%s[Nucleotide/Protein Accession]' % acc_id, db='clinvar')
+    handle = Entrez.esearch(term='%s[Nucleotide/Protein Accession]' % acc_id, db='clinvar', retmax='10000')
     res = Entrez.read(handle, validate=False)
     var_ids = res['IdList']
     handle = Entrez.efetch(id=var_ids, db='clinvar', rettype='variation')
@@ -77,7 +77,7 @@ def fetch_dbsnp_variations(acc_id, start=1, end=1e12):
         term = '%s[Chromosome] AND (%s[CHRPOS]:%s[CHRPOS])' % (chromosome, start, end)
     else:
         term = '%s[Nucleotide/Protein Accession]' % acc_id
-    handle = Entrez.esearch(term=term, db='snp')
+    handle = Entrez.esearch(term=term, db='snp', retmax='10000')
     res = Entrez.read(handle, validate=False)
     var_ids = res['IdList']
     return fetch_snp(var_ids, acc_id) if var_ids else []
