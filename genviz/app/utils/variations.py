@@ -40,7 +40,7 @@ def fetch_gene_details(ids):
     res = { r.id: str(r.seq) for r in records_genes }
 
 def fetch_clinvar_variations(acc_id):
-    handle = Entrez.esearch(term='%s[Nucleotide/Protein Accession]' % acc_id, db='clinvar', retmax='10000')
+    handle = Entrez.esearch(term='%s[Nucleotide/Protein Accession]' % acc_id, db='clinvar', retmax='1000')
     res = Entrez.read(handle, validate=False)
     var_ids = res['IdList']
     handle = Entrez.efetch(id=var_ids, db='clinvar', rettype='variation')

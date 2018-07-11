@@ -9,8 +9,15 @@ import xmltodict
 from Bio import Entrez
 from Bio import SeqIO
 from django.core import serializers
+from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView, ListView, View
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import (
+    CreateView,
+    UpdateView,
+    DeleteView
+)
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect, get_object_or_404
 from genviz.forms import *
@@ -18,6 +25,7 @@ from genviz.settings import BASE_DIR
 from .models import *
 from .utils.variations import *
 from .utils.prediction import *
+
 
 class Home(TemplateView):
     template_name = 'home.html'
@@ -270,3 +278,75 @@ def patient_detail(request, patient_id):
         'variations': variations,
         'pathologies': pathologies
     })
+
+class PatientsList(ListView):
+    model = Patient
+    template_name = 'patients/patient_list.html'
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        patients = self.request.user.patients.all()
+        patients_json = json.loads(serializers.serialize('json', patients))
+        patients_json = json.dumps([dict({'pk': x['pk']}, **x["fields"]) for x in patients_json])
+
+        context['patients_json'] = patients_json
+        return context
+
+class PatientsDetail(DetailView):
+    model = Patient
+    template_name = 'patients/patient_detail.html'
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        variations = Variation.objects.filter(patient=context['patient'])
+        pathologies = Pathology.objects
+
+        context['pathologies'] = pathologies
+        context['variations'] = variations
+        return context
+
+
+class PatientsNew(CreateView):
+    model = Patient
+    template_name = 'patients/patient_new.html'
+    success_url = reverse_lazy('patients_list')
+    fields = (
+        'identifier',
+        'first_name',
+        'last_name',
+        'sex',
+        'birthday',
+        'sample_date',
+        'phone',
+        'diagnosis',
+        'email'
+    )
+    widgets = {
+        'birthday': forms.DateInput(attrs={'class':'datepicker'}),
+        'sample_date': forms.DateInput(attrs={'class':'datepicker'}),
+    }
+
+class PatientsUpdate(UpdateView):
+    model = Patient
+    success_url = reverse_lazy('patients_list')
+    fields = (
+        'identifier',
+        'first_name',
+        'last_name',
+        'sex',
+        'birthday',
+        'sample_date',
+        'phone',
+        'diagnosis',
+        'email'
+    )
+    widgets = {
+        'birthday': forms.DateInput(attrs={'class':'datepicker'}),
+        'sample_date': forms.DateInput(attrs={'class':'datepicker'}),
+    }
+
+class PatientsDelete(DeleteView):
+    model = Patient
+    success_url = reverse_lazy('patients_list')

@@ -1,0 +1,38 @@
+{% extends 'layout/content.html' %}
+{% load static %}
+
+{% if user.is_authenticated %}
+
+{% block head %}
+	<link rel="stylesheet" href="{% static 'datatables.net-dt/css/jquery.dataTables.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    
+<h2>Patients <a class="add-plus-btn" href="{% url 'patients_new' %}">+</a></h2>
+<table id="patients-table"></table>
+
+{% endblock %}
+
+{% block js-footer %}
+<script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script>
+	var data = JSON.parse("{{patients_json|escapejs}}")
+	var table = $('#patients-table').DataTable( {
+	    data: data,
+	    columns: [
+	        { data: 'pk' },
+	        { data: 'identifier', title: 'ID' },
+	        { data: 'first_name', title: 'First name' },
+	        { data: 'last_name',  title: 'Last_name' },
+	    ],
+	    fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+			$(nRow).click(function() {
+				document.location.href = '/patients/' + aData['pk']
+			})
+		}
+	})
+</script>
+{% endblock %}
+
+{% endif %}
