@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'fixmydjango',
-    'widget_tweaks'
+    'widget_tweaks',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
