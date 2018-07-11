@@ -195,7 +195,7 @@ function getFeaturesPerRow(features, basesPerRow, length) {
 					end = Math.min((i+1) * basesPerRow, endFeature)
 					offset = start - i * basesPerRow - 1
 					translation = features[feature_type][feature_i].qualifiers.translation[0]
-					translationToInsert = parseInt((end - start + 1) / 3)
+					translationToInsert = parseInt(Math.round((end - start + 1) / 3))
 					translationInRow = translation.substr(translationInserted, translationToInsert)
 					translationInserted += translationToInsert
 					featuresPerRow[i].translation = {
@@ -222,7 +222,6 @@ function formatGeneSequence(sequence, start, end, features, variations, sequence
 	for (var row_i = 0; row_i < rowCount; row_i++) {
 		var seq = sequence.substr(row_i * basesPerRow, basesPerRow)
 		var rowCDS = featuresPerRow[row_i].features.findIndex(function(f) { return f.type.toLowerCase() == 'cds' })
-
 		rows[row_i] = {
 			sequence: seq.split('').map(function(base, i) {
 				relative_pos = basesPerRow * row_i + i + 1
@@ -231,14 +230,16 @@ function formatGeneSequence(sequence, start, end, features, variations, sequence
 					position: pos,
 					relative_position: relative_pos,
 					base: base,
-					isCDS: rowCDS !== -1 && pos >= featuresPerRow[row_i].features[rowCDS][0] && pos <= featuresPerRow[row_i].features[rowCDS][1]
+					isCDS: rowCDS !== -1 && relative_pos >= featuresPerRow[row_i].features[rowCDS].location[0] && relative_pos <= featuresPerRow[row_i].features[rowCDS].location[1]
 				}
 			}),
 			variations: variationsPerRow[row_i],
 			translation: featuresPerRow[row_i].translation,
-			features: featuresPerRow[row_i].features
+			features: featuresPerRow[row_i].features,
+			cds: rowCDS !== -1
 		}
 	}
+	console.log("Rows", rows)
 
 	// Render Handlebars template
 	$('.sequence-container').html(template({

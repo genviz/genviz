@@ -18,7 +18,9 @@
 }
 
 .cds-viz-block {
-	background: yellow;
+	background: #FFFF7C;
+	color: #000;
+	font-weight: bold;
 }
 
 .triplet {
@@ -30,23 +32,6 @@
 	background: #EEE;
 	color: #000;
 	display: inline-block;
-}
-
-.seq .triplet {
-	background: #FFFE76 !important;
-	color: #000;
-}
-
-.translation .triplet.even {
-	border-top: 3px solid blue;
-	color: blue;
-	font-weight: bold;
-}
-
-.translation .triplet.odd {
-	border-top: 3px solid red;
-	color: red;
-	font-weight: bold;
 }
 
 .gene-title {
@@ -180,4 +165,20 @@ span.red {
 .legend-item {
 	margin-left: 1em;
 	display: inline-block;
+}
+
+.amino {
+	min-width: 3em;
+}
+
+.translation > .amino:nth-child(even) {
+	border-top: 3px solid blue;
+	color: blue;
+	font-weight: bold;
+}
+
+.translation > .amino:nth-child(odd) {
+	border-top: 3px solid red;
+	color: red;
+	font-weight: bold;
 }

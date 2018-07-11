@@ -20,9 +20,24 @@
 					{{ sum ../start (multiply this ../basesPerRow) }}
 				</span>
 				{{#each (lookup (lookup ../rows this) "sequence")}}
-					<span id='base-{{ lookup this "position" }}' class="base padded-char" title='cDNA location: {{ lookup this "position" }}' data-location='{{ lookup this "position" }}'>{{ lookup this "base" }}</span>
+					<span
+						id='base-{{ lookup this "position" }}'
+						class='base padded-char {{#if (lookup this "isCDS")}} cds-viz-block {{/if}}'
+						title='cDNA location: {{ lookup this "position" }}'
+						data-location='{{ lookup this "position" }}'>
+						{{ lookup this "base" }}
+					</span>
 				{{/each}}
 			</div>
+			{{#if (lookup (lookup ../rows this) "cds")}}
+				<div class="translation" style='margin-left: {{ translationPxOffset (lookup ../rows this) ../maxLengthDigits}}'>
+					{{#eachChar (lookup (lookup (lookup ../rows this) "translation") "translation")}}
+						<span class="amino padded-char" style='padding: 0 16px;'>
+							{{ this }}
+						</span>
+					{{/eachChar}}
+				</div>
+			{{/if}}
 		</div>
 	{{/times}}
 </div>
