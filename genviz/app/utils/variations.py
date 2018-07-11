@@ -9,6 +9,14 @@ import collections
 Entrez.email = 'example@example.com'
 
 def snp_to_hgvs(snp, acc_id=None):
+    """
+    Fetch SNP and return a list of the variations related to it as Variation objects
+
+    @param    snp: str|[str]  SNP ID(s)
+    @param acc_id: str  If provided, get variations only on specified Accession ID
+    
+    @return [Variation]
+    """
     handle = Entrez.efetch(id=snp, db='snp', retmode='xml')
     dbsnp_xml = handle.read()
     dbsnp_dict = xmltodict.parse(dbsnp_xml)
@@ -27,6 +35,10 @@ def snp_to_hgvs(snp, acc_id=None):
 def feature_name(feature):
     """
     Given a feature, return a friendly display name
+
+    @param feature: dict  Feature from parsed sequence
+
+    @return str  Feature name
     """
     if 'number' in feature['qualifiers']:
         return '{feature_type} {number}'.format(feature_type=feature['type'], number=feature['qualifiers']['number'][0])
@@ -34,12 +46,14 @@ def feature_name(feature):
         return '{feature_type} ({name})'.format(feature_type=feature['type'], name=feature['qualifiers']['standard_name'][0])
     return feature['type']
 
-def fetch_gene_details(ids):
-    handle_genes = Entrez.efetch(id=','.join(ids), db='nucleotide', rettype='gb', retmode='text')
-    records_genes = SeqIO.parse(handle_genes, 'gb')
-    res = { r.id: str(r.seq) for r in records_genes }
-
 def fetch_clinvar_variations(acc_id):
+    """
+    Fetch ClinVar variations associated to an Accession
+
+    @param acc_id: str  Accession ID of a sequence
+
+    @return [Variation]
+    """
     handle = Entrez.esearch(term='%s[Nucleotide/Protein Accession]' % acc_id, db='clinvar', retmax='1000')
     res = Entrez.read(handle, validate=False)
     var_ids = res['IdList']
@@ -71,6 +85,16 @@ def fetch_clinvar_variations(acc_id):
     return variations
 
 def fetch_dbsnp_variations(acc_id, start=1, end=1e12):
+    """
+    Fetch dbSNP variations associated to an Accession
+
+    @param acc_id: str  Accession ID of a sequence
+    @param  start: int  Start position to look for variations
+    @param    end: int  End position to look for variations
+
+    @return [Variation]
+    """
+
     # If it's a chromosome
     if acc_id.startswith('NC'):
         chromosome = re.sub(r'^NC_0+(\d{1,2})(?:\.\d+)', r'\1', acc_id)
@@ -85,6 +109,16 @@ def fetch_dbsnp_variations(acc_id, start=1, end=1e12):
     return fetch_snp(var_ids, acc_id) if var_ids else []
 
 def fetch_snp(snp, acc_id=None):
+    """
+    Given a SNP, fetch it and return the list of variations associated to it
+    with extra information such as URL and comment
+
+    @param    snp: str  SNP ID
+    @param acc_id: str  If provided, get variations only on specified Accession ID
+
+    @return [Variation]
+    """
+    # TODO: Refactor, reuse snp_to_hgvs
     try:
         handle = Entrez.efetch(id=snp, db='snp', retmode='xml')
         dbsnp_xml = handle.read()

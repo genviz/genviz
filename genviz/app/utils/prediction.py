@@ -21,8 +21,11 @@ NUM_TO_GENOTYPE = {v: k for k, v in GENOTYPE_TO_NUM.items()}
 
 def create_pathology_from_csv(csv, name, prediction_model, precision_p, precision_n):
 	"""
-	@param csv:  path to csv
-	@param name: pathology name
+	@param              csv: str    path to csv
+	@param             name: str    pathology name
+	@param prediction_model: str    Prediction model path
+	@param      precision_p: float  Precision for positive class
+	@param      precision_n: float  Precision for negative class
 	"""
 	p = Pathology(
 		name = name, 
@@ -55,10 +58,10 @@ def create_pathology_from_csv(csv, name, prediction_model, precision_p, precisio
 
 def create_patients_from_csv(csv, pathology, doctor, rows):
 	"""
-	@param csv: path to csv
-	@param pathology: Pathology object
-	@param doctor: User object
-	@param rows: array with index of rows to add
+	@param       csv: str        path to csv
+	@param pathology: Pathology  Pathology object
+	@param    doctor: User       User object
+	@param      rows: [int]      Array with index of rows to add
 	"""
 	data = pd.read_csv(csv, sep=',')
 	n = pathology.variations.all().aggregate(Max('header_order'))['header_order__max']
@@ -100,8 +103,8 @@ def create_patients_from_csv(csv, pathology, doctor, rows):
 
 def feature_from_patient(pathology, patient):
 	"""
-	@param pathology: Pathology object
-	@param patient:   Patient object
+	@param pathology: Pathology  Pathology object
+	@param   patient: Patient    Patient object
 	"""
 	feature = [patient.age_at_sample_date(), SEX_TO_NUM[patient.sex]]
 	genotypes = {}
@@ -126,10 +129,10 @@ def feature_from_patient(pathology, patient):
 
 def train_model(csv, output, pathology=None):
 	"""
-	@param csv:       CSV data path
-	@param output:    Path where pickled model is going to be stored
-	@param pathology: Pathology object, if provided, the model of the Pathology and
-					  metrics are going to be updated
+	@param       csv: str       CSV data path
+	@param    output: str       Path where pickled model is going to be stored
+	@param pathology: Pathology Patology object, if provided, the model of the Pathology and
+					  			metrics are going to be updated
 	"""
 	import pickle
 	from time import time
