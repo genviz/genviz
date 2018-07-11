@@ -15,7 +15,7 @@
 				</li>
 		      	{% if user.is_authenticated %}
 					<li class="nav-item menu-item">
-						<a href="{% url 'profile' %}">Patients</a>
+						<a href="{% url 'patients_list' %}">Patients</a>
 					</li>
 				{% endif %}
 			</ul>
@@ -54,7 +54,7 @@
 	        </li>
 	        {% else %}
 	        <li class="navbar-item">
-	        	<span class="navbar-text">Welcome <a href="{% url 'profile' %}" class="profile-link"><b>{{ user.full_name }}!</b></a></span>
+	        	<span class="navbar-text">Welcome <a href="{% url 'patients_list' %}" class="profile-link"><b>{{ user.full_name }}!</b></a></span>
 	        	<a href="{% url 'logout' %}">Logout</a>
 	        </li>
 	        {% endif %}

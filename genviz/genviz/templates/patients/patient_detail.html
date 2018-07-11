@@ -3,7 +3,20 @@
 
 {% block content %}
 
-<h1 class="patient-name">{{patient.full_name}}</h1>
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="patient-name">{{patient.full_name}}</h1>        
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="btn-group" role="group" aria-label="Edit/Delete">
+          <a class="btn btn-info" href="{% url 'patients_edit' patient.id %}">Edit</a>
+          <a class="btn btn-danger" href="{% url 'patients_delete' patient.id %}">Delete</a>
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <div class="col-md-6">

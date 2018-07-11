@@ -11,6 +11,7 @@ from Bio import SeqIO
 from django.core import serializers
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.forms.models import modelform_factory
 from django.views.generic import TemplateView, ListView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
@@ -207,78 +208,6 @@ class VariationsView(View):
             variation.save()
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
-
-def signup(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            #falta login
-            return redirect('/accounts/login/')
-    else:
-        form = SignUpForm()
-    return render(request, 'signup.html', {'form': form})
-
-    
-def patient_new(request):
-    if request.method == 'POST':
-        form = PatientForm(request.POST)
-        if form.is_valid():
-            patient = form.save()
-            request.user.patients.add(patient)
-            request.user.save()
-            return redirect('/profile')
-    else:
-        form = PatientForm()
-    return render(request, 'patient/patient_new.html', {'form': form})
-
-def profile(request):
-    patients = request.user.patients.all()
-    patients_json = json.dumps([x["fields"] for x in json.loads(serializers.serialize('json', patients))])
-    variations = Variation.objects.all()
-    return render(
-        request,
-        'profile.html',
-        {
-            'patients': patients,
-            'patients_json': patients_json,
-            'variations': variations
-        }
-    )
-
-def var(request):
-    variations = Variation.objects.all()
-    return render(request,'var.html',{'variations':variations})
-
-def predict(request, pathology_id):
-    pathology = Pathology.objects.get(pk=pathology_id)
-    patient_id = request.GET['patient_id']
-    patient = Patient.objects.get(pk=patient_id)
-    path = os.path.join(BASE_DIR, pathology.prediction_model)
-    model = pickle.load(open(path, 'rb'))
-    vector = feature_from_patient(pathology, patient)
-    print("Predicting with ", vector)
-    prediction = model.predict([vector])[0]
-    if prediction == 0:
-        precision = pathology.precision_negative
-    else:
-        precision = pathology.precision_positive
-    return JsonResponse({
-        'prediction': str(prediction),
-        'precision': str(precision)
-    })
-
-def patient_detail(request, patient_id):
-    patient = get_object_or_404(Patient, identifier=patient_id)
-    variations = Variation.objects.filter(patient=patient)
-    pathologies = Pathology.objects
-    #anot = Variation.objects.filter(patient=patient)
-    return render(request, 'patient_detail.html', {
-        'patient': patient,
-        'variations': variations,
-        'pathologies': pathologies
-    })
-
 class PatientsList(ListView):
     model = Patient
     template_name = 'patients/patient_list.html'
@@ -312,7 +241,7 @@ class PatientsNew(CreateView):
     model = Patient
     template_name = 'patients/patient_new.html'
     success_url = reverse_lazy('patients_list')
-    fields = (
+    _fields = (
         'identifier',
         'first_name',
         'last_name',
@@ -323,15 +252,17 @@ class PatientsNew(CreateView):
         'diagnosis',
         'email'
     )
-    widgets = {
+    _widgets = {
         'birthday': forms.DateInput(attrs={'class':'datepicker'}),
         'sample_date': forms.DateInput(attrs={'class':'datepicker'}),
     }
+    form_class = modelform_factory(Patient, fields=_fields, widgets=_widgets)
 
 class PatientsUpdate(UpdateView):
     model = Patient
+    template_name = 'patients/patient_form.html'
     success_url = reverse_lazy('patients_list')
-    fields = (
+    _fields = (
         'identifier',
         'first_name',
         'last_name',
@@ -342,11 +273,42 @@ class PatientsUpdate(UpdateView):
         'diagnosis',
         'email'
     )
-    widgets = {
+    _widgets = {
         'birthday': forms.DateInput(attrs={'class':'datepicker'}),
         'sample_date': forms.DateInput(attrs={'class':'datepicker'}),
     }
+    form_class = modelform_factory(Patient, fields=_fields, widgets=_widgets)
 
 class PatientsDelete(DeleteView):
     model = Patient
+    template_name = 'patients/patient_confirm_delete.html'
     success_url = reverse_lazy('patients_list')
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            #falta login
+            return redirect('/accounts/login/')
+    else:
+        form = SignUpForm()
+    return render(request, 'signup.html', {'form': form})
+
+def predict(request, pathology_id):
+    pathology = Pathology.objects.get(pk=pathology_id)
+    patient_id = request.GET['patient_id']
+    patient = Patient.objects.get(pk=patient_id)
+    path = os.path.join(BASE_DIR, pathology.prediction_model)
+    model = pickle.load(open(path, 'rb'))
+    vector = feature_from_patient(pathology, patient)
+    print("Predicting with ", vector)
+    prediction = model.predict([vector])[0]
+    if prediction == 0:
+        precision = pathology.precision_negative
+    else:
+        precision = pathology.precision_positive
+    return JsonResponse({
+        'prediction': str(prediction),
+        'precision': str(precision)
+    })

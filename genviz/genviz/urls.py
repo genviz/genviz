@@ -33,14 +33,12 @@ urlpatterns = [
     url(r'^details/', GeneDetails.as_view(), name='details'),
     url(r'^variations/', VariationsView.as_view()),
     url(r'^signup/$', views.signup, name='signup'),
+    url(r'^predict/(?P<pathology_id>[\d]+)$', views.predict ,name='predict'),
     url(r'^patients/new/$', PatientsNew.as_view(), name='patients_new'),
     url(r'^patients/$', PatientsList.as_view(), name='patients_list'),
     url(r'^patients/(?P<pk>\d+)$', PatientsDetail.as_view(), name='patients_detail'),
     url(r'^patients/edit/(?P<pk>\d+)$', PatientsUpdate.as_view(), name='patients_edit'),
     url(r'^patients/delete/(?P<pk>\d+)$', PatientsDelete.as_view(), name='patients_delete'),
-    url(r'^profile/$', views.profile ,name='profile'),
-    url(r'^var/$', views.var ,name='var'),
-    url(r'^predict/(?P<pathology_id>[\d]+)$', views.predict ,name='predict'),
 ]
 
 
