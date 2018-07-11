@@ -99,6 +99,10 @@ def create_patients_from_csv(csv, pathology, doctor, rows):
 
 
 def feature_from_patient(pathology, patient):
+	"""
+	@param pathology: Pathology object
+	@param patient:   Patient object
+	"""
 	feature = [patient.age_at_sample_date(), SEX_TO_NUM[patient.sex]]
 	genotypes = {}
 
@@ -119,3 +123,46 @@ def feature_from_patient(pathology, patient):
 		else:
 			feature.append(GENOTYPE_TO_NUM['homozygous-ref'])
 	return feature
+
+def train_model(csv, output, pathology=None):
+	"""
+	@param csv:       CSV data path
+	@param output:    Path where pickled model is going to be stored
+	@param pathology: Pathology object, if provided, the model of the Pathology and
+					  metrics are going to be updated
+	"""
+	import pickle
+	from time import time
+	import numpy as np
+	import pandas as pd
+	from sklearn.cross_validation import train_test_split
+	from sklearn.tree import DecisionTreeClassifier
+	from sklearn.neighbors import KNeighborsClassifier
+	from sklearn.ensemble import RandomForestClassifier
+	from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+	from sklearn.metrics import accuracy_score, classification_report, precision_recall_fscore_support
+
+	data = pd.read_csv(csv, sep=',')
+	data.drop('Subject', axis=1, inplace=True)
+	data.drop('HISTOPATOLÓGICO', axis=1, inplace=True)
+
+	X = data.iloc[:, range(1, data.shape[1])]
+	Y = data.iloc[:, 0]
+	X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=100)
+
+	clf_gini = DecisionTreeClassifier(criterion = "gini", random_state = 100, max_depth=3, min_samples_leaf=5)
+	clf_gini.fit(X_train, y_train)
+
+	y_pred = clf_gini.predict(X_test)
+
+	print("Accuracy: ", accuracy_score(y_test, y_pred)*100)
+	print(classification_report(y_test, y_pred))
+
+	pickle.dump(clf_gini, open(output, 'wb'))
+
+	if pathology:
+		metrics = precision_recall_fscore_support(y_test, y_pred)
+		precision = metrics[0]
+		pathology.prediction_model = output
+		pathology.precision_negative, pathology.precision_positive = map(lambda x: round(x, 2), precision)
+		pathology.save()
