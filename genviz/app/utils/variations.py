@@ -7,6 +7,8 @@ import hgvs.parser
 import collections
 
 Entrez.email = 'example@example.com'
+# Recommended 1000. However, heroku may timeout if a value greater than 50 is set
+ESEARCH_RETMAX = 50
 
 def snp_to_hgvs(snp, acc_id=None):
     """
@@ -54,7 +56,7 @@ def fetch_clinvar_variations(acc_id):
 
     @return [Variation]
     """
-    handle = Entrez.esearch(term='%s[Nucleotide/Protein Accession]' % acc_id, db='clinvar', retmax='1000')
+    handle = Entrez.esearch(term='%s[Nucleotide/Protein Accession]' % acc_id, db='clinvar', retmax=ESEARCH_RETMAX)
     res = Entrez.read(handle, validate=False)
     var_ids = res['IdList']
     handle = Entrez.efetch(id=var_ids, db='clinvar', rettype='variation')
@@ -102,7 +104,7 @@ def fetch_dbsnp_variations(acc_id, start=1, end=1e12):
     else:
         term = '"%s"[Accession] AND (pathogenic[Clinical_Significance] OR other[Clinical_Significance] OR "likely benign"[Clinical_Significance] OR "likely pathogenic"[Clinical_Significance] OR benign[Clinical_Significance])' % acc_id
     print("Query on dbSNP: ", term)
-    handle = Entrez.esearch(term=term, db='snp', retmax='1000')
+    handle = Entrez.esearch(term=term, db='snp', retmax=ESEARCH_RETMAX)
     res = Entrez.read(handle, validate=False)
     var_ids = res['IdList']
     print('{} SNP fetched'.format(len(var_ids)))
