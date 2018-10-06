@@ -9,7 +9,7 @@
 {% block content %}
     <h3>Add new patient</h1>
     	<div class="new-patient">
-    		<form method="POST" class="patient-form">{% csrf_token %}
+    		<form method="post" class="patient-form">{% csrf_token %}
 		    	{% for field in form %}
 			      <p>
 			        <label>

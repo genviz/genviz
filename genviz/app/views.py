@@ -258,6 +258,14 @@ class PatientsNew(CreateView):
     }
     form_class = modelform_factory(Patient, fields=_fields, widgets=_widgets)
 
+    def form_valid(self, form):
+        """
+        If the form is valid, save the associated model.
+        """
+        self.object = form.save()
+        self.request.user.patients.add(self.object)
+        return super(PatientsNew, self).form_valid(form)
+
 class PatientsUpdate(UpdateView):
     model = Patient
     template_name = 'patients/patient_form.html'
