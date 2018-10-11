@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^/?$', Home.as_view()),
     url(r'^results/$', GeneSearchResults.as_view(), name='gene_results'),
     url(r'^results/snp/$', SnpSearchResults.as_view(), name='snp_results'),
+    url(r'^results/tcga/$', TcgaSearchResults.as_view(), name='tcga_results'),
     url(r'^details/', GeneDetails.as_view(), name='details'),
     url(r'^variations/', VariationsView.as_view()),
     url(r'^signup/$', views.signup, name='signup'),

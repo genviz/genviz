@@ -1,0 +1,65 @@
+{% extends 'layout/content.html' %}
+{% load static %}
+{% load utils %}
+
+{% block content %}
+<h4>TCGA: {{gene}}</h4>
+	{% if gene_info %}
+	<ul class="list-group">
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Name:  {{gene_info.gene_name}}
+			  </li>
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Full Name:  {{gene_info.full_gene_name}}
+			  </li>
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Start:  {{gene_info.start}}
+			  </li>
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Omim Description:  {{gene_info.omim_description}}
+			  </li>
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Stop:  {{gene_info.stop}}
+			  </li>
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Id:  {{gene_info.gene_id}}
+			  </li>
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Omim Accession:  {{gene_info.omim_accession}}
+			  </li>
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Xstart:  {{gene_info.xstart}}
+			  </li>
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Xstop:  {{gene_info.xstop}}
+			  </li>
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Canonical Transcript:  {{gene_info.canonical_transcript}}
+			  </li>
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Chrom:  {{gene_info.chrom}}
+			  </li>
+			  <li class="list-group-item d-flex justify-content-between align-items-center">
+			  	Strand:  {{gene_info.strand}}
+			  </li>
+
+			  {% if gene_info.other_names %}
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+				  	Other Names:  {% for name in gene_info.other_names %} {{name}} &nbsp; {% endfor %}
+				  </li>
+			  {% endif %}
+
+	</ul>
+	<h4>Variants</h4>
+		<ul class="list-group">
+		{% for variant in variations %}
+			<li class="list-group-item d-flex justify-content-between align-items-center">
+				{{variant.variant_id}}
+			</li>
+		{% endfor %}
+		</ul>
+	{% else %}
+		<em>No results found for SNP {{snp}}. Please <a href="{% url 'search' %}">try again</a></em>
+	{% endif %}
+
+{% endblock %}

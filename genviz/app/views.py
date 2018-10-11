@@ -26,6 +26,7 @@ from genviz.settings import BASE_DIR
 from .models import *
 from .utils.variations import *
 from .utils.prediction import *
+import urllib.request
 
 
 class Home(TemplateView):
@@ -101,6 +102,31 @@ class SnpSearchResults(TemplateView):
                 'variations': variations,
                 'snp': snp,
                 'acc_ids_titles': acc_ids_titles
+            })
+
+        return self.render_to_response(context)
+
+class TcgaSearchResults(TemplateView):
+    template_name = 'tcga_results.html'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        #import pdb; pdb.set_trace()
+        gene = request.GET.get('gene', None)
+
+        if gene:
+            contents = json.loads(urllib.request.urlopen("http://exac.hms.harvard.edu/rest/awesome?query=" + gene).read())
+            transcripts_in_gene = contents['transcripts_in_gene'] 
+            coverage_stats = contents['coverage_stats']
+            gene_info = contents['gene']
+            transcript = contents['transcript']
+            variations = contents['variants_in_transcript']
+            return self.render_to_response(context={
+               "transcripts_in_gene" : transcripts_in_gene,
+               "gene_info" : gene_info,
+               "transcript": transcript,
+               "variations": variations,
+               "gene": gene
             })
 
         return self.render_to_response(context)

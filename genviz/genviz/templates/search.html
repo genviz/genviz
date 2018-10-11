@@ -58,6 +58,9 @@
 	  <li class="nav-item">
 	    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">SNP</a>
 	  </li>
+	  <li class="nav-item">
+	    <a class="nav-link" id="tcga-tab" data-toggle="tab" href="#tcga" role="tab" aria-controls="tcga" aria-selected="false">TCGA</a>
+	  </li>
 	</ul>
 	<div class="tab-content" id="myTabContent">
 	  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
@@ -83,6 +86,19 @@
 			<div class="campo">
 				<label for="gen">dbSNP ref</label>
 				<input class="form-conrol" type="text" name="snp" placeholder="rsXXXXXXX">
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<button type="submit" class="btn btn-success btn-lg">Search</button>
+				</div>
+			</div>
+		</form>
+	  </div>
+	  <div class="tab-pane fade" id="tcga" role="tabpanel" aria-labelledby="tcga-tab">
+	  	<form method='GET' action='{% url "tcga_results" %}'>
+			<div class="campo">
+				<label for="gen">TCGA: The Cancer Genome Atlas</label>
+				<input class="form-conrol" type="text" name="gene" placeholder="Insert gene name">
 			</div>
 			<div class="row">
 				<div class="col-md-12">
