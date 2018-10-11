@@ -196,3 +196,9 @@ input.form-control[type="text"], input[type="email"] {
     background-color: whitesmoke !important;
     cursor: pointer;
 }
+
+.wrapper {
+    word-wrap: break-word !important;
+    white-space: normal !important;
+    word-break: break-all !important;
+}

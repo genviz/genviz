@@ -61,6 +61,9 @@
 	  <li class="nav-item">
 	    <a class="nav-link" id="tcga-tab" data-toggle="tab" href="#tcga" role="tab" aria-controls="tcga" aria-selected="false">TCGA</a>
 	  </li>
+	  <li class="nav-item">
+	    <a class="nav-link" id="ensembl-tab" data-toggle="tab" href="#ensembl" role="tab" aria-controls="ensembl" aria-selected="false">1000 Genomes</a>
+	  </li>
 	</ul>
 	<div class="tab-content" id="myTabContent">
 	  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
@@ -106,6 +109,19 @@
 				</div>
 			</div>
 		</form>
+	  </div>
+	  <div class="tab-pane fade" id="ensembl" role="tabpanel" aria-labelledby="ensembl-tab">
+	  	<form method='GET' action='{% url "ensembl_results" %}'>
+				<div class="campo">
+					<label for="gen">1000 Genomes</label>
+					<input class="form-control" type="text" name="gene" placeholder="Insert gene name">
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<button type="submit" class="btn btn-success btn-lg">Search</button>
+					</div>
+				</div>
+			</form>
 	  </div>
 	</div>
 </div>

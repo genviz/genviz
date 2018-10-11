@@ -6,11 +6,17 @@ import random
 import re
 import textwrap
 import xmltodict
+import requests, sys
 from Bio import Entrez
 from Bio import SeqIO
 from django.core import serializers
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.http import (
+    HttpResponse, 
+    JsonResponse, 
+    HttpResponseRedirect,
+    HttpResponseNotFound
+)
 from django.forms.models import modelform_factory
 from django.views.generic import TemplateView, ListView, View
 from django.views.generic.detail import DetailView
@@ -127,6 +133,37 @@ class TcgaSearchResults(TemplateView):
                "transcript": transcript,
                "variations": variations,
                "gene": gene
+            })
+
+        return self.render_to_response(context)
+
+class EnsemblSearchResults(TemplateView):
+    template_name = 'ensembl_results.html'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        #import pdb; pdb.set_trace()
+        gene = request.GET.get('gene', None)
+
+        if gene:
+            server = "https://rest.ensembl.org"
+            ext = "/phenotype/gene/homo_sapiens/"
+            query_string = "?include_overlap=1;include_associated=1"
+
+            r = requests.get(
+                server + ext + gene, 
+                headers={
+                    "Content-Type": "application/json"
+                }
+            )
+
+            if not r.ok:
+                return HttpResponseNotFound('<h1>Gene Not Found</h1>')
+
+            decoded = r.json()
+            return self.render_to_response({
+                "gene": gene,
+                "ensembl_response": decoded
             })
 
         return self.render_to_response(context)
