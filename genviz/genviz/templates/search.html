@@ -122,6 +122,17 @@
 					</div>
 				</div>
 			</form>
+	  	<form method='GET' action='{% url "ensembl_variant_results" %}'>
+				<div class="campo">
+					<label for="gen">Variations</label>
+					<input class="form-control" type="text" name="variations" placeholder="rs56116432,rs699,...">
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<button type="submit" class="btn btn-success btn-lg">Search</button>
+					</div>
+				</div>
+			</form>
 	  </div>
 	</div>
 </div>

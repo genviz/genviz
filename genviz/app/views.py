@@ -144,11 +144,10 @@ class EnsemblSearchResults(TemplateView):
         context = self.get_context_data(**kwargs)
         #import pdb; pdb.set_trace()
         gene = request.GET.get('gene', None)
+        server = "https://rest.ensembl.org"
 
         if gene:
-            server = "https://rest.ensembl.org"
             ext = "/phenotype/gene/homo_sapiens/"
-            query_string = "?include_overlap=1;include_associated=1"
 
             r = requests.get(
                 server + ext + gene, 
@@ -168,6 +167,32 @@ class EnsemblSearchResults(TemplateView):
 
         return self.render_to_response(context)
 
+
+class EnsemblVariantSearchResults(TemplateView):
+    template_name = 'ensembl_var_results.html'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        #import pdb; pdb.set_trace()
+        variations = request.GET.get('variations', None)
+        server = "https://rest.ensembl.org"
+
+        if variations:
+            response = []
+            ext = "/variation/human/"
+            params = "?genotypes=1;content-type=application/json"
+            variations = variations.split(",")
+
+            for var in variations:
+                r = requests.get(server + ext + var + params)
+                decoded = r.json()
+                response.append(decoded)
+            
+            return self.render_to_response({
+                "response": response
+            })
+
+        return self.render_to_response(context)
 
 class GeneSearch(TemplateView):
     template_name = 'search.html'
