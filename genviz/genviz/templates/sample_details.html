@@ -1,0 +1,72 @@
+{% extends 'layout/content.html' %}
+{% load static %}
+{% load utils %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'datatables.net-dt/css/jquery.dataTables.min.css' %}">
+{% endblock %}
+
+{% block content %}
+<h4>Sample:</h4>
+{% if sample %}
+
+<ul class="list-group">
+    <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
+        Family ID: {{sample.family_id}}
+    </li>
+
+    <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
+        Individual Id: {{sample.individual_id}}
+    </li>
+
+    <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
+        Paternal ID: {{sample.paternal_id}}
+    </li>
+
+    <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
+        Maternal ID: {{sample.maternal_id}}
+    </li>
+
+    <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
+        Gender: {{sample.gender}}
+    </li>
+
+    <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
+        Population: {{sample.population}}
+    </li>
+    
+    <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
+        Relationship: {{sample.relationship}}
+    </li>
+    
+    <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
+        Siblings: {{sample.siblings}}
+    </li>
+    
+    <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
+        Second Order: {{sample.second_order}}
+    </li>
+    
+    <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
+        Third Order: {{sample.third_order}}
+    </li>
+    
+    <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
+        Comments: {{sample.comments}}
+    </li>
+</ul>
+
+{% else %}
+
+<em>No results found for sample.</em>
+
+{% endif %}
+
+{% endblock %}
+
+{% block js-footer %}
+<script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script>
+    var table = $('.sample-table').DataTable();
+</script>
+{% endblock %}

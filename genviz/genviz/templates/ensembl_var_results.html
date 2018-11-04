@@ -48,7 +48,7 @@
         <tbody>
             {% for sample in var.genotypes %}
                 <tr>
-                    <td>{{sample.sample}}</td>
+                    <td><a href="{% url 'sample_details' sample.sample|split %}">{{sample.sample|split}}</a></td>
                     <td>{{sample.gender}}</td>
                     <td>{{sample.genotype}}</td>
                 </tr>

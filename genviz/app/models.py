@@ -227,3 +227,16 @@ class Pathology(models.Model):
     # Precision reported by classification_report function
     precision_positive = models.FloatField()
     precision_negative = models.FloatField()
+
+class Sample(models.Model):
+    family_id = models.CharField(max_length=15, default=None)
+    individual_id = models.CharField(max_length=15, default=None)
+    paternal_id = models.CharField(max_length=15, default="0")
+    maternal_id = models.CharField(max_length=15, default="0")
+    gender = models.CharField(max_length=1, default="0")
+    population = models.CharField(max_length=5, default=None)
+    relationship = models.CharField(max_length=20, default=None)
+    siblings = models.CharField(max_length=100, default=None)
+    second_order = models.CharField(max_length=100, default=None)
+    third_order = models.CharField(max_length=100, default=None)
+    comments = models.CharField(max_length=300, default=None)

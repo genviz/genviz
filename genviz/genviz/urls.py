@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^patients/(?P<pk>\d+)$', PatientsDetail.as_view(), name='patients_detail'),
     url(r'^patients/edit/(?P<pk>\d+)$', PatientsUpdate.as_view(), name='patients_edit'),
     url(r'^patients/delete/(?P<pk>\d+)$', PatientsDelete.as_view(), name='patients_delete'),
+    url(r'^sample/details/(?P<string>\w+)$', SampleDetails.as_view(), name='sample_details'),
 ]
 
 

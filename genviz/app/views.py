@@ -408,3 +408,19 @@ def predict(request, pathology_id):
         'prediction': str(prediction),
         'precision': str(precision)
     })
+
+
+class SampleDetails(TemplateView):
+    template_name = 'sample_details.html'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        #import pdb; pdb.set_trace()
+        individual_id = kwargs['string']
+        try:
+            sample = Sample.objects.get(individual_id=individual_id)
+            context['sample'] = sample
+        except:
+            pass
+
+        return self.render_to_response(context)
