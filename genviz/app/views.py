@@ -152,13 +152,12 @@ class EnsemblSearchResults(TemplateView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         gene = request.GET.get('gene', None)
-        server = "https://rest.ensembl.org"
+        server = "http://exac.hms.harvard.edu/rest/awesome?query="
 
         if gene:
-            ext = "/phenotype/gene/homo_sapiens/"
 
             r = requests.get(
-                server + ext + gene, 
+                server + gene, 
                 headers={
                     "Content-Type": "application/json"
                 }
@@ -170,7 +169,7 @@ class EnsemblSearchResults(TemplateView):
             decoded = r.json()
             return self.render_to_response({
                 "gene": gene,
-                "ensembl_response": decoded
+                "ensembl_response": decoded["variants_in_transcript"]
             })
 
         return self.render_to_response(context)
@@ -182,25 +181,38 @@ class EnsemblVariantSearchResults(TemplateView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         #import pdb; pdb.set_trace()
-        variations = request.GET.get('variations', None)
+        variations = request.GET.getlist('id')
+        print(variations)
         server = "https://rest.ensembl.org"
 
         if variations:
             response = []
+            samples = []
             ext = "/variation/human/"
             params = "?genotypes=1;content-type=application/json"
-            variations = variations.split(",")
 
             for var in variations:
                 r = requests.get(server + ext + var + params)
                 decoded = r.json()
+                tmp = SampleName(list(map(lambda d: d['sample'], decoded['genotypes'])))
+                samples = Sample.objects.filter(individual_id__in=tmp).values('individual_id', 'population', 'gender')
+                decoded['genotypes'] = samples
                 response.append(decoded)
+
             
             return self.render_to_response({
                 "response": response
             })
 
         return self.render_to_response(context)
+
+def SampleName(samples):
+    names = []
+    for sample in samples:
+        tmp = sample.split(":")
+        tmp[-1] = tmp[-1].replace(" ","_").replace(".","")
+        names.append(tmp[-1])
+    return names
 
 class GeneSearch(TemplateView):
     template_name = 'search.html'
