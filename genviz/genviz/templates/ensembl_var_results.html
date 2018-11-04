@@ -42,15 +42,15 @@
             <tr>
                 <th>Sample</th>
                 <th>Gender</th>
-                <th>Genotype</th>
+                <th>Population</th>
             </tr>
         </thead>
         <tbody>
             {% for sample in var.genotypes %}
                 <tr>
-                    <td><a href="{% url 'sample_details' sample.sample|split %}">{{sample.sample|split}}</a></td>
+                    <td><a href="{% url 'sample_details' sample.individual_id %}">{{sample.individual_id}}</a></td>
                     <td>{{sample.gender}}</td>
-                    <td>{{sample.genotype}}</td>
+                    <td>{{sample.population}}</td>
                 </tr>
             {% endfor %}
         </tbody>

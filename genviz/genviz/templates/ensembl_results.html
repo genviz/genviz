@@ -2,85 +2,49 @@
 {% load static %}
 {% load utils %}
 
+{% block head %}
+    <link rel="stylesheet" href="{% static 'datatables.net-dt/css/jquery.dataTables.min.css' %}">
+{% endblock %}
+
 {% block content %}
 <h4>1000 Genomes: {{gene}}</h4>
 {% if ensembl_response %}
-  {% for g in ensembl_response %}
-    <ul class="list-group">
-      {% if g.gene %}
-      <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
-          Gene: {{g.gene}}
-      </li>
-      {% endif %}
-
-      {% if g.attributes.associated_gene %}
-      <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
-          Associated Gene: {{g.attributes.associated_gene}}
-      </li>
-      {% endif %}
-
-      {% if g.attributes.external_id %}
-      <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
-          External Id: {{g.attributes.external_id}}
-      </li>
-      {% endif %}
-
-      {% if g.source %}
-      <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
-          Source: {{g.source}}
-      </li>
-      {% endif %}
-
-      {% if g.description %}
-      <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
-          Description: {{g.description}}
-      </li>
-      {% endif %}
-
-      {% if g.location %}
-      <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
-          Location: {{g.location}}
-      </li>
-      {% endif %}
-
-      {% if g.Variation %}
-      <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
-          Location: {{g.Variation}}
-      </li>
-      {% endif %}
-      
-      {% if g.attributes.risk_allele %}
-      <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
-        Location: {{g.attributes.risk_allele}}
-      </li>
-      {% endif %}
-      
-      {% if g.attributes.clinical_significance %}
-      <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
-        Location: {{g.attributes.clinical_significance}}
-      </li>
-      {% endif %}
-
-      {% if g.ontology_accessions %}
-      <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
-        Ontology Accessions: 
-        {% for name in g.ontology_accessions %}
-        {{name}}, &nbsp; 
-        {% endfor %}
-      </li>
-      {% endif %}
-
-      {% if g.attributes.external_reference %}
-      <li class="list-group-item d-flex justify-content-between align-items-center wrapper">
-          External Reference: {{g.attributes.external_reference}}
-      </li>
-      {% endif %}
-    </ul>
-
+  <div class="d-flex w-50 justify-content-center flex-column">
+    <h2>Variants</h2>
+    <form method='GET' action='{% url "ensembl_variant_results" %}'>
+    <table class="sample-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Variant</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for var in ensembl_response %}
+              {% if var.rsid != "." %}
+                <tr>
+                    <td><input type="checkbox" name="id" value={{var.rsid}}></td>
+                    <td>{{var.rsid}}</td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="col-md-12">
+      <button type="submit" class="btn btn-success btn-lg">Search</button>
+    </div>
+    </form>
     <br><hr><br>
-  {% endfor %}
+  </div>
 {% else %}
   <em>No results found for SNP {{snp}}. Please <a href="{% url 'search' %}">try again</a></em>
 {% endif %}
 
+{% endblock %}
+
+{% block js-footer %}
+<script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script>
+    var table = $('.sample-table').DataTable();
+</script>
 {% endblock %}
