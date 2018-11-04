@@ -2,36 +2,30 @@
 {% load static %}
 {% load utils %}
 
+{% block head %}
+<link rel="stylesheet" href="{% static 'datatables.net-dt/css/jquery.dataTables.min.css' %}">
+{% endblock %}
+
 {% block content %}
-<h4>TCGA: {{gene}}</h4>
+<h4>TCGA: <a href='{% url "details_by_name" gene %}'>{{gene}}</a></h4>
 	{% if gene_info %}
 	<ul class="list-group">
-			  <li class="list-group-item d-flex justify-content-between align-items-center">
-			  	Name:  {{gene_info.gene_name}}
-			  </li>
 			  <li class="list-group-item d-flex justify-content-between align-items-center">
 			  	Full Name:  {{gene_info.full_gene_name}}
 			  </li>
 			  <li class="list-group-item d-flex justify-content-between align-items-center">
-			  	Start:  {{gene_info.start}}
+					Start:  {{gene_info.start}} <br>
+					Xstart: {{gene_info.xstart}}
 			  </li>
+				<li class="list-group-item d-flex justify-content-between align-items-center">
+					Stop:  {{gene_info.stop}} <br>
+					Xstop: {{gene_info.xstop}}
+				</li>
 			  <li class="list-group-item d-flex justify-content-between align-items-center">
 			  	Omim Description:  {{gene_info.omim_description}}
 			  </li>
 			  <li class="list-group-item d-flex justify-content-between align-items-center">
-			  	Stop:  {{gene_info.stop}}
-			  </li>
-			  <li class="list-group-item d-flex justify-content-between align-items-center">
-			  	Id:  {{gene_info.gene_id}}
-			  </li>
-			  <li class="list-group-item d-flex justify-content-between align-items-center">
 			  	Omim Accession:  {{gene_info.omim_accession}}
-			  </li>
-			  <li class="list-group-item d-flex justify-content-between align-items-center">
-			  	Xstart:  {{gene_info.xstart}}
-			  </li>
-			  <li class="list-group-item d-flex justify-content-between align-items-center">
-			  	Xstop:  {{gene_info.xstop}}
 			  </li>
 			  <li class="list-group-item d-flex justify-content-between align-items-center">
 			  	Canonical Transcript:  {{gene_info.canonical_transcript}}
@@ -50,16 +44,61 @@
 			  {% endif %}
 
 	</ul>
-	<h4>Variants</h4>
-		<ul class="list-group">
-		{% for variant in variations %}
-			<li class="list-group-item d-flex justify-content-between align-items-center">
-				{{variant.variant_id}}
-			</li>
-		{% endfor %}
-		</ul>
+	
+	<h4 class="mt-3">Variants</h4>
+	<table class="sample-table">
+		<thead>
+			<tr>
+				<th>Variant</th>
+				<th>Population Homs</th>
+				<th>Population Acs</th>
+				<th>Population Ans</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for variant in variations %}
+			<tr>
+				<td>{{variant.variant_id}}</td>
+				<td>
+					European (Non-Finnish) {{variant.pop_homs|keyvalue:"European (Non-Finnish)"}} <br>
+					European (Finnish) {{variant.pop_homs|keyvalue:"European (Finnish)"}} <br>
+					East Asian {{variant.pop_homs|keyvalue:"East Asian"}} <br>
+					South Asian {{variant.pop_homs|keyvalue:"South Asian"}} <br>
+					African {{variant.pop_homs|keyvalue:"African"}} <br>
+					Latino {{variant.pop_homs|keyvalue:"Latino"}} <br>
+					Other {{variant.pop_homs|keyvalue:"Other"}} <br>
+				</td>
+				<td>
+					European (Non-Finnish) {{variant.pop_acs|keyvalue:"European (Non-Finnish)"}} <br>
+					European (Finnish) {{variant.pop_acs|keyvalue:"European (Finnish)"}} <br>
+					East Asian {{variant.pop_acs|keyvalue:"East Asian"}} <br>
+					South Asian {{variant.pop_acs|keyvalue:"South Asian"}} <br>
+					African {{variant.pop_acs|keyvalue:"African"}} <br>
+					Latino {{variant.pop_acs|keyvalue:"Latino"}} <br>
+					Other {{variant.pop_acs|keyvalue:"Other"}} <br>
+				</td>
+				<td>
+					European (Non-Finnish) {{variant.pop_ans|keyvalue:"European (Non-Finnish)"}} <br>
+					European (Finnish) {{variant.pop_ans|keyvalue:"European (Finnish)"}} <br>
+					East Asian {{variant.pop_ans|keyvalue:"East Asian"}} <br>
+					South Asian {{variant.pop_ans|keyvalue:"South Asian"}} <br>
+					African {{variant.pop_ans|keyvalue:"African"}} <br>
+					Latino {{variant.pop_ans|keyvalue:"Latino"}} <br>
+					Other {{variant.pop_ans|keyvalue:"Other"}} <br>
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
 	{% else %}
 		<em>No results found for SNP {{snp}}. Please <a href="{% url 'search' %}">try again</a></em>
 	{% endif %}
 
+{% endblock %}
+
+{% block js-footer %}
+<script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script>
+	var table = $('.sample-table').DataTable();
+</script>
 {% endblock %}

@@ -10,7 +10,7 @@ import requests, sys
 from Bio import Entrez
 from Bio import SeqIO
 from django.core import serializers
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import (
     HttpResponse, 
     JsonResponse, 
@@ -18,7 +18,7 @@ from django.http import (
     HttpResponseNotFound
 )
 from django.forms.models import modelform_factory
-from django.views.generic import TemplateView, ListView, View
+from django.views.generic import RedirectView, TemplateView, ListView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
     CreateView,
@@ -207,6 +207,38 @@ class GeneSearch(TemplateView):
 
 class SnpSearch(TemplateView):
     template_name = 'search_snp.html'
+
+
+class GeneDetailsByName(RedirectView):
+
+    def get(self, request, *args, **kwargs):
+
+        gene = kwargs['gene']
+        print (gene)
+        organism = request.GET.get('organism', None) or 'Homo sapiens'
+
+        if gene and organism:
+            Entrez.email = "email@example.com"
+
+            term = 'RefSeqGene[keyword] AND "{}"[gene] AND "{}"[orgn]'.format(
+                gene, organism)
+            handle = Entrez.esearch(term=term, db='nucleotide', idtype='acc')
+            record = Entrez.read(handle)
+            ids = record['IdList']
+            handle_summary = Entrez.esummary(id=','.join(
+                ids), db='nucleotide', rettype='gb', retmode='text')
+
+            try:
+                print("Entro en try")
+                res = list(Entrez.parse(handle_summary))
+                print("Logro parse en try", res[0])
+            except RuntimeError:
+                res = []
+
+            gene_id = res[0]['Id']
+
+            return HttpResponseRedirect(reverse('details') + '?id=' + gene_id)
+
 
 class GeneDetails(TemplateView):
     template_name = 'details.html'

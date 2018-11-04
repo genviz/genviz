@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^results/tcga/$', TcgaSearchResults.as_view(), name='tcga_results'),
     url(r'^results/1000-genomes/$', EnsemblSearchResults.as_view(), name='ensembl_results'),
     url(r'^results/1000-genomes-variations/$', EnsemblVariantSearchResults.as_view(), name='ensembl_variant_results'),
+    url(r'^goto/details/(?P<gene>\w+)$', GeneDetailsByName.as_view(), name='details_by_name'),
     url(r'^details/', GeneDetails.as_view(), name='details'),
     url(r'^variations/', VariationsView.as_view()),
     url(r'^signup/$', views.signup, name='signup'),
