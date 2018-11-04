@@ -117,11 +117,20 @@ class TcgaSearchResults(TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        #import pdb; pdb.set_trace()
         gene = request.GET.get('gene', None)
 
         if gene:
-            contents = json.loads(urllib.request.urlopen("http://exac.hms.harvard.edu/rest/awesome?query=" + gene).read())
+            contents = requests.get(
+                "http://exac.hms.harvard.edu/rest/awesome?query=" + gene,
+                headers={
+                    "Content-Type": "application/json"
+                }
+            )
+            
+            if not contents.ok:
+                return HttpResponseNotFound('<h1>Gene Not Found</h1>')
+            
+            contents = contents.json()
             transcripts_in_gene = contents['transcripts_in_gene'] 
             coverage_stats = contents['coverage_stats']
             gene_info = contents['gene']
@@ -142,7 +151,6 @@ class EnsemblSearchResults(TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        #import pdb; pdb.set_trace()
         gene = request.GET.get('gene', None)
         server = "https://rest.ensembl.org"
 
