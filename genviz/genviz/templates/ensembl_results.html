@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<h4>1000 Genomes: {{gene}}</h4>
+<h4>1000 Genomes: <a href='{% url "details_by_name" gene %}'>{{gene}}</a></h4>
 {% if ensembl_response %}
   <div class="d-flex w-50 justify-content-center flex-column">
     <h2>Variants</h2>
