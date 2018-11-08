@@ -235,7 +235,7 @@ class Sample(models.Model):
     maternal_id = models.CharField(max_length=15, default="0")
     gender = models.CharField(max_length=1, default="0")
     population = models.CharField(max_length=5, default=None)
-    relationship = models.CharField(max_length=20, default=None)
+    relationship = models.CharField(max_length=32, default=None)
     siblings = models.CharField(max_length=100, default=None)
     second_order = models.CharField(max_length=100, default=None)
     third_order = models.CharField(max_length=100, default=None)
