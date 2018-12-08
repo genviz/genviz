@@ -13,14 +13,14 @@
 				<li class="nav-item menu-item">
 					<a href="{% url 'search' %}">Search</a>
 				</li>
-		      	{% if user.is_authenticated %}
+				{% if user.is_authenticated %}
 					<li class="nav-item menu-item">
 						<a href="{% url 'patients_list' %}">Patients</a>
 					</li>
+					<li class="nav-item menu-item">
+						<a href="{% url 'upload' %}">Upload</a>
+					</li>
 				{% endif %}
-				<li class="nav-item menu-item">
-					<a href="{% url 'upload' %}">Upload</a>
-				</li>
 			</ul>
 	  	</div>
   		<div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
