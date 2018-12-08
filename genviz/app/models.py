@@ -240,3 +240,14 @@ class Sample(models.Model):
     second_order = models.CharField(max_length=100, default=None)
     third_order = models.CharField(max_length=100, default=None)
     comments = models.CharField(max_length=300, default=None)
+
+class WFile(models.Model):
+    file = models.FileField(upload_to="files/")
+    name = models.CharField(max_length=256)
+    user = models.ForeignKey('User')
+
+
+class AssociationRules(models.Model):
+    file = models.ForeignKey('WFile')
+    result = models.TextField()
+    

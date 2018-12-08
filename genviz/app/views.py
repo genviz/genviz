@@ -351,14 +351,22 @@ class VariationsView(View):
 class UploadView(TemplateView):
     template_name = 'upload.html'
 
-
     def post(self, request, *args, **kwargs):
         print("ENTRO")
         name = request.POST.get('name', None)
-        file = request.FILES['file'].read()
-        excel = csv.DictReader(file)
-        for row in excel:
-            print(row)
+        file = request.FILES['file']
+
+        model = WFile.objects.create(name=name, file=file, user=request.user)
+
+        print(model.file.url)
+
+        tmp = open(model.file.url, 'r')
+        print(tmp)
+
+        # file = request.FILES['file'].read()
+        # excel = csv.DictReader(file)
+        # for row in excel:
+        #     print(row)
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 class PatientsList(ListView):
