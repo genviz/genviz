@@ -1,0 +1,45 @@
+{% extends 'layout/content.html' %}
+{% load static %}
+{% load utils %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'vis/dist/vis.min.css' %}">
+    <link rel="stylesheet" href="https://www.jqueryscript.net/demo/Bootstrap-4-Dropdown-Select-Plugin-jQuery/dist/css/bootstrap-select.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/details.css' %}">
+{% endblock %}
+
+{% block content %}
+    
+    <div class="col-8 offset-2">
+        <h3>Upload a file</h3>
+        <form class="was-validated" action="{% url 'upload' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input id="name" type="text" name="name" class="form-control">
+          </div>
+
+          <div class="custom-file">
+            <input name="file" type="file" class="custom-file-input" id="validatedCustomFile" onchange="getFileData(this)" required>
+            <label id='input-file-label' class="custom-file-label" for="validatedCustomFile">Choose file...</label>
+            <div class="invalid-feedback">Select a file</div>
+          </div>
+          <div class="mt-2">
+            <button type="submit" class="btn btn-success btn-lg">Upload</button>
+          </div>
+        </form>
+    </div>
+    
+    
+{% endblock %}
+{% block js-footer %}
+    <script type="text/javascript">
+        getFileData = function(input) {
+            document.getElementById('input-file-label').innerHTML = input.value.split('\\').pop();
+            
+        }
+    </script>
+{% endblock %}
+</body>
+</html>

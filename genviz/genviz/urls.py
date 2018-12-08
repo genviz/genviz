@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^goto/details/(?P<gene>\w+)$', GeneDetailsByName.as_view(), name='details_by_name'),
     url(r'^details/', GeneDetails.as_view(), name='details'),
     url(r'^variations/', VariationsView.as_view()),
+    url(r'^upload/', UploadView.as_view(), name='upload'),
     url(r'^signup/$', views.signup, name='signup'),
     url(r'^predict/(?P<pathology_id>[\d]+)$', views.predict ,name='predict'),
     url(r'^patients/new/$', PatientsNew.as_view(), name='patients_new'),

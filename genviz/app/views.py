@@ -1,7 +1,7 @@
 import hgvs.parser
 import json
 import os
-import pickle
+import pickle , csv
 import random
 import re
 import textwrap
@@ -346,6 +346,19 @@ class VariationsView(View):
                 **variation_json
             )
             variation.save()
+        return HttpResponseRedirect(request.POST.get('next', '/'))
+
+class UploadView(TemplateView):
+    template_name = 'upload.html'
+
+
+    def post(self, request, *args, **kwargs):
+        print("ENTRO")
+        name = request.POST.get('name', None)
+        file = request.FILES['file'].read()
+        excel = csv.DictReader(file)
+        for row in excel:
+            print(row)
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 class PatientsList(ListView):
