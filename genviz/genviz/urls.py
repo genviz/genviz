@@ -45,6 +45,7 @@ urlpatterns = [
     url(r'^patients/edit/(?P<pk>\d+)$', PatientsUpdate.as_view(), name='patients_edit'),
     url(r'^patients/delete/(?P<pk>\d+)$', PatientsDelete.as_view(), name='patients_delete'),
     url(r'^sample/details/(?P<string>\w+)$', SampleDetails.as_view(), name='sample_details'),
+    url(r'^file/parameters/(?P<pk>\d+)$', FileParameters.as_view(), name='file_parameters'),
 ]
 
 

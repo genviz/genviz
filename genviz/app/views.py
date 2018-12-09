@@ -357,7 +357,7 @@ class UploadView(TemplateView):
 
         model = WFile.objects.create(name=name, file=file, user=request.user)
  
-        return HttpResponseRedirect(request.POST.get('next', '/'))
+        return HttpResponseRedirect(reverse('file_parameters', kwargs={'pk': model.pk}))
 
 class PatientsList(ListView):
     model = Patient
@@ -485,5 +485,21 @@ class SampleDetails(TemplateView):
             context['sample'] = sample
         except:
             pass
+
+        return self.render_to_response(context)
+
+class FileParameters(TemplateView):
+    template_name = 'file_parameters.html'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        #import pdb; pdb.set_trace()
+        pk = kwargs['pk']
+        file = WFile.objects.get(pk=pk)
+        f = pd.read_csv(file.file.url, header=None)
+        keys = f.to_dict('records')[0]
+        context['pk'] = pk
+        context['keys'] = keys
+        
 
         return self.render_to_response(context)
