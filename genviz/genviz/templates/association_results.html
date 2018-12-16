@@ -1,0 +1,43 @@
+{% extends 'layout/content.html' %}
+{% load static %}
+{% load utils %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'vis/dist/vis.min.css' %}">
+<link rel="stylesheet" href="https://www.jqueryscript.net/demo/Bootstrap-4-Dropdown-Select-Plugin-jQuery/dist/css/bootstrap-select.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+  crossorigin="anonymous">
+<link rel="stylesheet" href="{% static 'css/details.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="col-8 offset-2">
+  <h3>Select columns to be associated</h3>
+  <form action="{% url 'file_parameters' pk %}" method="POST">
+    {% csrf_token %}
+    <div class="col-md-12 mt-4 text-center">
+      <div>
+        {{patterns}}
+      </div>
+      <div>
+        {{rules}}
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+    
+  </form>
+</div>
+
+
+{% endblock %}
+{% block js-footer %}
+<script type="text/javascript">
+  getFileData = function (input) {
+    document.getElementById('input-file-label').innerHTML = input.value.split('\\').pop();
+  }
+</script>
+{% endblock %}
+</body>
+
+</html>

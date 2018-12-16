@@ -13,16 +13,17 @@
     
     <div class="col-8 offset-2">
         <h3>Select columns to be associated</h3>
-        <form action="{% url 'file_parameters' pk %}" method="POST">
-          {% for key, value in keys.items %}
-            <div class="custom-control custom-radio d-flex flex-column">
-                <input type="checkbox" class="custom-control-input" id="{{key}}" name="{{key}}" required>
-                <label class="custom-control-label" for="{{key}}">{{value}}</label>
+        <form action="{% url 'association_rules' pk %}" method="GET">
+            {% csrf_token %}
+            {% for key, value in keys.items %}
+                <div class="custom-control custom-radio d-flex flex-column">
+                    <input type="checkbox" class="custom-control-input" id="{{key}}" name="selected" value="{{value}}">
+                    <label class="custom-control-label" for="{{key}}">{{value}}</label>
+                </div>
+            {% endfor %}
+            <div class="col-md-12 mt-4 text-center">
+                <button type="submit" class="btn btn-primary">Submit</button>
             </div>
-          {% endfor %}
-          <div class="col-md-12">
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
         </form>
     </div>
     
@@ -32,7 +33,6 @@
     <script type="text/javascript">
         getFileData = function(input) {
             document.getElementById('input-file-label').innerHTML = input.value.split('\\').pop();
-            
         }
     </script>
 {% endblock %}

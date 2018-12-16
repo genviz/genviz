@@ -4,9 +4,11 @@ import os
 import pickle , csv
 import random
 import re
+import pyfpgrowth
 import textwrap
 import xmltodict
 import requests, sys
+from collections import OrderedDict
 from Bio import Entrez
 from Bio import SeqIO
 from django.core import serializers
@@ -34,6 +36,16 @@ from .utils.variations import *
 from .utils.prediction import *
 import urllib.request
 
+import numpy as np
+import networkx as nx  
+from pandas import DataFrame
+import matplotlib
+matplotlib.use('agg') # Write figure to disk instead of displaying (for Windows Subsystem for Linux)
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from mlxtend.preprocessing import OnehotTransactions
+from mlxtend.frequent_patterns import apriori
+from mlxtend.frequent_patterns import association_rules
 
 class Home(TemplateView):
     template_name = 'home.html'
@@ -503,3 +515,161 @@ class FileParameters(TemplateView):
         
 
         return self.render_to_response(context)
+
+
+class AssociationResultsView(TemplateView):
+    template_name = 'association_results.html'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        file = WFile.objects.get(pk=kwargs['pk'])
+        store_data = pd.read_csv(file.file.url)
+        columns = request.GET.getlist('selected')
+        dataset = []
+        for _, row in store_data.iterrows():
+            aux = []
+            for c in columns:
+                aux.append(c + '=' + row[c])
+            dataset.append(aux)
+        
+        oht = OnehotTransactions()
+        oht_ary = oht.fit(dataset).transform(dataset)
+        df = pd.DataFrame(oht_ary, columns=oht.columns_)
+
+        frequent_itemsets = apriori(df, min_support=0.6, use_colnames=True)
+        print (frequent_itemsets)
+
+        rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.2)
+        # rules = association_rules(frequent_itemsets, metric="lift", min_threshold=0.2)
+        print(rules)
+        
+        support=rules.as_matrix(columns=['support'])
+        confidence=rules.as_matrix(columns=['confidence'])
+
+        for i in range (len(support)):
+            support[i] = support[i] + 0.0025 * (random.randint(1,10) - 5) 
+            confidence[i] = confidence[i] + 0.0025 * (random.randint(1,10) - 5)
+            
+        plt.scatter(support, confidence, alpha=0.5, marker="*")
+        plt.xlabel('support')
+        plt.ylabel('confidence')
+        plt.tight_layout()
+        plt.savefig('scatter.png')
+
+        # Convert the input into a 2D dictionary
+        freqMap = {}
+        for line in dataset:
+            for item in line:
+                if not item in freqMap:
+                    freqMap[item] = {}
+
+                for other_item in line:
+                    if not other_item in freqMap:
+                        freqMap[other_item] = {}
+
+                    freqMap[item][other_item] = freqMap[item].get(other_item, 0) + 1
+                    freqMap[other_item][item] = freqMap[other_item].get(item, 0) + 1
+
+        df = DataFrame(freqMap).T.fillna(0)
+
+        #####
+        # Create the plot
+        #####
+        plt.gcf().clear()
+        plt.pcolormesh(df, edgecolors='black')
+        plt.yticks(np.arange(0.5, len(df.index), 1), df.index, fontsize='x-small')
+        plt.xticks(np.arange(0.5, len(df.columns), 1), df.columns, rotation=90, fontsize='x-small')
+        plt.tight_layout()
+        plt.savefig('heat.png')
+        
+
+        draw_graph(rules, rules.shape[0])
+
+        # context['patterns'] = patterns
+        # context['rules'] = rules
+
+        return self.render_to_response(context)
+
+
+def draw_graph(rules, rules_to_show):
+    plt.gcf().clear()
+    G1 = nx.DiGraph()
+    color_map=[]
+    N = rules_to_show
+    colors = np.random.rand(N)    
+    strs = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10', 'R11']   
+    
+    
+    for i in range(rules_to_show):      
+        G1.add_nodes_from(["R"+str(i)])
+        
+        
+        for a in rules.iloc[i]['antecedents']:
+            G1.add_nodes_from([a])
+            G1.add_edge(a, "R"+str(i), color=colors[i] , weight = 2)
+        
+        for c in rules.iloc[i]['consequents']:
+            G1.add_nodes_from([c])
+            G1.add_edge("R"+str(i), c, color=colors[i],  weight=2)
+    
+    for node in G1:
+        found_a_string = False
+        for item in strs: 
+            if node == item:
+                found_a_string = True
+        if found_a_string:
+            color_map.append('yellow')
+        else:
+            color_map.append('green')       
+    
+    
+    
+    edges = G1.edges()
+    colors = [G1[u][v]['color'] for u,v in edges]
+    weights = [G1[u][v]['weight'] for u,v in edges]
+    
+    pos = nx.spring_layout(G1, scale=1)
+    nx.draw(G1, pos, edges=edges, node_color=color_map, edge_color=colors, width=weights, font_size=16, with_labels=False)            
+    
+    for p in pos:  # raise text positions
+            pos[p][1] += 0.07
+    nx.draw_networkx_labels(G1, pos)
+    plt.tight_layout()
+    plt.savefig('graph.png')
+
+        # appearances = {}
+        # for key, value in patterns.items():
+        #     if len(key) in appearances:
+        #         appearances[len(key)][key] = value
+        #     else:
+        #         appearances[len(key)] = { key: value }
+
+        # patterns = OrderedDict(reversed(sorted(appearances.items())))
+        
+        # Convert the input into a 2D dictionary
+        # freqMap = {}
+        # for line in dataset:
+        #     for item in line:
+        #         if not item in freqMap:
+        #             freqMap[item] = {}
+
+        #         for other_item in line:
+        #             if not other_item in freqMap:
+        #                 freqMap[other_item] = {}
+
+        #             freqMap[item][other_item] = freqMap[item].get(other_item, 0) + 1
+        #             freqMap[other_item][item] = freqMap[other_item].get(item, 0) + 1
+
+        # df = DataFrame(freqMap).T.fillna(0)
+        # # print (df)
+
+        # #####
+        # # Create the plot
+        # #####
+        # plt.pcolormesh(df, edgecolors='black')
+        # plt.yticks(np.arange(0.5, len(df.index), 1), df.index, fontsize='x-small')
+        # plt.xticks(np.arange(0.5, len(df.columns), 1), df.columns, rotation=90, fontsize='x-small')
+        # plt.tight_layout()
+        # plt.savefig('plot.png')
+        
