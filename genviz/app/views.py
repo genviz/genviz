@@ -522,7 +522,9 @@ class AssociationResultsView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-
+        
+        # Read working file data and prepare transactions for
+        # Apriori algorithm
         file = WFile.objects.get(pk=kwargs['pk'])
         store_data = pd.read_csv(file.file.url)
         columns = request.GET.getlist('selected')
@@ -532,7 +534,9 @@ class AssociationResultsView(TemplateView):
             for c in columns:
                 aux.append(c + '=' + row[c])
             dataset.append(aux)
-        
+
+        # A priori algorithm apply: Extraction of frequent itemsets
+        # and association rules
         oht = OnehotTransactions()
         oht_ary = oht.fit(dataset).transform(dataset)
         df = pd.DataFrame(oht_ary, columns=oht.columns_)
@@ -544,6 +548,7 @@ class AssociationResultsView(TemplateView):
         # rules = association_rules(frequent_itemsets, metric="lift", min_threshold=0.2)
         print(rules)
         
+        # Building of scatter plot of support vs. confidence
         support=rules.as_matrix(columns=['support'])
         confidence=rules.as_matrix(columns=['confidence'])
 
@@ -557,6 +562,7 @@ class AssociationResultsView(TemplateView):
         plt.tight_layout()
         plt.savefig('scatter.png')
 
+        # Building of heat plot 
         # Convert the input into a 2D dictionary
         freqMap = {}
         for line in dataset:
@@ -584,6 +590,7 @@ class AssociationResultsView(TemplateView):
         plt.savefig('heat.png')
         
 
+        # Draw graph for association rules
         draw_graph(rules, rules.shape[0])
 
         # context['patterns'] = patterns
@@ -638,38 +645,14 @@ def draw_graph(rules, rules_to_show):
     plt.tight_layout()
     plt.savefig('graph.png')
 
-        # appearances = {}
-        # for key, value in patterns.items():
-        #     if len(key) in appearances:
-        #         appearances[len(key)][key] = value
-        #     else:
-        #         appearances[len(key)] = { key: value }
 
-        # patterns = OrderedDict(reversed(sorted(appearances.items())))
-        
-        # Convert the input into a 2D dictionary
-        # freqMap = {}
-        # for line in dataset:
-        #     for item in line:
-        #         if not item in freqMap:
-        #             freqMap[item] = {}
 
-        #         for other_item in line:
-        #             if not other_item in freqMap:
-        #                 freqMap[other_item] = {}
 
-        #             freqMap[item][other_item] = freqMap[item].get(other_item, 0) + 1
-        #             freqMap[other_item][item] = freqMap[other_item].get(item, 0) + 1
+# appearances = {}
+# for key, value in patterns.items():
+#     if len(key) in appearances:
+#         appearances[len(key)][key] = value
+#     else:
+#         appearances[len(key)] = { key: value }
 
-        # df = DataFrame(freqMap).T.fillna(0)
-        # # print (df)
-
-        # #####
-        # # Create the plot
-        # #####
-        # plt.pcolormesh(df, edgecolors='black')
-        # plt.yticks(np.arange(0.5, len(df.index), 1), df.index, fontsize='x-small')
-        # plt.xticks(np.arange(0.5, len(df.columns), 1), df.columns, rotation=90, fontsize='x-small')
-        # plt.tight_layout()
-        # plt.savefig('plot.png')
-        
+# patterns = OrderedDict(reversed(sorted(appearances.items())))

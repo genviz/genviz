@@ -1,4 +1,6 @@
+apyori==1.1.1
 attrs==18.1.0
+autopep8==1.4
 backcall==0.1.0
 biocommons.seqrepo==0.3.5
 biopython==1.69
@@ -9,6 +11,7 @@ certifi==2018.4.16
 chardet==3.0.4
 configparser==3.5.0
 confusable-homoglyphs==3.0.0
+cycler==0.10.0
 decorator==4.3.0
 dj-database-url==0.5.0
 Django==1.11.13
@@ -35,10 +38,14 @@ jupyter==1.0.0
 jupyter-client==5.2.3
 jupyter-console==5.2.0
 jupyter-core==4.4.0
+kiwisolver==1.0.1
 MarkupSafe==1.0
+matplotlib==3.0.2
 mistune==0.8.3
+mlxtend==0.14.0
 nbconvert==5.3.1
 nbformat==4.4.0
+networkx==2.2
 notebook==5.4.1
 numpy==1.14.3
 pandas==0.23.1
@@ -51,8 +58,11 @@ pipenv==2018.6.25
 prompt-toolkit==1.0.15
 psycopg2==2.7.4
 ptyprocess==0.5.2
+pycodestyle==2.4.0
 pydotplus==2.0.2
+pyfpgrowth==1.0
 Pygments==2.2.0
+pypandoc==1.4
 pyparsing==2.2.0
 pysam==0.14.1
 python-dateutil==2.7.2
@@ -85,4 +95,3 @@ whitenoise==3.3.1
 widgetsnbextension==3.2.1
 xmltodict==0.11.0
 yoyo-migrations==5.0.5
-
