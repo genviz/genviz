@@ -248,6 +248,9 @@ class WFile(models.Model):
 
 
 class AssociationRules(models.Model):
-    file = models.ForeignKey('WFile')
-    result = models.TextField()
+    heat_map = models.FileField(upload_to="charts", default=None, null=True)
+    histogram = models.FileField(upload_to="charts", default=None, null=True)
+    graph = models.FileField(upload_to="charts", default=None, null=True)
+    scatter = models.FileField(upload_to="charts", default=None, null=True)
+
     

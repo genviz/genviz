@@ -18,6 +18,8 @@ Including another URLconf
 """
 
 from django.conf.urls import url, include
+from django.conf.urls.static import static
+from django.conf import settings
 from django.contrib import admin
 from app.views import *
 from app import views
@@ -47,7 +49,5 @@ urlpatterns = [
     url(r'^sample/details/(?P<string>\w+)$', SampleDetails.as_view(), name='sample_details'),
     url(r'^file/parameters/(?P<pk>\d+)$', FileParameters.as_view(), name='file_parameters'),
     url(r'^association/rules/(?P<pk>\d+)$', AssociationResultsView.as_view(), name='association_rules'),
-]
-
-
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

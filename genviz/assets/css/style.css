@@ -202,3 +202,7 @@ input.form-control[type="text"], input[type="email"] {
     white-space: normal !important;
     word-break: break-all !important;
 }
+
+.custom-file-input ~ .custom-file-label::after {
+    content: "Button Text";
+}

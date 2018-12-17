@@ -12,6 +12,7 @@ from collections import OrderedDict
 from Bio import Entrez
 from Bio import SeqIO
 from django.core import serializers
+from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import (
     HttpResponse, 
@@ -46,6 +47,9 @@ import matplotlib.ticker as ticker
 from mlxtend.preprocessing import OnehotTransactions
 from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
+from matplotlib import colors
+from matplotlib.ticker import PercentFormatter
+import io
 
 class Home(TemplateView):
     template_name = 'home.html'
@@ -508,7 +512,8 @@ class FileParameters(TemplateView):
         #import pdb; pdb.set_trace()
         pk = kwargs['pk']
         file = WFile.objects.get(pk=pk)
-        f = pd.read_csv(file.file.url, header=None)
+        print(file.file.path)
+        f = pd.read_csv(file.file.path, header=None)
         keys = f.to_dict('records')[0]
         context['pk'] = pk
         context['keys'] = keys
@@ -522,11 +527,14 @@ class AssociationResultsView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        
+        threshold = request.GET.get('parameter')
+        percentage = float(request.GET.get('percentage'))
+        support = float(request.GET.get('support'))
+        nodes = int(request.GET.get('nodes'))
         # Read working file data and prepare transactions for
         # Apriori algorithm
         file = WFile.objects.get(pk=kwargs['pk'])
-        store_data = pd.read_csv(file.file.url)
+        store_data = pd.read_csv(file.file.path)
         columns = request.GET.getlist('selected')
         dataset = []
         for _, row in store_data.iterrows():
@@ -541,11 +549,13 @@ class AssociationResultsView(TemplateView):
         oht_ary = oht.fit(dataset).transform(dataset)
         df = pd.DataFrame(oht_ary, columns=oht.columns_)
 
-        frequent_itemsets = apriori(df, min_support=0.6, use_colnames=True)
+        frequent_itemsets = apriori(df, min_support=support, use_colnames=True)
+        context['frequent_itemsets'] = frequent_itemsets
         print (frequent_itemsets)
 
-        rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.2)
+        rules = association_rules(frequent_itemsets, metric=threshold, min_threshold=percentage)
         # rules = association_rules(frequent_itemsets, metric="lift", min_threshold=0.2)
+        context['rules'] = rules
         print(rules)
         
         # Building of scatter plot of support vs. confidence
@@ -555,12 +565,52 @@ class AssociationResultsView(TemplateView):
         for i in range (len(support)):
             support[i] = support[i] + 0.0025 * (random.randint(1,10) - 5) 
             confidence[i] = confidence[i] + 0.0025 * (random.randint(1,10) - 5)
-            
+        
+        plt.gcf().clear()
         plt.scatter(support, confidence, alpha=0.5, marker="*")
         plt.xlabel('support')
         plt.ylabel('confidence')
         plt.tight_layout()
-        plt.savefig('scatter.png')
+        
+        file1 = io.BytesIO()
+        plt.savefig(file1)
+        file1 = ContentFile(file1.getvalue())
+
+        # Building of histogram
+        frequency_array = frequent_itemsets[frequent_itemsets['itemsets'].map(len) == 1]
+        total_transactions = len(dataset)
+        histogram_labels = []
+        histogram_frequency = []
+        for index, row in frequency_array.iterrows():
+            histogram_frequency.append(int(row['support'] * total_transactions))
+            histogram_labels.append(list(row['itemsets'])[0])
+
+        histogram_data = []
+        for i in range(len(histogram_labels)):
+            histogram_data += [histogram_labels[i]  for x in range(histogram_frequency[i])]
+
+
+        print(histogram_data)
+        #####
+        # Create the plot
+        #####
+        plt.gcf().clear()
+
+        fig, ax = plt.subplots()
+
+        # the histogram of the data
+        n, bins, patches = ax.hist(histogram_data)
+
+        # add a 'best fit' line
+        ax.set_ylabel('Frequency')
+        plt.xticks(histogram_labels, rotation=90, fontsize='x-small')
+
+        # Tweak spacing to prevent clipping of ylabel
+        fig.tight_layout()
+
+        file2 = io.BytesIO()
+        plt.savefig(file2)
+        file2 = ContentFile(file2.getvalue())
 
         # Building of heat plot 
         # Convert the input into a 2D dictionary
@@ -587,15 +637,21 @@ class AssociationResultsView(TemplateView):
         plt.yticks(np.arange(0.5, len(df.index), 1), df.index, fontsize='x-small')
         plt.xticks(np.arange(0.5, len(df.columns), 1), df.columns, rotation=90, fontsize='x-small')
         plt.tight_layout()
-        plt.savefig('heat.png')
+        
+        file3 = io.BytesIO()
+        plt.savefig(file3)
+        file3 = ContentFile(file3.getvalue())
         
 
         # Draw graph for association rules
-        draw_graph(rules, rules.shape[0])
-
-        # context['patterns'] = patterns
-        # context['rules'] = rules
-
+        file4 = draw_graph(rules, nodes)
+        print(file1, file2, file3, file4)
+        results = AssociationRules.objects.create()
+        results.scatter.save('scatter.png', file1)
+        results.histogram.save('histogram.png', file2)
+        results.heat_map.save('heat_map.png', file3)
+        results.graph.save('graph.png', file4)
+        context['results'] = results
         return self.render_to_response(context)
 
 
@@ -643,7 +699,12 @@ def draw_graph(rules, rules_to_show):
             pos[p][1] += 0.07
     nx.draw_networkx_labels(G1, pos)
     plt.tight_layout()
-    plt.savefig('graph.png')
+    
+    file4 = io.BytesIO()
+    plt.savefig(file4)
+    file4 = ContentFile(file4.getvalue())
+
+    return file4
 
 
 

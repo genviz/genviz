@@ -8,34 +8,86 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
   crossorigin="anonymous">
 <link rel="stylesheet" href="{% static 'css/details.css' %}">
-{% endblock %}
+<link rel="stylesheet" href="{% static 'datatables.net-dt/css/jquery.dataTables.min.css' %}">
+    {% endblock %}
 
 {% block content %}
 
 <div class="col-8 offset-2">
   <h3>Select columns to be associated</h3>
-  <form action="{% url 'file_parameters' pk %}" method="POST">
-    {% csrf_token %}
+ 
     <div class="col-md-12 mt-4 text-center">
       <div>
-        {{patterns}}
+        <h5>Frequent Itemsets</h5>
+        <table class="sample-table table table-striped">
+        <thead>
+            <tr>
+                <th style="text-align: left;">Itemsets</th>
+                <th>Support</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for index,row in frequent_itemsets.iterrows %}
+              <tr>
+                  <td style="text-align: left;">
+                    {% for item in row.itemsets %}
+                      {{item}}<br>
+                    {% endfor %}
+                  </td>
+                  <td>{{row.support|floatformat:2}}</td>
+              </tr>
+            {% endfor %}
+        </tbody>
+      </table>
       </div>
       <div>
-        {{rules}}
+        <h5>Rules</h5>
+        <table class="sample-table table table-striped">
+        <thead>
+            <tr>
+                <th style="text-align: left;">Antecedants</th>
+                <th style="text-align: left;">Consequents</th>
+                <th style="text-align: left;">Support</th>
+                <th style="text-align: left;">Conffidence</th>
+                <th style="text-align: left;">Lift</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for index,row in rules.iterrows %}
+              <tr>
+                  <td style="text-align: left;">
+                    {% for item in row.antecedents %}
+                      {{item}}<br>
+                    {% endfor %}
+                  </td>
+                  <td style="text-align: left;">
+                    {% for item in row.consequents %}
+                      {{item}}<br>
+                    {% endfor %}
+                  </td>
+                  <td>{{row.support|floatformat:2}}</td>
+                  <td>{{row.confidence|floatformat:2}}</td>
+                  <td>{{row.lift|floatformat:2}}</td>
+              </tr>
+            {% endfor %}
+        </tbody>
+    </table>
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
     </div>
-    
-  </form>
+    <div class="col-md-12">
+      <img src="{{results.heat_map.url}}">
+      <img src="{{results.scatter.url}}">
+      <img src="{{results.histogram.url}}">
+      <img src="{{results.graph.url}}">
+    </div>
 </div>
 
 
 {% endblock %}
 {% block js-footer %}
-<script type="text/javascript">
-  getFileData = function (input) {
-    document.getElementById('input-file-label').innerHTML = input.value.split('\\').pop();
-  }
+<script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script>
+    var table = $('.sample-table').DataTable();
 </script>
 {% endblock %}
 </body>
