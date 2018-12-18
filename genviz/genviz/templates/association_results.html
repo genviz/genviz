@@ -9,16 +9,20 @@
   crossorigin="anonymous">
 <link rel="stylesheet" href="{% static 'css/details.css' %}">
 <link rel="stylesheet" href="{% static 'datatables.net-dt/css/jquery.dataTables.min.css' %}">
-    {% endblock %}
+
+<style type="text/css">
+  .modal-dialog{
+    max-width: 120vh !important;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
 
 <div class="col-8 offset-2">
-  <h3>Select columns to be associated</h3>
- 
-    <div class="col-md-12 mt-4 text-center">
+    <div class="col-md-12 my-4 text-center">
       <div>
-        <h5>Frequent Itemsets</h5>
+        <h3>Frequent Itemsets</h3>
         <table class="sample-table table table-striped">
         <thead>
             <tr>
@@ -40,8 +44,8 @@
         </tbody>
       </table>
       </div>
-      <div>
-        <h5>Rules</h5>
+      <div class="my-4">
+        <h3>Rules</h3>
         <table class="sample-table table table-striped">
         <thead>
             <tr>
@@ -74,13 +78,51 @@
     </table>
       </div>
     </div>
-    <div class="col-md-12">
-      <img src="{{results.heat_map.url}}">
-      <img src="{{results.scatter.url}}">
-      <img src="{{results.histogram.url}}">
-      <img src="{{results.graph.url}}">
+    <div class="d-flex justify-content-around my-3">
+      <div class="">
+        <!-- <img src="{{results.heat_map.url}}"> -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#chart-modal"
+        data-title="Heat Map" data-image="{{results.heat_map.url}}">
+          Heat Map
+        </button>
+      </div>
+      <div class="">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#chart-modal"
+        data-title="Scatter Plot" data-image="{{results.scatter.url}}">
+          Scatter Plot
+        </button>
+      </div>
+      <div class="">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#chart-modal"
+        data-title="Histogram" data-image="{{results.histogram.url}}">
+          Histogram
+        </button>
+      </div>
+      <div class="">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#chart-modal"
+        data-title="Graph" data-image="{{results.graph.url}}">
+          Graph
+        </button>
+      </div>
     </div>
-</div>
+
+    <!-- Heat Map Modal -->
+    <div class="modal fade" id="chart-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Heat Map</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <img id="modal-image" src="">   
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
 
 
 {% endblock %}
@@ -88,6 +130,14 @@
 <script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
 <script>
     var table = $('.sample-table').DataTable();
+    $('#chart-modal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget) // Button that triggered the modal
+      var title = button.data('title') // Extract info from data-* attributes
+      var src = button.data('image')
+      var modal = $(this)
+      $('#modal-image').attr("src",src);
+      modal.find('.modal-title').text(title)
+    })
 </script>
 {% endblock %}
 </body>

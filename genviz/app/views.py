@@ -656,6 +656,8 @@ class AssociationResultsView(TemplateView):
 
 
 def draw_graph(rules, rules_to_show):
+    if (len(rules) < rules_to_show):
+        rules_to_show = len(rules)
     plt.gcf().clear()
     G1 = nx.DiGraph()
     color_map=[]

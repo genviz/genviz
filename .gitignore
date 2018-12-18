@@ -111,3 +111,5 @@ ENV/
 node_modules/
 
 files/*
+*.png
+*.csv
