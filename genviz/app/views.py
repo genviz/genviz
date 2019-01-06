@@ -551,12 +551,10 @@ class AssociationResultsView(TemplateView):
 
         frequent_itemsets = apriori(df, min_support=support, use_colnames=True)
         context['frequent_itemsets'] = frequent_itemsets
-        print (frequent_itemsets)
 
         rules = association_rules(frequent_itemsets, metric=threshold, min_threshold=percentage)
         # rules = association_rules(frequent_itemsets, metric="lift", min_threshold=0.2)
         context['rules'] = rules
-        print(rules)
         
         # Building of scatter plot of support vs. confidence
         support=rules.as_matrix(columns=['support'])
@@ -590,7 +588,6 @@ class AssociationResultsView(TemplateView):
             histogram_data += [histogram_labels[i]  for x in range(histogram_frequency[i])]
 
 
-        print(histogram_data)
         #####
         # Create the plot
         #####
@@ -662,7 +659,8 @@ def draw_graph(rules, rules_to_show):
     G1 = nx.DiGraph()
     color_map=[]
     N = rules_to_show
-    colors = np.random.rand(N)    
+    colors = np.random.rand(N)
+    print(colors)    
     strs = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10', 'R11']   
     
     
@@ -672,11 +670,11 @@ def draw_graph(rules, rules_to_show):
         
         for a in rules.iloc[i]['antecedents']:
             G1.add_nodes_from([a])
-            G1.add_edge(a, "R"+str(i), color=colors[i] , weight = 2)
+            G1.add_edge(a, "R"+str(i), color=colors[0] , weight = 2)
         
         for c in rules.iloc[i]['consequents']:
             G1.add_nodes_from([c])
-            G1.add_edge("R"+str(i), c, color=colors[i],  weight=2)
+            G1.add_edge("R"+str(i), c, color=colors[0],  weight=2)
     
     for node in G1:
         found_a_string = False

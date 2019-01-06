@@ -116,8 +116,19 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">
-            <img id="modal-image" src="">   
+          <div class="modal-body text-center">
+            <div class="mb-3 d-flex flex-column justify-content-center align-items-center graph-help">
+              <img src="/media/images/graph-help.png" height="100">
+            </div>   
+            <img id="modal-image" src="">
+            <div class="mt-3 d-flex flex-column justify-content-center align-items-center heatmap-help">
+              <div class="w-75" style="height: 30px; background-image: linear-gradient(to right, #4B0055, #4F0084, #6BEA4E, #F5FD00, #820000);">
+              </div>
+              <div class="w-100 d-flex justify-content-around">
+                <p>Less frequent together</p>
+                <p>High frequent together</p>
+              </div>
+            </div>   
           </div>
         </div>
       </div>
@@ -136,6 +147,21 @@
       var src = button.data('image')
       var modal = $(this)
       $('#modal-image').attr("src",src);
+      if (title !== 'Heat Map') {
+        $('.heatmap-help').removeClass('d-flex');
+        $('.heatmap-help').addClass('d-none');
+      } else {
+        $('.heatmap-help').removeClass('d-none');
+        $('.heatmap-help').addClass('d-flex');
+      }
+
+      if (title !== 'Graph') {
+        $('.graph-help').removeClass('d-flex');
+        $('.graph-help').addClass('d-none');
+      } else {
+        $('.graph-help').removeClass('d-none');
+        $('.graph-help').addClass('d-flex');
+      }
       modal.find('.modal-title').text(title)
     })
 </script>

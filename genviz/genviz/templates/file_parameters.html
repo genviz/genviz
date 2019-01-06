@@ -29,14 +29,14 @@
               </div>
               <div class="d-flex flex-column" style="flex-grow: 1;">
                 <label class="my-2" for="parameter">Metric Threshold</label>
-                <select id="parameter" name="parameter" class="form-control" data-toggle="tooltip" title="Defines the metric from which the association rules will be generated.">
+                <select id="parameter" name="parameter" class="form-control" style="height: auto;" data-toggle="tooltip" title="Defines the metric from which the association rules will be generated.">
                   <option value="confidence">Confidence</option>
                   <option value="lift">Lift</option>
                 </select>
                 <label class="my-2" for="percentage">Percentage</label>
-                <input type="number" min="0" max="1" step="0.1" name="percentage" id="percentage" class="form-control" data-toggle="tooltip" title="Minimum value of the previous choice. It value may be between 0 and 1." required>
+                <input type="number" min="0" max="1" step="0.1" name="percentage" id="percentage" class="form-control" data-toggle="tooltip" title="Minimum value of the previous choice. Its value must be between 0 and 1" required>
                 <label class="my-2" for="support">Support</label>
-                <input type="number" min="0" max="1" step="0.1" name="support" id="support" class="form-control" data-toggle="tooltip" title="Refers to the default popularity of an item and can be calculated by finding number of transactions containing a particular item divided by total number of transactions. It value may be between 0 and 1." required>
+                <input type="number" min="0" max="1" step="0.1" name="support" id="support" class="form-control" data-toggle="tooltip" title="Refers to the default popularity of an item and can be calculated by finding number of transactions containing a particular item divided by total number of transactions. Its value must be between 0 and 1" required>
                 <label class="my-2" for="nodes">Rules to show in graph</label>
                 <input type="number" min="0"  name="nodes" id="nodes" class="form-control" 
                 data-toggle="tooltip" title="Defines how much nodes will be shown in a rules graph. Values must be greater than 0 and it's max number must be equal to the number of rules." required>
