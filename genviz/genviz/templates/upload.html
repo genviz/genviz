@@ -35,6 +35,7 @@
 {% endblock %}
 {% block js-footer %}
     <script type="text/javascript">
+        $('.custom-file-input ~ .custom-file-label::after').css('content', 'Browse');
         getFileData = function(input) {
             document.getElementById('input-file-label').innerHTML = input.value.split('\\').pop();
             

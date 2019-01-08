@@ -1,3 +1,7 @@
+.custom-file-input ~ .custom-file-label::after {
+	content: "Browse" !important;
+}
+
 .sequence-container {
 	font-size: 0;
 }
