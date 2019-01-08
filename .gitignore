@@ -111,5 +111,6 @@ ENV/
 node_modules/
 
 files/*
-*.png
+
 *.csv
+genviz/media/charts/*
