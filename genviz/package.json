@@ -13,7 +13,7 @@
     "bootstrap-datepicker": "^1.8.0",
     "bootstrap-select": "^1.13.1",
     "datatables": "^1.10.18",
-    "datatables.net": "^1.10.19",
+    "datatables.net": "^1.10.22",
     "datatables.net-dt": "^1.10.19",
     "handlebars": "^4.0.11",
     "jquery": "^3.3.1",
