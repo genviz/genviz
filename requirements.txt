@@ -61,7 +61,7 @@ ptyprocess==0.5.2
 pycodestyle==2.4.0
 pydotplus==2.0.2
 pyfpgrowth==1.0
-Pygments==2.2.0
+Pygments==2.7.4
 pypandoc==1.4
 pyparsing==2.2.0
 pysam==0.14.1
